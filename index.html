@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" data-page-node-id="5E23SKT7CaGci4Z52KpJre">
-<head data-page-node-id="lV8EUGoXvPkTtru4iIFiRN">
-<meta charset="UTF-8" data-page-node-id="UL73N3ytazBnl4DV4gXBF3">
-<meta name="viewport" content="width=device-width, initial-scale=1" data-page-node-id="1yF9KN8c3TvrQRH8heFFQc">
+<html lang="zh-Hant" data-page-node-id="Y6n5tspyuqNSHXjAzXVoMD">
+<head data-page-node-id="oCHmhT7icoRzxoQ1lOo0I8">
+<meta charset="UTF-8" data-page-node-id="6Y5BwL9pxAF6irN9IejR0R">
+<meta name="viewport" content="width=device-width, initial-scale=1" data-page-node-id="fe0jDrHebGex3OVKtjN9DZ">
 <title>拼讀字典 Spell &amp; Sound — 看字就會讀</title>
 <style>
 :root{
@@ -159,7 +159,10 @@ header{
 .ipa-val{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:16px;color:var(--pri-d)}
 .ipa-src{font-size:11.5px;color:var(--faint);border:1px solid var(--line);border-radius:99px;padding:1px 8px;align-self:center}
 .ipa-src.ok{color:var(--ok);border-color:#a7f3d0;background:#f0fdf4}
-.wc-right{display:flex;gap:8px;flex-wrap:wrap}
+.wc-right{display:flex;gap:8px;flex-wrap:wrap;flex-direction:column;align-items:flex-end}
+.wc-btns{display:flex;gap:8px;flex-wrap:wrap}
+.aud-src{font-size:11.5px;color:var(--faint);border:1px dashed var(--line);border-radius:99px;padding:1px 9px;min-height:20px}
+.aud-src.ok{color:var(--ok);border-style:solid;border-color:#a7f3d0;background:#f0fdf4}
 .sec{padding:18px 22px;border-bottom:1px solid var(--line)}
 .sec:last-child{border-bottom:0}
 .sec-h{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:12px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
@@ -358,17 +361,37 @@ header{
   font-family:Georgia,"Iowan Old Style","Times New Roman","Noto Serif TC",serif;
   line-height:2;letter-spacing:.1px;
 }
-.dk-block{position:relative;padding:3px 0 3px 26px}
+.dk-block{position:relative;padding:3px 0}
+.dk-t{display:block}
+/* 雙語字幕：英文一行、中文一行 */
+.dk-bil{display:block}
+.dk-l{display:block}
+.dk-l.dk-zh{color:#4b5563;font-size:.84em;line-height:1.75;margin-top:1px}
+.dk-l.dk-en{color:var(--ink)}
+.dk-bil .dk-l.dk-zh+.dk-l.dk-en{margin-top:2px}
+/* 朗讀小圖示：排在英文句子最左邊，跟文字同一行（用 opacity 隱藏，位置不會跑掉） */
 .dk-sp{
-  position:absolute;left:0;top:6px;border:0;background:transparent;cursor:pointer;
-  opacity:0;font-size:13px;padding:2px 4px;border-radius:6px;line-height:1;transition:.13s;
+  display:inline-block;vertical-align:baseline;border:0;background:transparent;cursor:pointer;
+  opacity:0;font-size:12.5px;padding:1px 3px;margin-right:5px;border-radius:6px;line-height:1;transition:.13s;
 }
 .dk-block:hover .dk-sp{opacity:.6}
 .dk-sp:hover{opacity:1;background:var(--pri-s)}
+@media(hover:none){.dk-sp{opacity:.4}}
+/* 文件結尾標記（不分頁，直接滑到底） */
+.doc-end{
+  text-align:center;color:var(--faint);font-size:12.5px;margin-top:24px;padding-top:14px;
+  border-top:1px dashed var(--line);letter-spacing:.5px;
+}
+/* 左側欄位：喇叭 + 時間碼。獨立成一欄，英文與中文才會從同一個 x 開始 */
+.dk-block.dk-grid{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:10px;align-items:start}
+.dk-gut{display:flex;align-items:baseline;gap:6px;white-space:nowrap;padding-top:2px}
 .dk-time{
   font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;color:var(--faint);
-  margin-right:8px;background:#f3f4f6;border-radius:4px;padding:0 5px;
+  background:#f3f4f6;border-radius:4px;padding:0 5px;display:inline-block;min-width:60px;text-align:center;
 }
+/* 字幕：每句之間一條淡分隔線，看起來比較整齊 */
+.doc-text.is-sub .dk-block{border-bottom:1px dashed #e2e8f4;padding:9px 0}
+.doc-text.is-sub .dk-block:last-of-type{border-bottom:0}
 .tk{cursor:pointer;border-radius:3px;padding:0 1px;transition:background .1s,color .1s}
 .tk:hover{background:#dbeafe;box-shadow:0 0 0 1.5px #93c5fd}
 .tk-hard{background:#fff7ed;box-shadow:inset 0 -2px 0 #fdba74}
@@ -429,99 +452,104 @@ footer{text-align:center;color:var(--faint);font-size:12.5px;margin-top:34px;lin
   .sec{padding:15px 16px}
   .tab{padding:8px 13px;font-size:13.5px}
   .doc-pane{padding:16px 14px}
-  .dk-block{padding-left:22px}
+  .dk-block{padding-left:0}
 }
 </style>
 </head>
-<body data-page-node-id="sAvAn8plGr44kNYr8HHYET">
+<body data-page-node-id="PDqOtisJGuLDljku14RjJG">
 
-<header data-page-node-id="RswfeRQWQdcMOx4COUWJ7y">
-  <div class="hd-in" data-page-node-id="ze94cmjYF6z3fYJmFeg821">
-    <div class="brand" data-page-node-id="HNLuWuDN75Ugqkr22vhDaP">
-      <h1 data-page-node-id="3kBDrh3c2pvxuaWOiRjtbf">拼讀字典</h1>
-      <span class="en" data-page-node-id="yC7bBDLHUQZbBh2fmO5yuu">Spell &amp; Sound</span>
-      <span class="sub" data-page-node-id="cSdEwla6jnb11mgG8lAFDI">看字就會讀 —— 拆解每一個字母為什麼這樣發音</span>
+<header data-page-node-id="1Mo22yOURgNzYaInYC7lxA">
+  <div class="hd-in" data-page-node-id="DWWAvSi1rtKLdHHPHlqsFa">
+    <div class="brand" data-page-node-id="ShaD63wSTpyXgFGOC2HgF2">
+      <h1 data-page-node-id="j6auHjBFihQRN7ql6NBWdJ">拼讀字典</h1>
+      <span class="en" data-page-node-id="EXzeAuZdcn6yI72jS6FIhJ">Spell &amp; Sound</span>
+      <span class="sub" data-page-node-id="Ml5SBlnGhUqM0oyjJyxmze">看字就會讀 —— 拆解每一個字母為什麼這樣發音</span>
     </div>
-    <div class="tabs" data-page-node-id="mEdGie0MHs1KNFiN1byIAb">
-      <button class="tab on" data-t="search" data-page-node-id="dRsX3F0CmEVKYJcjLZdKZC">查詞</button>
-      <button class="tab" data-t="phr" data-page-node-id="UmP0ZrgnqiXwD7EPCfA9qd">片語成語 <span class="badge" id="phrCount" data-page-node-id="9w5xvEunrJ3mmdLRVPUPwF">0</span></button>
-      <button class="tab" data-t="ielts" data-page-node-id="ElTHF3fQZ1aBlVRP8T6iP4">雅思詞彙</button>
-      <button class="tab" data-t="doc" data-page-node-id="zEamioStIQ1kULLTDjYpYr">文件閱讀</button>
-      <button class="tab" data-t="rules" data-page-node-id="igk3ltLYbmiP3rCh84rsIx">發音規則速查</button>
-      <button class="tab" data-t="chart" data-page-node-id="hcpQpJEXBKnJhvBhh88VEh">國際音標表</button>
-      <button class="tab" data-t="book" data-page-node-id="e0TerzLFQ2UcEDE0nwzxLD">生詞本 <span class="badge" id="bookCount" data-page-node-id="CLV0f5iKT8yHaLTIqBqm3q">0</span></button>
+    <div class="tabs" data-page-node-id="IaNnwjBBIx2G6fjvIwKDhN">
+      <button class="tab on" data-t="search" data-page-node-id="i4Bu4fcHWRFPIflwKJAZuN">查詞</button>
+      <button class="tab" data-t="phr" data-page-node-id="h0b8rPb9ic7A2CA3Fp1Syv">片語成語 <span class="badge" id="phrCount" data-page-node-id="3jjccrDNnz3GBy24aCapq1">0</span></button>
+      <button class="tab" data-t="ielts" data-page-node-id="dgTepJh5K9872sspkjOGdC">雅思詞彙</button>
+      <button class="tab" data-t="doc" data-page-node-id="rtSpD8Yd0NTzqqgIqlAi0Q">文件閱讀</button>
+      <button class="tab" data-t="rules" data-page-node-id="Ej0OC49xikeTOpEQ2XMnEN">發音規則速查</button>
+      <button class="tab" data-t="chart" data-page-node-id="cqzeCq51qCFtukwUMKg9GL">國際音標表</button>
+      <button class="tab" data-t="book" data-page-node-id="IFO3BppNZG1uKp1ThnHBgx">生詞本 <span class="badge" id="bookCount" data-page-node-id="ZIAaDW6iApYR5E5Q013vLf">0</span></button>
     </div>
   </div>
 </header>
 
-<div class="wrap" data-page-node-id="4HejBlJjdP6U26CRLJKe3g">
+<div class="wrap" data-page-node-id="BIFrk4PBASjOqpPBiSgl73">
 
   <!-- ========== 查詞 ========== -->
-  <section class="page on" data-p="search" data-page-node-id="rHY2LDdAXAIE7iBclqoZcz">
-    <div class="search-box" data-page-node-id="ldBnpWQDn7UtDgOsNcMqFD">
-      <div class="sb-row" data-page-node-id="MbxQDXqiEXsG7WDVTkgxZc">
-        <input id="q" type="text" placeholder="輸入詞首…" autocomplete="off" spellcheck="false" data-page-node-id="jkPunrDNlnGLWDWTLJn4Ji">
-        <button class="btn" id="btnRandom" title="隨機挑一個詞" data-page-node-id="GFRAzYVNx0XjYP204dvAvY">🎲 隨機</button>
+  <section class="page on" data-p="search" data-page-node-id="JPexMkf7PLCpncY7plMp6q">
+    <div class="search-box" data-page-node-id="x2WdvgWNueDvqebHCcQdh8">
+      <div class="sb-row" data-page-node-id="8twM6sN1kJiUyNvqdZ7Zal">
+        <input id="q" type="text" placeholder="輸入詞首…" autocomplete="off" spellcheck="false" data-page-node-id="EU7owJshEKVI9lunpHyTZk">
+        <button class="btn" id="btnRandom" title="隨機挑一個詞" data-page-node-id="DBLVgGab9mqknYEodmArs9">🎲 隨機</button>
       </div>
-      <div class="modes" data-page-node-id="tMM9i6UOWTyH8nwC8ai5um">
-        <span class="lbl" data-page-node-id="rEv2ryf7U5H7Hek2ngeY0G">搜尋方式</span>
-        <button class="mode-btn on" data-m="start" data-page-node-id="LVmqxMN2j4v04WshjGuPOo">詞首</button>
-        <button class="mode-btn" data-m="contain" data-page-node-id="CtHet9HAsjXjqHWrjcEehd">詞中（包含）</button>
-        <button class="mode-btn" data-m="end" data-page-node-id="faq5ih5JsMfIsnIWKYbuNa">詞尾</button>
-        <button class="mode-btn" data-m="exact" data-page-node-id="cfmhgBbBkG9aDaSyj1Fibp">精確</button>
-        <button class="mode-btn" data-m="wild" data-page-node-id="a7HRhjNFr2pCR97rcYkxhO">萬用字元 * ?</button>
+      <div class="modes" data-page-node-id="711H9qDxFpctQattiFdMhe">
+        <span class="lbl" data-page-node-id="E35c4H4Ff01KYGyTFzXGY7">搜尋方式</span>
+        <button class="mode-btn on" data-m="start" data-page-node-id="1JIT0uD9coImmHzKgHUksi">詞首</button>
+        <button class="mode-btn" data-m="contain" data-page-node-id="KYuHmm15IaCvH2Fk7HKALm">詞中（包含）</button>
+        <button class="mode-btn" data-m="end" data-page-node-id="fcacu71t9mC60a0O0hF0Kn">詞尾</button>
+        <button class="mode-btn" data-m="exact" data-page-node-id="kj4r90g9VXt7GonVBo17Bb">精確</button>
+        <button class="mode-btn" data-m="wild" data-page-node-id="45Q3SYmo3J7Z8EE03sEe0H">萬用字元 * ?</button>
       </div>
-      <div class="modes" data-page-node-id="xKFpuyHGzOJjbJyo0Vi1JQ">
-        <span class="lbl" data-page-node-id="MrOjMouKLjq8DBieyzcdRB">詞庫範圍</span>
-        <button class="mode-btn on" data-scope="all" data-page-node-id="P5BKVk0gqSvP6vDoydjg2E">全部</button>
-        <button class="mode-btn" data-scope="common" data-page-node-id="DQpREE7aSXwkt9HQBT8DAp">常用詞</button>
-        <button class="mode-btn" data-scope="ielts" data-page-node-id="bFRlrNfWKBPFxmHdFCBNJ2">雅思詞</button>
+      <div class="modes" data-page-node-id="6yGw7bhalNUo62fiwouwBw">
+        <span class="lbl" data-page-node-id="XR6DGrXo5pPJQc9l9EUCti">詞庫範圍</span>
+        <button class="mode-btn on" data-scope="all" data-page-node-id="NCBX9YXIDklg1UD5TqjnH3">全部</button>
+        <button class="mode-btn" data-scope="common" data-page-node-id="FNBduYQ4gLklQXNd02pFNB">常用詞</button>
+        <button class="mode-btn" data-scope="ielts" data-page-node-id="RdJoDPacxshO4tIDDgZKJ6">雅思詞</button>
       </div>
-      <div id="modeTip" data-page-node-id="oStVnAv3c1gbQTk6McbZ2S"></div>
-      <div id="hist" data-page-node-id="KBik4fA0JT7XKcJ0tjyTvC"></div>
+      <div class="modes" data-page-node-id="DHkf9K9Kck3Zd49Uvwz5eP">
+        <span class="lbl" data-page-node-id="VytCWRv3DmkFo6PIJbPcfV">發音來源</span>
+        <button class="mode-btn on" data-audio="cam" title="連網時優先播劍橋字典真人錄音，取不到才退回系統語音" data-page-node-id="495qD80wiSChbVKS5NLbxA">劍橋真人優先</button>
+        <button class="mode-btn" data-audio="sys" title="只用瀏覽器內建語音，完全不連網" data-page-node-id="20U8wCjNBZXgTorEJYCUPd">只用系統語音</button>
+      </div>
+      <div id="modeTip" data-page-node-id="2EQhcLBSXORAwu0utERYOf"></div>
+      <div id="hist" data-page-node-id="yxvYxOxr4jBxqjjqnuGszv"></div>
     </div>
 
-    <div id="results" data-page-node-id="FuX8uFK3A7FRpkkmtsJYLi"></div>
-    <div id="detail" data-page-node-id="guuRLRhniTRQhCgb7ml5DA"></div>
+    <div id="results" data-page-node-id="bBpjiJihdq54z1uD3JszG0"></div>
+    <div id="detail" data-page-node-id="lVEi39fgBmVQ1zzs7uu0Bi"></div>
   </section>
 
   <!-- ========== 片語成語 ========== -->
-  <section class="page" data-p="phr" data-page-node-id="vz5EO8G5iH3S8o6QdgEaC9">
-    <div id="phr" data-page-node-id="oRaGgzHBfmZpfGWoosNJLL"></div>
+  <section class="page" data-p="phr" data-page-node-id="pgglV9WjyEBuh7bygzE9HW">
+    <div id="phr" data-page-node-id="B5WoRa9DeKQa496K7VlGTh"></div>
   </section>
 
   <!-- ========== 雅思詞彙 ========== -->
-  <section class="page" data-p="ielts" data-page-node-id="BDkFXAKoZKJH8UH07tcaA7">
-    <div id="ielts" data-page-node-id="MtmFptmXx1exqgQocPNpar"></div>
+  <section class="page" data-p="ielts" data-page-node-id="JXEZnz06ITPI6MflbjPJdh">
+    <div id="ielts" data-page-node-id="HETGuLkaJiZtMf7NnV7Gug"></div>
   </section>
 
   <!-- ========== 文件閱讀 ========== -->
-  <section class="page" data-p="doc" data-page-node-id="Z1vNu62IHbcntAyErmIm4k">
-    <div id="doc" data-page-node-id="qiP93lK4DuHannMoUm4RHD"></div>
+  <section class="page" data-p="doc" data-page-node-id="QmODCSzi6jRAJkxUB7RmVN">
+    <div id="doc" data-page-node-id="s573xw5nKtZczQICvWFFCD"></div>
   </section>
 
   <!-- ========== 規則速查 ========== -->
-  <section class="page" data-p="rules" data-page-node-id="LzdyJvgQzuKsz57CSzw6iB">
-    <div id="rules" data-page-node-id="IxCK2k2DZWY4TB4QD65mXi"></div>
+  <section class="page" data-p="rules" data-page-node-id="Zo00QD4cjRf0hdtoaEPqCl">
+    <div id="rules" data-page-node-id="cPADtk387DL45XOqKXEEa1"></div>
   </section>
 
   <!-- ========== 音標表 ========== -->
-  <section class="page" data-p="chart" data-page-node-id="a5C1e18GZNlYsEjvpFBO9x">
-    <div id="chart" data-page-node-id="6PP2G10QUxgph5OUneCInn"></div>
+  <section class="page" data-p="chart" data-page-node-id="MXkFUYwIheDV8oneYjI0Vi">
+    <div id="chart" data-page-node-id="1Ie179B5ybNBdj42yePnCe"></div>
   </section>
 
   <!-- ========== 生詞本 ========== -->
-  <section class="page" data-p="book" data-page-node-id="KxYdSlwwW9IdogoEUyXMqN">
-    <div id="book" data-page-node-id="Jk6k0Ky5A0kcrOPEYxEFzo"></div>
+  <section class="page" data-p="book" data-page-node-id="WfdAmAn3GxEAzF3eoM396B">
+    <div id="book" data-page-node-id="VicKKsiUVphOSBxkekeYwX"></div>
   </section>
 
-  <footer data-page-node-id="okhmaqudMqOUMZBKs3AEzO">
-    音標、音節切分與詞根分析皆由內建詞表與規則引擎離線運算，任何英文單詞都能分析；連網時會從 Wiktionary 補充英／美音標、釋義與真人錄音，並提供 Cambridge／Collins 一鍵跳轉。<br data-page-node-id="3ecai6UzL0jWu7ZW5N3O0z">
+  <footer data-page-node-id="2Wq0hLnzuNQifC2D4OF918">
+    音標、音節切分與詞根分析皆由內建詞表與規則引擎離線運算，任何英文單詞都能分析；連網時優先播放 Cambridge 劍橋字典的真人發音（查過一次即離線快取），並從 Wiktionary 補充英／美音標、釋義與真人錄音。<br data-page-node-id="LYLGE6sUYWxeHFzV3F0j9f">
     英文拼讀例外極多，規則推測僅供學習參考，聽力與口說請以真人發音為準。
   </footer>
 </div>
 
-<div id="toast" data-page-node-id="ExCDVpSyF8eLb377BWP1a4"></div>
+<div id="toast" data-page-node-id="ORIshN8RLHn1JBE8KoSsoe"></div>
 
 <script>
 const RAW_WORDS="the of and to in for is on that by this with you it not or be are from at as your all have new more an was we will home can us about if page my has search free but our one other do no information time they site he up may what which their news out use any there see only so his when contact here business who web also now help get pm view online first am been would how were me services some these click its like service than find price date back top people had list name just over state year day into email two health world re next used go work last most products music buy data make them should product system post her city add policy number such please available copyright support message after best software then jan good video well where info rights public books high school through each links she review years order very privacy book items company read group sex need many user said de does set under general research university january mail full map reviews program life know games way days management part could great united hotel real item international center ebay must store travel comments made development report off member details line terms before hotels did send right type because local those using results office education national car design take posted internet address community within states area want phone dvd shipping reserved subject between forum family long based code show even black check special prices website index being women much sign file link open today technology south case project same pages uk version section own found sports house related security both county american photo game members power while care network down computer systems three total place end following download him without per access think north resources current posts big media law control water history pictures size art personal since including guide shop directory board location change white text small rating rate government children during usa return students shopping account times sites level digital profile previous form events love old john main call hours image department title description non insurance another why shall property class cd still money quality every listing content country private little visit save tools low reply customer december compare movies include college value article york man card jobs provide food source author different press learn sale around print course job canada process teen room stock training too credit point join science men categories advanced west sales look english left team estate box conditions select windows photos gay thread week category note live large gallery table register however june october november market library really action start series model features air industry plan human provided tv yes required second hot accessories cost movie forums march la september better say questions july yahoo going medical test friend come dec server pc study application cart staff articles san feedback again play looking issues april never users complete street topic comment financial things working against standard tax person below mobile less got blog party payment equipment login student let programs offers legal above recent park stores side act problem red give memory performance social august quote language story sell options experience rates create key body young america important field few east paper single ii age activities club example girls additional password latest something road gift question changes night ca hard texas oct pay four poker status browse issue range building seller court february always result audio light write war nov offer blue groups al easy given files event release analysis request fax china making picture needs possible might professional yet month major star areas future space committee hand sun cards problems london washington meeting rss become interest id child keep enter california porn share similar garden schools million added reference companies listed baby learning energy run delivery net popular term film stories put computers journal reports co try welcome central images president notice god original head radio until cell color self council away includes track australia discussion archive once others entertainment agreement format least society months log safety friends sure faq trade edition cars messages marketing tell further updated association able having provides david fun already green studies close common drive specific several gold feb living sep collection called short arts lot ask display limited powered solutions means director daily beach past natural whether due et electronics five upon period planning database says official weather mar land average done technical window france pro region island record direct microsoft conference environment records st district calendar costs style url front statement update parts aug ever downloads early miles sound resource present applications either ago document word works material bill apr written talk federal hosting rules final adult tickets thing centre requirements via cheap nude kids finance true minutes else mark third rock gifts europe reading topics bad individual tips plus auto cover usually edit together videos percent fast function fact unit getting global tech meet far economic en player projects lyrics often subscribe submit germany amount watch included feel though bank risk thanks everything deals various words linux jul production commercial james weight town heart advertising received choose treatment newsletter archives points knowledge magazine error camera jun girl currently construction toys registered clear golf receive domain methods chapter makes protection policies loan wide beauty manager india position taken sort listings models michael known half cases step engineering florida simple quick none wireless license paul friday lake whole annual published later basic sony shows corporate google church method purchase customers active response practice hardware figure materials fire holiday chat enough designed along among death writing speed html countries loss face brand discount higher effects created remember standards oil bit yellow political increase advertise kingdom base near environmental thought stuff french storage oh japan doing loans shoes entry stay nature orders availability africa summary turn mean growth notes agency king monday european activity copy although drug pics western income force cash employment overall bay river commission ad package contents seen players engine port album regional stop supplies started administration bar institute views plans double dog build screen exchange types soon sponsored lines electronic continue across benefits needed season apply someone held ny anything printer condition effective believe organization effect asked eur mind sunday selection casino pdf lost tour menu volume cross anyone mortgage hope silver corporation wish inside solution mature role rather weeks addition came supply nothing certain usr executive running lower necessary union jewelry according dc clothing mon com particular fine names robert homepage hour gas skills six bush islands advice career military rental decision leave british teens pre huge sat woman facilities zip bid kind sellers middle move cable opportunities taking values division coming tuesday object lesbian appropriate machine logo length actually nice score statistics client ok returns capital follow sample investment sent shown saturday christmas england culture band flash ms lead george choice went starting registration fri thursday courses consumer hi airport foreign artist outside furniture levels channel letter mode phones ideas wednesday structure fund summer allow degree contract button releases wed homes super male matter custom virginia almost took located multiple asian distribution editor inn industrial cause potential song cnet ltd los hp focus late fall featured idea rooms female responsible inc communications win associated thomas primary cancer numbers reason tool browser spring foundation answer voice eg friendly schedule documents communication purpose feature bed comes police everyone independent ip approach cameras brown physical operating hill maps medicine deal hold ratings chicago forms glass happy tue smith wanted developed thank safe unique survey prior telephone sport ready feed animal sources mexico population pa regular secure navigation operations therefore ass simply evidence station christian round paypal favorite understand option master valley recently probably thu rentals sea built publications blood cut worldwide improve connection publisher hall larger anti networks earth parents nokia impact transfer introduction kitchen strong tel carolina wedding properties hospital ground overview ship accommodation owners disease tx excellent paid italy perfect hair opportunity kit classic basis command cities william express anal award distance tree peter assessment ensure thus wall ie involved el extra especially interface pussy partners budget rated guides success maximum ma operation existing quite selected boy amazon patients restaurants beautiful warning wine locations horse vote forward flowers stars significant lists technologies owner retail animals useful directly manufacturer ways est son providing rule mac housing takes iii gmt bring catalog searches max trying mother authority considered told xml traffic programme joined input strategy feet agent valid bin modern senior ireland sexy teaching door grand testing trial charge units instead canadian cool normal wrote enterprise ships entire educational md leading metal positive fl fitness chinese opinion mb asia football abstract uses output funds mr greater likely develop employees artists alternative processing responsibility resolution java guest seems publication pass relations trust van contains session multi photography republic fees components vacation century academic assistance completed skin graphics indian prev ads mary il expected ring grade dating pacific mountain organizations pop filter mailing vehicle longer consider int northern behind panel floor german buying match proposed default require iraq boys outdoor deep morning otherwise allows rest protein plant reported hit transportation mm pool mini politics partner disclaimer authors boards faculty parties fish membership mission eye string sense modified pack released stage internal goods recommended born unless richard detailed japanese race approved background target except character usb maintenance ability maybe functions ed moving brands places php pretty trademarks phentermine spain southern yourself etc winter rape battery youth pressure submitted boston incest debt keywords medium television interested core break purposes throughout sets dance wood msn itself defined papers playing awards fee studio reader virtual device established answers rent las remote dark programming external apple le regarding instructions min offered theory enjoy remove aid surface minimum visual host variety teachers isbn martin manual block subjects agents increased repair fair civil steel understanding songs fixed wrong beginning hands associates finally az updates desktop classes paris ohio gets sector capacity requires jersey un fat fully father electric saw instruments quotes officer driver businesses dead respect unknown specified restaurant mike trip pst worth mi procedures poor teacher xxx eyes relationship workers farm fucking georgia peace traditional campus tom showing creative coast benefit progress funding devices lord grant sub agree fiction hear sometimes watches careers beyond goes families led museum themselves fan transport interesting blogs wife evaluation accepted former implementation ten hits zone complex th cat galleries references die presented jack flat flow agencies literature respective parent spanish michigan columbia setting dr scale stand economy highest helpful monthly critical frame musical definition secretary angeles networking path australian employee chief gives kb bottom magazines packages detail francisco laws changed pet heard begin individuals colorado royal clean switch russian largest african guy titles relevant guidelines justice connect bible dev cup basket applied weekly vol installation described demand pp suite vegas na square chris attention advance skip diet army auction gear lee os difference allowed correct charles nation selling lots piece sheet firm seven older illinois regulations elements species jump cells module resort facility random pricing dvds certificate minister motion looks fashion directions visitors documentation monitor trading forest calls whose coverage couple giving chance vision ball ending clients actions listen discuss accept automotive naked goal successful sold wind communities clinical situation sciences markets lowest highly publishing appear emergency developing lives currency leather determine milf temperature palm announcements patient actual historical stone bob commerce ringtones perhaps persons difficult scientific satellite fit tests village accounts amateur ex met pain xbox particularly factors coffee www settings cum buyer cultural steve easily oral ford poster edge functional root au fi closed holidays ice pink zealand balance monitoring graduate replies shot nc architecture initial label thinking scott llc sec recommend canon hardcore league waste minute bus provider optional dictionary cold accounting manufacturing sections chair fishing effort phase fields bag fantasy po letters motor va professor context install shirt apparel generally continued foot mass crime count breast techniques ibm rd johnson sc quickly dollars websites religion claim driving permission surgery patch heat wild measures generation kansas miss chemical doctor task reduce brought himself nor component enable exercise bug santa mid guarantee leader diamond israel se processes soft servers alone meetings seconds jones arizona keyword interests flight congress fuel username walk fuck produced italian paperback classifieds wait supported pocket saint rose freedom argument competition creating jim drugs joint premium providers fresh characters attorney upgrade di factor growing thousands km stream apartments pick hearing eastern auctions therapy entries dates generated signed upper administrative serious prime samsung limit began louis steps errors shops bondage del efforts informed ga ac thoughts creek ft worked quantity urban practices sorted reporting essential myself tours platform load affiliate labor immediately admin nursing defense machines designated tags heavy covered recovery joe guys integrated configuration cock merchant comprehensive expert universal protect drop solid cds presentation languages became orange compliance vehicles prevent theme rich im campaign marine improvement vs guitar finding pennsylvania examples ipod saying spirit ar claims porno challenge motorola acceptance strategies mo seem affairs touch intended towards sa goals hire election suggest branch charges serve affiliates reasons magic mount smart talking gave ones latin multimedia xp tits avoid certified manage corner rank computing oregon element birth virus abuse interactive".split(" ");
@@ -2081,6 +2109,222 @@ const PHRASE_RAW = [
 </script>
 <script>
 /* ============================================================
+   劍橋字典（Cambridge Dictionary）真人發音
+   ------------------------------------------------------------
+   • 美式音檔網址可預測，不需要 API key、不需要代理：
+       /media/english/us_pron/<第1字母>/<前3字母>/<前5字母>/<word>.mp3
+       不足的補底線，例如 go → g/go_/go___/go.mp3、cat → c/cat/cat__/cat.mp3
+     （少數詞如 the、time 例外，會自動改用下面第 2 條路。）
+   • 英式音檔檔名是雜湊（uk_pron/u/ukh/ukhef/ukheft_029.mp3），無法推算，
+     必須讀劍橋頁面才能拿到。劍橋不給 CORS，所以透過公開文字代理
+     （r.jina.ai 為主）取一次頁面，抽出音檔網址後寫進 localStorage；
+     之後直接從劍橋 CDN 播放，不必再問代理。
+   • 全部失敗就退回 Wiktionary 真人錄音／系統語音，不影響原有功能。
+   ============================================================ */
+
+const CAM_LS = 'spelldict.cam';
+const CAM_TTL = 7 * 24 * 3600 * 1000;   // 查不到的詞，7 天內不再重試
+
+const CAM = {
+  cache: (function () {
+    try { return JSON.parse(localStorage.getItem(CAM_LS) || '{}'); } catch (e) { return {}; }
+  })(),
+  failAt: 0,          // 代理最近一次失敗時間，短時間內不再連
+  failGap: 3 * 60 * 1000,
+  proxyIdx: 0,
+  save: function () {
+    try {
+      const ks = Object.keys(this.cache);
+      if (ks.length > 3000) {
+        ks.sort((a, b) => (this.cache[a].t || 0) - (this.cache[b].t || 0));
+        ks.slice(0, ks.length - 3000).forEach(k => delete this.cache[k]);
+      }
+      localStorage.setItem(CAM_LS, JSON.stringify(this.cache));
+    } catch (e) { /* 容量不足就算了 */ }
+  },
+  get: function (w) { return this.cache[w] || null; },
+  set: function (w, uk, us) {
+    const c = this.cache[w] || {};
+    if (uk) c.uk = uk;
+    if (us) c.us = us;
+    c.t = Date.now();
+    this.cache[w] = c;
+    this.save();
+    return c;
+  },
+  miss: function (w) {
+    const c = this.cache[w] || {};
+    c.no = Date.now(); c.t = c.t || Date.now();
+    this.cache[w] = c; this.save();
+  },
+  gaveUp: function (w) {
+    const c = this.cache[w];
+    return !!(c && c.no && (Date.now() - c.no < CAM_TTL));
+  }
+};
+
+function camNorm(w) {
+  return String(w || '').toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim().replace(/\s+/g, '-');
+}
+
+/* 美式：直接組網址（不需連網即可嘗試播放） */
+function camUS(w) {
+  const s = camNorm(w);
+  if (!s) return '';
+  const a = s[0];
+  const b = (s.slice(0, 3) + '___').slice(0, 3);
+  const c = (s.slice(0, 5) + '_____').slice(0, 5);
+  return 'https://dictionary.cambridge.org/media/english/us_pron/' + a + '/' + b + '/' + c + '/' + s + '.mp3';
+}
+
+/* 代理：輪流嘗試，避免單一服務掛掉就全掛 */
+const CAM_PROXIES = [
+  function (u) { return 'https://r.jina.ai/' + u; },
+  function (u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); },
+  function (u) { return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); }
+];
+
+async function camPage(w) {
+  const u = 'https://dictionary.cambridge.org/dictionary/english/' + encodeURIComponent(camNorm(w));
+  for (let i = 0; i < CAM_PROXIES.length; i++) {
+    const f = CAM_PROXIES[(CAM.proxyIdx + i) % CAM_PROXIES.length];
+    try {
+      const r = await fetch(f(u), { signal: AbortSignal.timeout(7000) });
+      if (!r.ok) continue;
+      const t = await r.text();
+      if (t && /_pron\//.test(t)) return t;
+    } catch (e) { /* 換下一個 */ }
+  }
+  CAM.failAt = Date.now();
+  return '';
+}
+
+/* 確認這一頁真的是這個詞的條目。
+   查不到時劍橋會回「找不到」頁，但頁面上仍有其他單詞的音檔
+   （例如 literacy.mp3），若沒擋掉就會播到別的詞的發音。 */
+function camHasEntry(txt, w) {
+  const s = camNorm(w);
+  if (!s) return false;
+  const pat = s.replace(/[-]/g, '[- ]');
+  try {
+    if (new RegExp('class="hw dhw"[^>]*>\\s*' + pat + '\\b', 'i').test(txt)) return true;
+    const plain = txt.replace(/<[^>]*>/g, '\n');
+    if (new RegExp('^\\s*' + pat + '\\s*$', 'im').test(plain)) return true;
+  } catch (e) { return false; }
+  const us = camPick(txt, 'us', w);
+  return !!us && us.split('/').pop().replace(/\.mp3$/, '') === s;
+}
+
+/* 從頁面文字（HTML 或 markdown）挑出音檔網址：優先用檔名開頭符合單詞的 */
+function camPick(txt, kind, w) {
+  const re = new RegExp('(?:https:\\/\\/dictionary\\.cambridge\\.org)?\\/media\\/english\\/' +
+    kind + '_pron\\/[A-Za-z0-9\\/_.-]+?\\.mp3', 'g');
+  const m = txt.match(re);
+  if (!m || !m.length) return '';
+  const uniq = [];
+  m.forEach(function (x) { if (uniq.indexOf(x) < 0) uniq.push(x); });
+  const s = camNorm(w);
+  // 1) 檔名完全等於單詞最好（beautiful.mp3），避免抓到 beautifully 這類相關詞
+  for (let i = 0; i < uniq.length; i++) {
+    if (uniq[i].split('/').pop().replace(/\.mp3$/, '') === s) return camAbs(uniq[i]);
+  }
+  let best = uniq[0];
+  const key = s.replace(/[^a-z0-9]/g, '').slice(0, 4);
+  if (key.length >= 3) {
+    for (let i = 0; i < uniq.length; i++) {
+      const f = uniq[i].split('/').pop().replace(/\.mp3$/, '').replace(/[^a-z0-9]/g, '');
+      if (f.indexOf(key) === 0) { best = uniq[i]; break; }
+    }
+  }
+  return camAbs(best);
+}
+function camAbs(u) {
+  return u.indexOf('http') === 0 ? u : ('https://dictionary.cambridge.org' + u);
+}
+
+/* 解析並快取某詞的劍橋英／美音檔 */
+async function camResolve(w, force) {
+  const k = camNorm(w);
+  if (!k) return null;
+  const c = CAM.get(k);
+  if (c && (c.uk || c.us) && !force) return c;
+  if (!force && (CAM.gaveUp(k) || Date.now() - CAM.failAt < CAM.failGap)) return null;
+  if (navigator.onLine === false) return null;
+  const txt = await camPage(k);
+  if (!txt) { CAM.miss(k); return null; }
+  if (!camHasEntry(txt, k)) { CAM.miss(k); return null; }   // 查無此詞，別抓到別的詞的音檔
+  const uk = camPick(txt, 'uk', k);
+  const us = camPick(txt, 'us', k);
+  if (uk || us) return CAM.set(k, uk, us);
+  CAM.miss(k);
+  return null;
+}
+
+/* 播放音檔：會等真的開始播放才算成功（404 會很快觸發 error） */
+function playAudio(url, ms) {
+  return new Promise(function (res) {
+    if (!url) return res(false);
+    let a;
+    try { a = new Audio(url); } catch (e) { return res(false); }
+    let done = false;
+    const fin = function (ok) {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      try { if (!ok) a.pause(); } catch (e) { }
+      res(ok);
+    };
+    const timer = setTimeout(function () { fin(false); }, ms || 6000);
+    a.onplaying = function () { fin(true); };
+    a.onerror = function () { fin(false); };
+    const p = a.play();
+    if (p && p.catch) p.catch(function () { fin(false); });
+  });
+}
+
+/* 依方言播劍橋發音：快取 → 美式直接網址 → 解析頁面 → 另一種口音頂上 */
+async function camPlay(w, dia) {
+  const k = camNorm(w);
+  if (!k) return false;
+  const want = dia === 'ga' ? 'us' : 'uk';
+  const other = want === 'us' ? 'uk' : 'us';
+
+  const c0 = CAM.get(k);
+  const cached = (c0 && c0[want]) || '';
+  // 快取的檔名要真的等於這個詞才算數（避免用到 beautifully 這種相關詞的音檔）
+  const exact = !!cached && cached.split('/').pop().replace(/\.mp3$/, '') === k;
+
+  if (want === 'us') {
+    if (exact && await playAudio(cached, 5000)) return true;
+    // 美式先賭可預測網址（檔名一定等於單詞，最準；不必問代理）
+    if (!(c0 && c0.noUS)) {
+      const u = camUS(k);
+      if (await playAudio(u, 4000)) {
+        const c = CAM.get(k) || {};
+        c.us = u; c.t = Date.now(); CAM.cache[k] = c; CAM.save();
+        return true;
+      }
+      const c = CAM.get(k) || {}; c.noUS = 1; c.t = c.t || Date.now();
+      CAM.cache[k] = c; CAM.save();
+    }
+    if (cached && !exact && await playAudio(cached, 5000)) return true;
+  } else {
+    if (cached && await playAudio(cached, 5000)) return true;
+  }
+
+  const r = await camResolve(k);
+  if (r) {
+    if (r[want] && await playAudio(r[want], 5000)) return true;
+    if (r[other] && await playAudio(r[other], 5000)) return true;
+  }
+  return false;
+}
+
+</script>
+<script>
+/* ============================================================
    不規則 / 高頻詞發音對照表
    格式: 單詞 -> "字素=音標|字素=音標|..."
    例:   though -> "th=ð|ough=oʊ"
@@ -3588,6 +3832,7 @@ const LS = {
   dia: 'spelldict.dialect',
   ipa: 'spelldict.ipa',
   gloss: 'spelldict.gloss',
+  audio: 'spelldict.audio',
   phrBook: 'spelldict.phrbook'
 };
 
@@ -3607,7 +3852,9 @@ const state = {
   // 線上查過、但離線詞表沒有的詞，音標會存這裡，之後離線也能顯示字典音標
   ipaCache: JSON.parse(localStorage.getItem(LS.ipa) || '{}'),
   // 線上查到的中文釋義快取（離線詞表沒收錄的詞）
-  glossCache: JSON.parse(localStorage.getItem(LS.gloss) || '{}')
+  glossCache: JSON.parse(localStorage.getItem(LS.gloss) || '{}'),
+  // 發音來源：'cam' 劍橋優先（連網時）、'sys' 只用系統語音
+  audio: localStorage.getItem(LS.audio) || 'cam'
 };
 
 /* ============================================================
@@ -3687,15 +3934,47 @@ function speak(text, forceLang) {
   speechSynthesis.cancel();
   speechSynthesis.speak(u);
 }
+/* 播放一段線上音檔（舊介面，同步回傳；成功與否由 playAudio 判斷） */
 function playApiAudio(url) {
   if (!url) return false;
   try { const a = new Audio(url); a.play(); return true; } catch (e) { return false; }
 }
-function speakWord(w) {
-  const a = state.api || {};
-  const url = state.dialect === 'ga' ? (a.us || a.uk) : (a.uk || a.us);
-  if (url && playApiAudio(url)) return;
+/* 更新卡片上的「發音來源」小標籤（查詞頁與閱讀頁都更新） */
+function setAudSrc(txt, ok) {
+  $$('.aud-src').forEach(function (el) {
+    el.textContent = txt;
+    el.classList.toggle('ok', !!ok);
+  });
+}
+/* 朗讀單詞：劍橋真人發音 → Wiktionary 真人錄音 → 系統語音 */
+async function speakWord(w) {
+  w = String(w || '').toLowerCase().replace(/[^a-z]/g, '');
+  if (!w) return;
+  const dia = state.dialect;
+  if (state.audio === 'cam') {
+    setAudSrc('連線劍橋…', false);
+    if (await camPlay(w, dia)) { setAudSrc('劍橋真人發音', true); return; }
+  }
+  const a = (state.apiW === w && state.api) ? state.api : {};
+  const fb = dia === 'ga' ? (a.us || a.uk) : (a.uk || a.us);
+  if (fb && await playAudio(fb, 6000)) { setAudSrc('Wiktionary 真人錄音', true); return; }
   speak(w);
+  setAudSrc('系統語音', false);
+}
+/* 直接播劍橋指定口音（線上區塊的按鈕用） */
+async function playCam(w, dia, btn) {
+  const old = btn ? btn.textContent : '';
+  if (btn) btn.textContent = '連線中…';
+  const ok = await camPlay(w, dia);
+  if (btn) btn.textContent = old;
+  if (!ok) toast('劍橋沒有這個詞的' + (dia === 'ga' ? '美式' : '英式') + '錄音，已改用其他來源');
+  setAudSrc(ok ? '劍橋真人發音' : '（劍橋無此錄音）', ok);
+  if (!ok) {
+    const a = state.api || {};
+    const fb = dia === 'ga' ? (a.us || a.uk) : (a.uk || a.us);
+    if (fb && await playAudio(fb, 6000)) setAudSrc('Wiktionary 真人錄音', true);
+    else speak(w);
+  }
 }
 
 /* ---------------- 提示 ---------------- */
@@ -3955,6 +4234,7 @@ function morphHTML(w) {
 function buildWordCard(w) {
   state.current = w;
   state.api = null;
+  state.apiW = '';
   const r = analyze(w);
   // 音標：字典優先（最準確），沒有字典音標才用引擎推測
   const bi = bestIPA(w);
@@ -3978,8 +4258,11 @@ function buildWordCard(w) {
         </div>
       </div>
       <div class="wc-right">
-        <button class="btn btn-speak" data-act="speak" data-w="${esc(w)}" title="朗讀">🔊 朗讀</button>
-        <button class="btn ${state.book.has(w) ? 'btn-on' : ''}" data-act="book" data-w="${esc(w)}">${state.book.has(w) ? '★ 已收藏' : '☆ 收進生詞本'}</button>
+        <div class="wc-btns">
+          <button class="btn btn-speak" data-act="speak" data-w="${esc(w)}" title="朗讀（優先劍橋真人發音）">🔊 朗讀</button>
+          <button class="btn ${state.book.has(w) ? 'btn-on' : ''}" data-act="book" data-w="${esc(w)}">${state.book.has(w) ? '★ 已收藏' : '☆ 收進生詞本'}</button>
+        </div>
+        <span class="aud-src" title="實際播放的發音來源"></span>
       </div>
     </div>`;
 
@@ -4408,6 +4691,7 @@ async function loadApi(w, root) {
   }
 
   state.api = { uk: ukUrl, us: usUrl };
+  state.apiW = w;
 
   let h = '';
 
@@ -4428,14 +4712,23 @@ async function loadApi(w, root) {
       <div class="api-row"><span class="api-k">美式 GA</span><span class="api-ipa">${esc(us || '—')}</span></div>`;
   }
 
+  /* 劍橋字典真人錄音：美式網址可直接組出來，英式要解析頁面（結果會快取） */
+  h += '<div class="api-row" style="gap:7px">'
+    + '<button class="btn btn-sm" data-act="cam" data-dia="rp">▶ 劍橋英式</button>'
+    + '<button class="btn btn-sm" data-act="cam" data-dia="ga">▶ 劍橋美式</button>'
+    + '<span class="muted small">Cambridge Dictionary 真人錄音（查過一次就會記住，之後離線也能播）</span></div>';
+
   if (ukUrl || usUrl) {
     h += '<div class="api-row" style="gap:7px">';
     if (ukUrl) h += `<button class="btn btn-sm" data-act="apiaudio" data-url="${esc(ukUrl)}">▶ 英式發音</button>`;
     if (usUrl) h += `<button class="btn btn-sm" data-act="apiaudio" data-url="${esc(usUrl)}">▶ 美式發音</button>`;
     h += '<span class="muted small">來源：Wiktionary / Wikimedia Commons（線上真人錄音）</span></div>';
-  } else {
+  } else if (!CAM.get(w)) {
     h += '<div class="api-row muted small">此詞沒有線上真人錄音，可按上方「朗讀」用系統語音發音。</div>';
   }
+
+  /* 順手把劍橋音檔網址查起來存好，下次點朗讀就不用等 */
+  camResolve(w);
 
   const groups = wtDefs(wt, 6);
   if (groups.length) {
@@ -4455,6 +4748,9 @@ async function loadApi(w, root) {
   finish(h, true);
   $$('[data-act="apiaudio"]', root).forEach(function (b) {
     b.onclick = function () { playApiAudio(b.dataset.url); };
+  });
+  $$('[data-act="cam"]', root).forEach(function (b) {
+    b.onclick = function () { playCam(w, b.dataset.dia, b); };
   });
 }
 
@@ -4825,6 +5121,7 @@ function switchTab(t) {
 function init() {
   // header 會因為視窗寬度、分頁列換行而改變高度，這裡持續同步給 CSS
   syncHeaderHeight();
+  syncAudioMode();
   window.addEventListener('resize', syncHeaderHeight);
   window.addEventListener('orientationchange', syncHeaderHeight);
   if (typeof ResizeObserver !== 'undefined') {
@@ -4872,6 +5169,13 @@ function init() {
     if (v) renderResults(runSearch(v, state.mode, 200), v, state.mode);
   });
 
+  $$('.mode-btn[data-audio]').forEach(b => b.onclick = () => {
+    state.audio = b.dataset.audio;
+    localStorage.setItem(LS.audio, state.audio);
+    syncAudioMode();
+    toast(state.audio === 'cam' ? '發音：劍橋真人錄音優先' : '發音：只用系統語音（不連網）');
+  });
+
   $$('.tab').forEach(b => b.onclick = () => switchTab(b.dataset.t));
 
   document.addEventListener('click', e => {
@@ -4890,6 +5194,9 @@ function init() {
   // 首次進入顯示一個示範詞
   showWord('pronunciation');
   renderPopular();
+}
+function syncAudioMode() {
+  $$('.mode-btn[data-audio]').forEach(b => b.classList.toggle('on', b.dataset.audio === state.audio));
 }
 function syncMode() {
   $$('.mode-btn[data-m]').forEach(b => b.classList.toggle('on', b.dataset.m === state.mode));
@@ -4914,6 +5221,8 @@ const DOC = {
   page: 0, words: 0, uniq: 0,
   fontSize: 17, mark: true, showTime: true,
   hard: [], showHard: false, find: '',
+  bil: true,          // 雙語字幕：英文與中文分行顯示
+  biCount: 0,         // 這份檔案裡有幾個雙語段落
   ready: false, cur: ''
 };
 
@@ -4958,6 +5267,75 @@ function dedupeBlocks(blocks) {
 function countWords(s) { return (s.match(/[A-Za-z\u00C0-\u024F]{2,}/g) || []).length; }
 
 /* ============================================================
+   雙語字幕（SRT / ASS）：把英文與中文拆成兩行
+   ------------------------------------------------------------
+   雙語字幕常見兩種寫法：
+     1) 兩行：第一行英文、第二行中文（SRT 是兩行文字；ASS 用 \N 換行）
+     2) 同一行用空格隔開：Hello 你好
+   這裡先逐行判斷語言，再把連續相同語言的行合併，
+   最後若同時有中、英，就存成 parts（渲染時一行一個）。
+   ============================================================ */
+const CJK = '\\u3040-\\u30FF\\u3400-\\u4DBF\\u4E00-\\u9FFF\\uF900-\\uFAFF\\u3000-\\u303F\\uFF00-\\uFFEF';
+const CJK_RE = new RegExp('[' + CJK + ']', 'g');
+const NOT_CJK_RE = new RegExp('^[^' + CJK + ']+$');
+const START_CJK_RE = new RegExp('^[' + CJK + ']');
+function cjkCount(s) { const m = String(s || '').match(CJK_RE); return m ? m.length : 0; }
+function latCount(s) { const m = String(s || '').match(/[A-Za-z]/g); return m ? m.length : 0; }
+function isZhSeg(s) { const c = cjkCount(s); return c > 0 && c * 2 >= latCount(s); }
+
+/* 同一行裡同時有中英文時，在語言切換處切開（英文在前或在後都處理） */
+function splitMixedLine(line) {
+  const toks = String(line || '').trim().split(/\s+/).filter(Boolean);
+  if (toks.length < 2) return null;
+  for (let i = 1; i < toks.length; i++) {
+    const left = toks.slice(0, i).join(' ');
+    const right = toks.slice(i).join(' ');
+    if (!right || !left) continue;
+    // 英文 → 中文
+    if (NOT_CJK_RE.test(left) && START_CJK_RE.test(right) && latCount(left) >= 2) return [left, right];
+    // 中文 → 英文
+    if (START_CJK_RE.test(left) && NOT_CJK_RE.test(right) && latCount(right) >= 2) {
+      if (isZhSeg(left)) return [left, right];
+    }
+  }
+  return null;
+}
+
+/* 輸入：一段字幕的每一行；輸出 { s, parts } */
+function buildBilingual(lines) {
+  const segs = [];
+  (lines || []).forEach(function (raw) {
+    let line = String(raw || '').trim();
+    if (!line) return;
+    const sp = splitMixedLine(line);
+    (sp || [line]).forEach(function (t) { t = t.trim(); if (t) segs.push(t); });
+  });
+  if (!segs.length) return { s: '', parts: null };
+
+  const parts = [];
+  segs.forEach(function (t) {
+    const lang = isZhSeg(t) ? 'zh' : 'en';
+    const last = parts[parts.length - 1];
+    if (last && last.lang === lang) last.s = last.s + ' ' + t;   // 同一語言的連續行合併
+    else parts.push({ lang: lang, s: t });
+  });
+  const hasZh = parts.some(function (p) { return p.lang === 'zh'; });
+  const hasEn = parts.some(function (p) { return p.lang === 'en'; });
+  if (!(hasZh && hasEn)) return { s: segs.join(' '), parts: null };
+  // 一律「英文在上、中文在下」：不論字幕檔裡誰先誰後，都重新配對成
+  // en1 / zh1 / en2 / zh2 …，中英對齊顯示
+  const en = parts.filter(function (p) { return p.lang === 'en'; });
+  const zh = parts.filter(function (p) { return p.lang === 'zh'; });
+  const out = [];
+  const n = Math.max(en.length, zh.length);
+  for (let i = 0; i < n; i++) {
+    if (en[i]) out.push(en[i]);
+    if (zh[i]) out.push(zh[i]);
+  }
+  return { s: segs.join(' '), parts: out };
+}
+
+/* ============================================================
    二、SRT
    ============================================================ */
 function parseSRT(text) {
@@ -4966,8 +5344,12 @@ function parseSRT(text) {
   let cur = null;
   const flush = function () {
     if (!cur) return;
-    let s = cur.lines.join(' ').replace(/<\/?[a-zA-Z][^>]*>/g, '').replace(/\s+/g, ' ').trim();
-    if (s) blocks.push({ s: s, time: cur.time });
+    // 逐行清掉 HTML 標籤（<i>、<b>…）後再判斷語言，不要整段黏成一行
+    const lines = cur.lines.map(function (l) {
+      return String(l).replace(/<\/?[a-zA-Z][^>]*>/g, '').replace(/\s+/g, ' ').trim();
+    });
+    const bi = buildBilingual(lines);
+    if (bi.s) blocks.push({ s: bi.s, time: cur.time, parts: bi.parts });
     cur = null;
   };
   for (let i = 0; i < lines.length; i++) {
@@ -4986,7 +5368,8 @@ function parseSRT(text) {
     if (cur) cur.lines.push(line.trim());
   }
   flush();
-  return dedupeBlocks(blocks);
+  // 每一句都保留，不再合併重複字幕（使用者要看到完整內容）
+  return blocks;
 }
 
 /* ============================================================
@@ -5024,14 +5407,19 @@ function parseASS(text) {
     let s = parts[iText] || '';
     s = s.replace(/\{[^}]*\}/g, '');            // 特效標籤
     s = s.replace(/\\[a-zA-Z]+\([^)]*\)/g, ''); // 殘留指令
-    s = s.replace(/\\h/g, ' ').replace(/\\N/gi, ' ').replace(/\\n/g, ' ');
-    s = s.replace(/\s+/g, ' ').trim();
-    if (!s) continue;
+    // \N、\n 是 ASS 的換行：雙語字幕通常就是靠它把英文與中文分成兩行，
+    // 所以這裡要保留行結構，交給 buildBilingual 判斷（不能再黏成一行）
+    const subLines = s.split(/\\N|\\n|\r?\n/gi).map(function (x) {
+      return x.replace(/\\h/g, ' ').replace(/\s+/g, ' ').trim();
+    });
+    const bi = buildBilingual(subLines);
+    if (!bi.s) continue;
     let time = (iStart >= 0 ? (parts[iStart] || '') : '').trim();
     time = time.replace(/^(\d):/, '0$1:').replace(/^(\d{2}:\d{2}:\d{2})\..*$/, '$1');
-    blocks.push({ s: s, time: time });
+    blocks.push({ s: bi.s, time: time, parts: bi.parts });
   }
-  return dedupeBlocks(blocks);
+  // 每一句都保留，不再合併重複字幕（使用者要看到完整內容）
+  return blocks;
 }
 
 /* ============================================================
@@ -5313,6 +5701,7 @@ function openFile(file) {
     if (!DOC.blocks.length) throw new Error('這份檔案裡沒有抓到任何文字。');
     DOC.blocks.forEach(function (b) { b.n = countWords(b.s); });
     DOC.words = DOC.blocks.reduce(function (a, b) { return a + b.n; }, 0);
+    DOC.biCount = DOC.blocks.filter(function (b) { return b.parts && b.parts.length > 1; }).length;
     buildPages();
     buildVocab();
     DOC.ready = true;
@@ -5375,8 +5764,9 @@ function hl(s) {
   return s.split(re).map(function (p, i) { return i % 2 ? '<mark>' + esc(p) + '</mark>' : esc(p); }).join('');
 }
 
-function blockHTML(b, gi) {
-  const parts = b.s.split(/([A-Za-z\u00C0-\u024F]+)/);
+/* 把一段文字切成「可點的單詞」：英文單詞包 .tk，其餘照原樣輸出 */
+function tokenHTML(t) {
+  const parts = String(t).split(/([A-Za-z\u00C0-\u024F]+)/);
   let h = '';
   for (let i = 0; i < parts.length; i++) {
     const seg = parts[i];
@@ -5389,10 +5779,28 @@ function blockHTML(b, gi) {
       h += hl(seg);
     }
   }
-  return '<div class="dk-block">'
-    + '<button class="dk-sp" data-speak="' + gi + '" title="朗讀這一段">🔊</button>'
-    + (b.time && DOC.showTime ? '<span class="dk-time">' + esc(b.time) + '</span>' : '')
-    + '<span class="dk-t">' + h + '</span></div>';
+  return h;
+}
+
+function blockHTML(b, gi) {
+  // 雙語段落（parts 同時含中、英）→ 一個語言一行（英文在上、中文在下）
+  const multi = DOC.bil && b.parts && b.parts.length > 1;
+  const sp = '<button class="dk-sp" data-speak="' + gi + '" title="朗讀這一句">🔊</button>';
+  const time = (b.time && DOC.showTime) ? '<span class="dk-time">' + esc(b.time) + '</span>' : '';
+  // 有時間碼或雙語時，把喇叭＋時間碼放進左側欄位（gutter），
+  // 英文行與中文行才會從同一個 x 開始 —— 中文對齊英文，而不是被時間碼擠歪
+  const useGut = multi || !!time;
+  let inner;
+  if (multi) {
+    inner = '<div class="dk-t dk-bil">' + b.parts.map(function (p) {
+      return '<div class="dk-l ' + (p.lang === 'zh' ? 'dk-zh' : 'dk-en') + '">' + tokenHTML(p.s) + '</div>';
+    }).join('') + '</div>';
+  } else {
+    inner = '<div class="dk-t">' + (useGut ? '' : sp) + tokenHTML(b.s) + '</div>';
+  }
+  return useGut
+    ? '<div class="dk-block dk-grid"><div class="dk-gut">' + sp + time + '</div>' + inner + '</div>'
+    : '<div class="dk-block">' + inner + '</div>';
 }
 
 function sideHintHTML() {
@@ -5420,7 +5828,9 @@ function renderDocHome() {
     + '<ul>'
     + '<li>把雅思閱讀文章、英文小說、講義 PDF 丟進來，邊讀邊點不懂的詞</li>'
     + '<li>載入後會自動統計<b>本文生詞</b>（不在常用 2200 詞內的字），可一次加進生詞本</li>'
-    + '<li>字幕檔（.srt / .ass）會自動去掉時間軸與特效碼，重複字幕也會合併</li>'
+    + '<li>字幕檔（.srt / .ass）每句都會完整顯示（不會合併或省略），自動去掉時間軸與特效碼</li>'
+    + '<li>雙語字幕會英文在上、中文在下並左右對齊；每句之間有分隔線</li>'
+    + '<li><b>雙語字幕</b>（英文＋中文）會自動分成兩行顯示，可用工具列的「雙語分行」切換</li>'
     + '<li>每段左邊有 🔊，點一下可聽整段朗讀</li>'
     + '</ul>'
     + '<div class="dt-priv">🔒 檔案只在你的瀏覽器裡解析，<b>不會上傳到任何伺服器</b>，關掉網頁就消失。</div>'
@@ -5462,13 +5872,14 @@ function renderDoc() {
     + '<div class="doc-meta"><b>' + esc(DOC.name) + '</b>'
     + '<span class="dk">' + esc(DOC.kind) + '</span>'
     + '<span class="muted small">' + DOC.words.toLocaleString() + ' 詞 · '
-    + DOC.pages.length + ' 頁區 · 生詞 ' + DOC.hard.length + ' · 其中雅思詞 ' + nIelts + '</span></div>'
+    + DOC.blocks.length.toLocaleString() + ' 段 · 生詞 ' + DOC.hard.length + ' · 其中雅思詞 ' + nIelts + '</span></div>'
     + '<div class="doc-ops">'
     + '<button class="btn btn-sm" data-op="font-">A−</button>'
     + '<button class="btn btn-sm" data-op="font+">A＋</button>'
     + '<button class="btn btn-sm' + (DOC.mark ? ' btn-on' : '') + '" data-op="mark">標色</button>'
     + '<button class="btn btn-sm' + (DOC.showHard ? ' btn-on' : '') + '" data-op="hard">生詞表 ' + DOC.hard.length + '</button>'
     + (DOC.kind.indexOf('字幕') >= 0 ? '<button class="btn btn-sm' + (DOC.showTime ? ' btn-on' : '') + '" data-op="time">時間軸</button>' : '')
+    + (DOC.biCount ? '<button class="btn btn-sm' + (DOC.bil ? ' btn-on' : '') + '" data-op="bil" title="英文與中文各顯示一行">雙語分行 ' + DOC.biCount + '</button>' : '')
     + '<button class="btn btn-sm" data-op="pick">換檔案</button>'
     + '<button class="btn btn-sm btn-danger" data-op="close">關閉</button>'
     + '</div></div>';
@@ -5498,17 +5909,12 @@ function renderDoc() {
   }
 
   /* ---- 內文 ---- */
-  h += '<div class="doc-wrap"><div class="doc-pane"><div class="doc-text" style="font-size:' + DOC.fontSize + 'px">';
+  const isSub = DOC.kind.indexOf('字幕') >= 0;
+  h += '<div class="doc-wrap"><div class="doc-pane"><div class="doc-text' + (isSub ? ' is-sub' : '') + '" style="font-size:' + DOC.fontSize + 'px">';
   for (let i = pg.start; i < pg.end; i++) h += blockHTML(DOC.blocks[i], i);
   h += '</div>';
-  /* 分頁 */
-  if (DOC.pages.length > 1) {
-    h += '<div class="pager">'
-      + '<button class="btn btn-sm" data-op="prev"' + (DOC.page === 0 ? ' disabled' : '') + '>← 上一頁</button>'
-      + '<span>第 ' + (DOC.page + 1) + ' / ' + DOC.pages.length + ' 頁</span>'
-      + '<button class="btn btn-sm" data-op="next"' + (DOC.page >= DOC.pages.length - 1 ? ' disabled' : '') + '>下一頁 →</button>'
-      + '</div>';
-  }
+  /* 不分頁：整份文件一次顯示，直接往下捲到底 */
+  h += '<div class="doc-end">—— 已到文件結尾 · 共 ' + DOC.blocks.length.toLocaleString() + ' 段 ——</div>';
   h += '</div><div class="doc-side" id="docDetail">' + (($('#docDetail') && $('#docDetail').innerHTML) ? $('#docDetail').innerHTML : sideHintHTML()) + '</div>';
   h += '</div>';
 
@@ -5553,6 +5959,7 @@ function bindDoc() {
       else if (op === 'mark') DOC.mark = !DOC.mark;
       else if (op === 'hard') DOC.showHard = !DOC.showHard;
       else if (op === 'time') DOC.showTime = !DOC.showTime;
+      else if (op === 'bil') DOC.bil = !DOC.bil;
       else if (op === 'pick') { renderDocHome(); return; }
       else if (op === 'close') { resetDoc(); return; }
       else if (op === 'prev') DOC.page = Math.max(0, DOC.page - 1);
@@ -5563,16 +5970,6 @@ function bindDoc() {
         toast('已把 ' + DOC.hard.length + ' 個生詞加入生詞本');
       }
       renderDoc();
-    };
-  });
-
-  $$('.pager .btn', root).forEach(function (b) {
-    b.onclick = function () {
-      const op = b.dataset.op;
-      if (op === 'prev') DOC.page = Math.max(0, DOC.page - 1);
-      if (op === 'next') DOC.page = Math.min(DOC.pages.length - 1, DOC.page + 1);
-      renderDoc();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
   });
 
@@ -5600,11 +5997,16 @@ function bindDoc() {
       const sp = e.target.closest('[data-speak]');
       if (sp) {
         const b = DOC.blocks[+sp.dataset.speak];
-        if (b) speak(b.s.slice(0, 480));
+        if (b) {
+          // 雙語段落只朗讀英文那行，不然語音會把中文一起念進去
+          const en = b.parts ? b.parts.filter(function (p) { return p.lang === 'en'; })
+            .map(function (p) { return p.s; }).join(' ').trim() : '';
+          speak((en || b.s).slice(0, 480));
+        }
         return;
       }
       const tk = e.target.closest('.tk');
-      if (tk) showDocWord(tk.dataset.w);
+      if (tk) showDocWord(tk.dataset.w, tk);
     };
   }
 
@@ -5621,14 +6023,16 @@ function bindDoc() {
 
 function resetDoc() {
   DOC.name = ''; DOC.kind = ''; DOC.blocks = []; DOC.pages = [];
-  DOC.page = 0; DOC.words = 0; DOC.hard = []; DOC.find = '';
+  DOC.page = 0; DOC.words = 0; DOC.hard = []; DOC.find = ''; DOC.biCount = 0;
   DOC.showHard = false; DOC.ready = false; DOC.cur = '';
   const side = $('#docDetail'); if (side) side.innerHTML = '';
   renderDocHome();
 }
 
-/* 點內文單詞 → 在右側面板顯示完整單詞卡 */
-function showDocWord(raw) {
+/* 點內文單詞 → 在右側面板顯示完整單詞卡
+   srcEl：實際被點到的那個字（可省略）。畫面完全不捲動，
+   只有當「點的那個字」剛好被 header 遮住時才微調，避免跳到文件其他位置的相同單詞。 */
+function showDocWord(raw, srcEl) {
   const w = wordKey(raw);
   if (!w) return;
   DOC.cur = w;
@@ -5639,16 +6043,13 @@ function showDocWord(raw) {
   bindWordCard(w, root);
   loadApi(w, root);
   const text = $('.doc-text');
-  let hit = null;
   if (text) {
     $$('.tk.tk-on', text).forEach(function (x) { x.classList.remove('tk-on'); });
-    const hits = $$('.tk[data-w="' + w + '"]', text);
-    hits.forEach(function (x) { x.classList.add('tk-on'); });
-    hit = hits[0] || null;
+    $$('.tk[data-w="' + w + '"]', text).forEach(function (x) { x.classList.add('tk-on'); });
   }
   root.scrollTop = 0;
-  // 點到的單詞若剛好在 header 底下被遮住，就把它捲到 header 下方露出來
-  if (hit && typeof ensureVisible === 'function') ensureVisible(hit, 20);
+  // 不主動捲動頁面；只有「被點到的那一個字」被 header 擋住時才往下讓它露出
+  if (srcEl && text && srcEl.isConnected && typeof ensureVisible === 'function') ensureVisible(srcEl, 20);
   // 窄螢幕（單欄）時單詞卡在內文下方，捲過去才看得到
   if (window.innerWidth <= 900 && typeof scrollToEl === 'function') scrollToEl(root, 12);
 }
