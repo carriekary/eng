@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" data-page-node-id="xw7Lrzdw5O2Gvkrkf0PQLl">
-<head data-page-node-id="mxcwm6HGuULenGUfYtBQN9">
-<meta charset="UTF-8" data-page-node-id="85jN7oF9eqpGglKy3RhV8E">
-<meta name="viewport" content="width=device-width, initial-scale=1" data-page-node-id="vpW4t1mWUETdAWUqwqcrs2">
+<html lang="zh-Hant" data-page-node-id="5E23SKT7CaGci4Z52KpJre">
+<head data-page-node-id="lV8EUGoXvPkTtru4iIFiRN">
+<meta charset="UTF-8" data-page-node-id="UL73N3ytazBnl4DV4gXBF3">
+<meta name="viewport" content="width=device-width, initial-scale=1" data-page-node-id="1yF9KN8c3TvrQRH8heFFQc">
 <title>拼讀字典 Spell &amp; Sound — 看字就會讀</title>
 <style>
 :root{
@@ -14,9 +14,16 @@
   --ok:#059669;
   --r:14px;
   --w:1800px;   /* 內容最大寬度（想更窄就改這個數字） */
+  --hd:124px;   /* header 實際高度，由 JS 即時量測並寫回，避免遮住內容 */
+  --hdgap:14px; /* 內容與 header 之間預留的間距 */
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
+/* header 是 sticky，任何捲動定位（錨點、scrollIntoView、瀏覽器自動捲動）
+   都要幫它預留高度，否則目標會被壓在 header 底下 */
+html{scroll-padding-top:calc(var(--hd) + var(--hdgap))}
+#detail,.card,.phr-detail,.res-head,.res-grid,.phr-grid,
+.dk-block,.tk,.doc-text mark{scroll-margin-top:calc(var(--hd) + var(--hdgap))}
 body{
   background:var(--bg); color:var(--ink);
   font-family:"Segoe UI","PingFang HK","Microsoft JhengHei","Noto Sans TC",system-ui,-apple-system,sans-serif;
@@ -32,17 +39,19 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 /* ---------- Header ---------- */
 header{
   background:linear-gradient(160deg,#4f46e5 0%,#6366f1 45%,#0ea5e9 100%);
-  color:#fff; padding:26px 0 0; margin-bottom:22px;
+  color:#fff; padding:14px 0 0; margin-bottom:22px;
+  position:sticky; top:0; z-index:300;
+  box-shadow:0 4px 16px rgba(31,41,80,.18);
 }
 .hd-in{max-width:var(--w);margin:0 auto;padding:0 22px}
 .brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
-.brand h1{font-size:25px;margin:0;letter-spacing:-.3px;font-weight:700}
+.brand h1{font-size:22px;margin:0;letter-spacing:-.3px;font-weight:700}
 .brand .sub{opacity:.9;font-size:14px}
 .brand .en{opacity:.75;font-size:13px;letter-spacing:.5px}
-.tabs{display:flex;gap:4px;margin-top:18px;flex-wrap:wrap}
+.tabs{display:flex;gap:4px;margin-top:11px;flex-wrap:wrap}
 .tab{
   background:rgba(255,255,255,.14); border:0; color:#fff; cursor:pointer;
-  padding:9px 18px; border-radius:10px 10px 0 0; font-size:14.5px; font-weight:500;
+  padding:8px 15px; border-radius:10px 10px 0 0; font-size:14px; font-weight:500;
   font-family:inherit; transition:background .15s;
 }
 .tab:hover{background:rgba(255,255,255,.24)}
@@ -101,6 +110,36 @@ header{
 .ri-w{font-size:15.5px;font-weight:600}
 .ri-p{font-size:12.5px;color:var(--muted);font-family:ui-monospace,Menlo,Consolas,monospace}
 .empty{background:var(--card);border:1px dashed var(--line);border-radius:12px;padding:22px;text-align:center;color:var(--muted);font-size:14px}
+
+/* ---------- Phrases & Idioms ---------- */
+.phr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:11px}
+.phr-item{
+  background:var(--card);border:1px solid var(--line);border-radius:11px;padding:13px 15px;
+  cursor:pointer;text-align:left;font-family:inherit;transition:.13s;display:flex;flex-direction:column;gap:5px;
+}
+.phr-item:hover{border-color:var(--pri);transform:translateY(-1px);box-shadow:0 3px 11px rgba(79,70,229,.11)}
+.phr-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.phr-p{font-size:16.5px;font-weight:700;letter-spacing:-.2px}
+.phr-cat{font-size:11px;padding:1px 7px;border-radius:99px;background:var(--pri-s);color:var(--pri);white-space:nowrap}
+.phr-cat.c-idiom{background:#fef3c7;color:#b45309}
+.phr-cat.c-phrasal{background:#dbeafe;color:#1d4ed8}
+.phr-cat.c-daily{background:#dcfce7;color:#15803d}
+.phr-cat.c-link{background:#ede9fe;color:#6d28d9}
+.phr-m{font-size:13.5px;color:var(--ink);line-height:1.55}
+.phr-ex{font-size:12.5px;color:var(--muted);line-height:1.5;font-style:italic;border-left:2px solid var(--line);padding-left:8px}
+.phr-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px;margin:16px 0 12px;color:var(--muted)}
+.phr-bar b{color:var(--ink)}
+.phr-bar input{
+  flex:1;min-width:180px;font-size:15px;padding:9px 13px;border:2px solid var(--line);
+  border-radius:10px;outline:none;font-family:inherit;background:#fbfcfe;color:var(--ink);
+}
+.phr-bar input:focus{border-color:var(--pri);background:#fff}
+.phr-detail{background:var(--card);border-radius:var(--r);border:1px solid var(--line);box-shadow:0 1px 3px rgba(20,25,50,.06);margin-top:14px;padding:20px 22px}
+.phr-detail .pd-w{font-size:30px;font-weight:700;letter-spacing:-.5px}
+.phr-detail .pd-m{font-size:17px;margin:6px 0 12px}
+.phr-detail .pd-ex{background:#f8fafc;border-left:3px solid var(--pri);padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;line-height:1.6}
+.phr-detail .pd-ops{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.phr-kw{background:var(--pri-s);color:var(--pri);border-radius:5px;padding:0 3px;font-weight:700}
 
 /* ---------- Word card ---------- */
 .card{background:var(--card);border-radius:var(--r);border:1px solid var(--line);box-shadow:0 1px 3px rgba(20,25,50,.06);margin-top:18px;overflow:hidden}
@@ -340,7 +379,9 @@ header{
 .doc-text mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
 
 .doc-side{
-  position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;
+  /* 黏在 header 底下，而不是黏在視窗最頂端（不然卡片上半部會被 header 蓋住） */
+  position:sticky;top:calc(var(--hd) + var(--hdgap));
+  max-height:calc(100vh - var(--hd) - var(--hdgap) * 2);overflow:auto;
   border-radius:var(--r);scrollbar-width:thin;
 }
 .doc-side::-webkit-scrollbar{width:8px}
@@ -392,89 +433,95 @@ footer{text-align:center;color:var(--faint);font-size:12.5px;margin-top:34px;lin
 }
 </style>
 </head>
-<body data-page-node-id="Hcc8iObv6SadREYeZ25N2X">
+<body data-page-node-id="sAvAn8plGr44kNYr8HHYET">
 
-<header data-page-node-id="MVIUjpN8tJTCPZOkTrwsJW">
-  <div class="hd-in" data-page-node-id="4BNRKPJGvuMvdcR7PRCEaB">
-    <div class="brand" data-page-node-id="Eu3DoA4VEOBFk3RcYzIHLX">
-      <h1 data-page-node-id="LKyiE78FohIgbaVW4NAwDL">拼讀字典</h1>
-      <span class="en" data-page-node-id="2KGb7VxtpZzbnGOBnHdnOJ">Spell &amp; Sound</span>
-      <span class="sub" data-page-node-id="wPLDWm7zEbXZHaTJlTrIjn">看字就會讀 —— 拆解每一個字母為什麼這樣發音</span>
+<header data-page-node-id="RswfeRQWQdcMOx4COUWJ7y">
+  <div class="hd-in" data-page-node-id="ze94cmjYF6z3fYJmFeg821">
+    <div class="brand" data-page-node-id="HNLuWuDN75Ugqkr22vhDaP">
+      <h1 data-page-node-id="3kBDrh3c2pvxuaWOiRjtbf">拼讀字典</h1>
+      <span class="en" data-page-node-id="yC7bBDLHUQZbBh2fmO5yuu">Spell &amp; Sound</span>
+      <span class="sub" data-page-node-id="cSdEwla6jnb11mgG8lAFDI">看字就會讀 —— 拆解每一個字母為什麼這樣發音</span>
     </div>
-    <div class="tabs" data-page-node-id="bvtTtefWfL46BjdG7t18Kl">
-      <button class="tab on" data-t="search" data-page-node-id="NfIQnlvmULAfiLly9CRDUP">查詞</button>
-      <button class="tab" data-t="ielts" data-page-node-id="OZOaIF3OnzOYP6DlUDsxj0">雅思詞彙</button>
-      <button class="tab" data-t="doc" data-page-node-id="YPDr5fgVsWpg8tkKp8xvKA">文件閱讀</button>
-      <button class="tab" data-t="rules" data-page-node-id="7Oof6jOBgTRYztjv1sW3Ny">發音規則速查</button>
-      <button class="tab" data-t="chart" data-page-node-id="QxF95HRszomNaNdEgEnCA7">國際音標表</button>
-      <button class="tab" data-t="book" data-page-node-id="YKPE8UKDhVYry5gYK4K09v">生詞本 <span class="badge" id="bookCount" data-page-node-id="7LrIaBmeqgeUH7lP6XjZ2e">0</span></button>
+    <div class="tabs" data-page-node-id="mEdGie0MHs1KNFiN1byIAb">
+      <button class="tab on" data-t="search" data-page-node-id="dRsX3F0CmEVKYJcjLZdKZC">查詞</button>
+      <button class="tab" data-t="phr" data-page-node-id="UmP0ZrgnqiXwD7EPCfA9qd">片語成語 <span class="badge" id="phrCount" data-page-node-id="9w5xvEunrJ3mmdLRVPUPwF">0</span></button>
+      <button class="tab" data-t="ielts" data-page-node-id="ElTHF3fQZ1aBlVRP8T6iP4">雅思詞彙</button>
+      <button class="tab" data-t="doc" data-page-node-id="zEamioStIQ1kULLTDjYpYr">文件閱讀</button>
+      <button class="tab" data-t="rules" data-page-node-id="igk3ltLYbmiP3rCh84rsIx">發音規則速查</button>
+      <button class="tab" data-t="chart" data-page-node-id="hcpQpJEXBKnJhvBhh88VEh">國際音標表</button>
+      <button class="tab" data-t="book" data-page-node-id="e0TerzLFQ2UcEDE0nwzxLD">生詞本 <span class="badge" id="bookCount" data-page-node-id="CLV0f5iKT8yHaLTIqBqm3q">0</span></button>
     </div>
   </div>
 </header>
 
-<div class="wrap" data-page-node-id="bNWgH1yHlJUfXDnYeDrv0E">
+<div class="wrap" data-page-node-id="4HejBlJjdP6U26CRLJKe3g">
 
   <!-- ========== 查詞 ========== -->
-  <section class="page on" data-p="search" data-page-node-id="mFF3qsGoHUP8GpD2Aob2LW">
-    <div class="search-box" data-page-node-id="0WvIdUFElTUwOKGcMf4uFv">
-      <div class="sb-row" data-page-node-id="y4WGwhr4sZfHXWyg38blTH">
-        <input id="q" type="text" placeholder="輸入詞首…" autocomplete="off" spellcheck="false" data-page-node-id="lZbE7A3KOrJT1Vln0qeC7k">
-        <button class="btn" id="btnRandom" title="隨機挑一個詞" data-page-node-id="cRFZa4I736lDQ4SP1BA0mk">🎲 隨機</button>
+  <section class="page on" data-p="search" data-page-node-id="rHY2LDdAXAIE7iBclqoZcz">
+    <div class="search-box" data-page-node-id="ldBnpWQDn7UtDgOsNcMqFD">
+      <div class="sb-row" data-page-node-id="MbxQDXqiEXsG7WDVTkgxZc">
+        <input id="q" type="text" placeholder="輸入詞首…" autocomplete="off" spellcheck="false" data-page-node-id="jkPunrDNlnGLWDWTLJn4Ji">
+        <button class="btn" id="btnRandom" title="隨機挑一個詞" data-page-node-id="GFRAzYVNx0XjYP204dvAvY">🎲 隨機</button>
       </div>
-      <div class="modes" data-page-node-id="MDqRyitb0HgfGUmBDL7dD0">
-        <span class="lbl" data-page-node-id="rFkFC8adbmhcV9KHEL5CLl">搜尋方式</span>
-        <button class="mode-btn on" data-m="start" data-page-node-id="gtWWSY3r0xGpw7kDsa1dcf">詞首</button>
-        <button class="mode-btn" data-m="contain" data-page-node-id="WGpMrQYGjdovZA31ci4va5">詞中（包含）</button>
-        <button class="mode-btn" data-m="end" data-page-node-id="j7Vm2Kc9GCXnKymMR4QkSM">詞尾</button>
-        <button class="mode-btn" data-m="exact" data-page-node-id="YV1sehxKhlnf57LfpgHBa9">精確</button>
-        <button class="mode-btn" data-m="wild" data-page-node-id="ngkERIe0GZFpAVlNFUxA8h">萬用字元 * ?</button>
+      <div class="modes" data-page-node-id="tMM9i6UOWTyH8nwC8ai5um">
+        <span class="lbl" data-page-node-id="rEv2ryf7U5H7Hek2ngeY0G">搜尋方式</span>
+        <button class="mode-btn on" data-m="start" data-page-node-id="LVmqxMN2j4v04WshjGuPOo">詞首</button>
+        <button class="mode-btn" data-m="contain" data-page-node-id="CtHet9HAsjXjqHWrjcEehd">詞中（包含）</button>
+        <button class="mode-btn" data-m="end" data-page-node-id="faq5ih5JsMfIsnIWKYbuNa">詞尾</button>
+        <button class="mode-btn" data-m="exact" data-page-node-id="cfmhgBbBkG9aDaSyj1Fibp">精確</button>
+        <button class="mode-btn" data-m="wild" data-page-node-id="a7HRhjNFr2pCR97rcYkxhO">萬用字元 * ?</button>
       </div>
-      <div class="modes" data-page-node-id="qAe72Ox2zdG2jeOwuFnfUW">
-        <span class="lbl" data-page-node-id="sZcll8FfIzZdcoeOlKpiWS">詞庫範圍</span>
-        <button class="mode-btn on" data-scope="all" data-page-node-id="gShAXjZdvyo497IxMbxkrt">全部</button>
-        <button class="mode-btn" data-scope="common" data-page-node-id="8aPyKlLIn0hRdIoqzGY7sO">常用詞</button>
-        <button class="mode-btn" data-scope="ielts" data-page-node-id="6VitTkdL6IciHs2GFgPGRL">雅思詞</button>
+      <div class="modes" data-page-node-id="xKFpuyHGzOJjbJyo0Vi1JQ">
+        <span class="lbl" data-page-node-id="MrOjMouKLjq8DBieyzcdRB">詞庫範圍</span>
+        <button class="mode-btn on" data-scope="all" data-page-node-id="P5BKVk0gqSvP6vDoydjg2E">全部</button>
+        <button class="mode-btn" data-scope="common" data-page-node-id="DQpREE7aSXwkt9HQBT8DAp">常用詞</button>
+        <button class="mode-btn" data-scope="ielts" data-page-node-id="bFRlrNfWKBPFxmHdFCBNJ2">雅思詞</button>
       </div>
-      <div id="modeTip" data-page-node-id="EV97ZJkVloISgPyerh1rJe"></div>
-      <div id="hist" data-page-node-id="inGq3lc3kFhGISvKmyK8E9"></div>
+      <div id="modeTip" data-page-node-id="oStVnAv3c1gbQTk6McbZ2S"></div>
+      <div id="hist" data-page-node-id="KBik4fA0JT7XKcJ0tjyTvC"></div>
     </div>
 
-    <div id="results" data-page-node-id="Ibq3bphr5I5Wo1nIiDGmPf"></div>
-    <div id="detail" data-page-node-id="AKFUItmv3oHl1D51MtPgY7"></div>
+    <div id="results" data-page-node-id="FuX8uFK3A7FRpkkmtsJYLi"></div>
+    <div id="detail" data-page-node-id="guuRLRhniTRQhCgb7ml5DA"></div>
+  </section>
+
+  <!-- ========== 片語成語 ========== -->
+  <section class="page" data-p="phr" data-page-node-id="vz5EO8G5iH3S8o6QdgEaC9">
+    <div id="phr" data-page-node-id="oRaGgzHBfmZpfGWoosNJLL"></div>
   </section>
 
   <!-- ========== 雅思詞彙 ========== -->
-  <section class="page" data-p="ielts" data-page-node-id="DTZdhavuyFklVbGu1LGKlG">
-    <div id="ielts" data-page-node-id="jatRGadhWiCS2rF1qCwKfs"></div>
+  <section class="page" data-p="ielts" data-page-node-id="BDkFXAKoZKJH8UH07tcaA7">
+    <div id="ielts" data-page-node-id="MtmFptmXx1exqgQocPNpar"></div>
   </section>
 
   <!-- ========== 文件閱讀 ========== -->
-  <section class="page" data-p="doc" data-page-node-id="WVNNJywmjQg16zZHkBkVc1">
-    <div id="doc" data-page-node-id="XEkWgUAlKADMfu0aUmFNsq"></div>
+  <section class="page" data-p="doc" data-page-node-id="Z1vNu62IHbcntAyErmIm4k">
+    <div id="doc" data-page-node-id="qiP93lK4DuHannMoUm4RHD"></div>
   </section>
 
   <!-- ========== 規則速查 ========== -->
-  <section class="page" data-p="rules" data-page-node-id="fHERhJZJvm2qx7vj66eqFY">
-    <div id="rules" data-page-node-id="AELh81f2hbsUiE14Iy1uoA"></div>
+  <section class="page" data-p="rules" data-page-node-id="LzdyJvgQzuKsz57CSzw6iB">
+    <div id="rules" data-page-node-id="IxCK2k2DZWY4TB4QD65mXi"></div>
   </section>
 
   <!-- ========== 音標表 ========== -->
-  <section class="page" data-p="chart" data-page-node-id="PU9OZPZ6pBR7CiEePYo3mL">
-    <div id="chart" data-page-node-id="7P7w8MpuaLcFWcD7LNZuuP"></div>
+  <section class="page" data-p="chart" data-page-node-id="a5C1e18GZNlYsEjvpFBO9x">
+    <div id="chart" data-page-node-id="6PP2G10QUxgph5OUneCInn"></div>
   </section>
 
   <!-- ========== 生詞本 ========== -->
-  <section class="page" data-p="book" data-page-node-id="t9luBMGo94q0BVO8FSJPjz">
-    <div id="book" data-page-node-id="r1SLQ01nEKqxi11UjffhQ2"></div>
+  <section class="page" data-p="book" data-page-node-id="KxYdSlwwW9IdogoEUyXMqN">
+    <div id="book" data-page-node-id="Jk6k0Ky5A0kcrOPEYxEFzo"></div>
   </section>
 
-  <footer data-page-node-id="Heuc4D90q0bJEmOGEeeOzZ">
-    音標、音節切分與詞根分析皆由內建詞表與規則引擎離線運算，任何英文單詞都能分析；連網時會從 Wiktionary 補充英／美音標、釋義與真人錄音，並提供 Cambridge／Collins 一鍵跳轉。<br data-page-node-id="0Qi1aZJdoqAbyx9P4EQpeZ">
+  <footer data-page-node-id="okhmaqudMqOUMZBKs3AEzO">
+    音標、音節切分與詞根分析皆由內建詞表與規則引擎離線運算，任何英文單詞都能分析；連網時會從 Wiktionary 補充英／美音標、釋義與真人錄音，並提供 Cambridge／Collins 一鍵跳轉。<br data-page-node-id="3ecai6UzL0jWu7ZW5N3O0z">
     英文拼讀例外極多，規則推測僅供學習參考，聽力與口說請以真人發音為準。
   </footer>
 </div>
 
-<div id="toast" data-page-node-id="BUaqgujguJghZ60Xv7UoQc"></div>
+<div id="toast" data-page-node-id="ExCDVpSyF8eLb377BWP1a4"></div>
 
 <script>
 const RAW_WORDS="the of and to in for is on that by this with you it not or be are from at as your all have new more an was we will home can us about if page my has search free but our one other do no information time they site he up may what which their news out use any there see only so his when contact here business who web also now help get pm view online first am been would how were me services some these click its like service than find price date back top people had list name just over state year day into email two health world re next used go work last most products music buy data make them should product system post her city add policy number such please available copyright support message after best software then jan good video well where info rights public books high school through each links she review years order very privacy book items company read group sex need many user said de does set under general research university january mail full map reviews program life know games way days management part could great united hotel real item international center ebay must store travel comments made development report off member details line terms before hotels did send right type because local those using results office education national car design take posted internet address community within states area want phone dvd shipping reserved subject between forum family long based code show even black check special prices website index being women much sign file link open today technology south case project same pages uk version section own found sports house related security both county american photo game members power while care network down computer systems three total place end following download him without per access think north resources current posts big media law control water history pictures size art personal since including guide shop directory board location change white text small rating rate government children during usa return students shopping account times sites level digital profile previous form events love old john main call hours image department title description non insurance another why shall property class cd still money quality every listing content country private little visit save tools low reply customer december compare movies include college value article york man card jobs provide food source author different press learn sale around print course job canada process teen room stock training too credit point join science men categories advanced west sales look english left team estate box conditions select windows photos gay thread week category note live large gallery table register however june october november market library really action start series model features air industry plan human provided tv yes required second hot accessories cost movie forums march la september better say questions july yahoo going medical test friend come dec server pc study application cart staff articles san feedback again play looking issues april never users complete street topic comment financial things working against standard tax person below mobile less got blog party payment equipment login student let programs offers legal above recent park stores side act problem red give memory performance social august quote language story sell options experience rates create key body young america important field few east paper single ii age activities club example girls additional password latest something road gift question changes night ca hard texas oct pay four poker status browse issue range building seller court february always result audio light write war nov offer blue groups al easy given files event release analysis request fax china making picture needs possible might professional yet month major star areas future space committee hand sun cards problems london washington meeting rss become interest id child keep enter california porn share similar garden schools million added reference companies listed baby learning energy run delivery net popular term film stories put computers journal reports co try welcome central images president notice god original head radio until cell color self council away includes track australia discussion archive once others entertainment agreement format least society months log safety friends sure faq trade edition cars messages marketing tell further updated association able having provides david fun already green studies close common drive specific several gold feb living sep collection called short arts lot ask display limited powered solutions means director daily beach past natural whether due et electronics five upon period planning database says official weather mar land average done technical window france pro region island record direct microsoft conference environment records st district calendar costs style url front statement update parts aug ever downloads early miles sound resource present applications either ago document word works material bill apr written talk federal hosting rules final adult tickets thing centre requirements via cheap nude kids finance true minutes else mark third rock gifts europe reading topics bad individual tips plus auto cover usually edit together videos percent fast function fact unit getting global tech meet far economic en player projects lyrics often subscribe submit germany amount watch included feel though bank risk thanks everything deals various words linux jul production commercial james weight town heart advertising received choose treatment newsletter archives points knowledge magazine error camera jun girl currently construction toys registered clear golf receive domain methods chapter makes protection policies loan wide beauty manager india position taken sort listings models michael known half cases step engineering florida simple quick none wireless license paul friday lake whole annual published later basic sony shows corporate google church method purchase customers active response practice hardware figure materials fire holiday chat enough designed along among death writing speed html countries loss face brand discount higher effects created remember standards oil bit yellow political increase advertise kingdom base near environmental thought stuff french storage oh japan doing loans shoes entry stay nature orders availability africa summary turn mean growth notes agency king monday european activity copy although drug pics western income force cash employment overall bay river commission ad package contents seen players engine port album regional stop supplies started administration bar institute views plans double dog build screen exchange types soon sponsored lines electronic continue across benefits needed season apply someone held ny anything printer condition effective believe organization effect asked eur mind sunday selection casino pdf lost tour menu volume cross anyone mortgage hope silver corporation wish inside solution mature role rather weeks addition came supply nothing certain usr executive running lower necessary union jewelry according dc clothing mon com particular fine names robert homepage hour gas skills six bush islands advice career military rental decision leave british teens pre huge sat woman facilities zip bid kind sellers middle move cable opportunities taking values division coming tuesday object lesbian appropriate machine logo length actually nice score statistics client ok returns capital follow sample investment sent shown saturday christmas england culture band flash ms lead george choice went starting registration fri thursday courses consumer hi airport foreign artist outside furniture levels channel letter mode phones ideas wednesday structure fund summer allow degree contract button releases wed homes super male matter custom virginia almost took located multiple asian distribution editor inn industrial cause potential song cnet ltd los hp focus late fall featured idea rooms female responsible inc communications win associated thomas primary cancer numbers reason tool browser spring foundation answer voice eg friendly schedule documents communication purpose feature bed comes police everyone independent ip approach cameras brown physical operating hill maps medicine deal hold ratings chicago forms glass happy tue smith wanted developed thank safe unique survey prior telephone sport ready feed animal sources mexico population pa regular secure navigation operations therefore ass simply evidence station christian round paypal favorite understand option master valley recently probably thu rentals sea built publications blood cut worldwide improve connection publisher hall larger anti networks earth parents nokia impact transfer introduction kitchen strong tel carolina wedding properties hospital ground overview ship accommodation owners disease tx excellent paid italy perfect hair opportunity kit classic basis command cities william express anal award distance tree peter assessment ensure thus wall ie involved el extra especially interface pussy partners budget rated guides success maximum ma operation existing quite selected boy amazon patients restaurants beautiful warning wine locations horse vote forward flowers stars significant lists technologies owner retail animals useful directly manufacturer ways est son providing rule mac housing takes iii gmt bring catalog searches max trying mother authority considered told xml traffic programme joined input strategy feet agent valid bin modern senior ireland sexy teaching door grand testing trial charge units instead canadian cool normal wrote enterprise ships entire educational md leading metal positive fl fitness chinese opinion mb asia football abstract uses output funds mr greater likely develop employees artists alternative processing responsibility resolution java guest seems publication pass relations trust van contains session multi photography republic fees components vacation century academic assistance completed skin graphics indian prev ads mary il expected ring grade dating pacific mountain organizations pop filter mailing vehicle longer consider int northern behind panel floor german buying match proposed default require iraq boys outdoor deep morning otherwise allows rest protein plant reported hit transportation mm pool mini politics partner disclaimer authors boards faculty parties fish membership mission eye string sense modified pack released stage internal goods recommended born unless richard detailed japanese race approved background target except character usb maintenance ability maybe functions ed moving brands places php pretty trademarks phentermine spain southern yourself etc winter rape battery youth pressure submitted boston incest debt keywords medium television interested core break purposes throughout sets dance wood msn itself defined papers playing awards fee studio reader virtual device established answers rent las remote dark programming external apple le regarding instructions min offered theory enjoy remove aid surface minimum visual host variety teachers isbn martin manual block subjects agents increased repair fair civil steel understanding songs fixed wrong beginning hands associates finally az updates desktop classes paris ohio gets sector capacity requires jersey un fat fully father electric saw instruments quotes officer driver businesses dead respect unknown specified restaurant mike trip pst worth mi procedures poor teacher xxx eyes relationship workers farm fucking georgia peace traditional campus tom showing creative coast benefit progress funding devices lord grant sub agree fiction hear sometimes watches careers beyond goes families led museum themselves fan transport interesting blogs wife evaluation accepted former implementation ten hits zone complex th cat galleries references die presented jack flat flow agencies literature respective parent spanish michigan columbia setting dr scale stand economy highest helpful monthly critical frame musical definition secretary angeles networking path australian employee chief gives kb bottom magazines packages detail francisco laws changed pet heard begin individuals colorado royal clean switch russian largest african guy titles relevant guidelines justice connect bible dev cup basket applied weekly vol installation described demand pp suite vegas na square chris attention advance skip diet army auction gear lee os difference allowed correct charles nation selling lots piece sheet firm seven older illinois regulations elements species jump cells module resort facility random pricing dvds certificate minister motion looks fashion directions visitors documentation monitor trading forest calls whose coverage couple giving chance vision ball ending clients actions listen discuss accept automotive naked goal successful sold wind communities clinical situation sciences markets lowest highly publishing appear emergency developing lives currency leather determine milf temperature palm announcements patient actual historical stone bob commerce ringtones perhaps persons difficult scientific satellite fit tests village accounts amateur ex met pain xbox particularly factors coffee www settings cum buyer cultural steve easily oral ford poster edge functional root au fi closed holidays ice pink zealand balance monitoring graduate replies shot nc architecture initial label thinking scott llc sec recommend canon hardcore league waste minute bus provider optional dictionary cold accounting manufacturing sections chair fishing effort phase fields bag fantasy po letters motor va professor context install shirt apparel generally continued foot mass crime count breast techniques ibm rd johnson sc quickly dollars websites religion claim driving permission surgery patch heat wild measures generation kansas miss chemical doctor task reduce brought himself nor component enable exercise bug santa mid guarantee leader diamond israel se processes soft servers alone meetings seconds jones arizona keyword interests flight congress fuel username walk fuck produced italian paperback classifieds wait supported pocket saint rose freedom argument competition creating jim drugs joint premium providers fresh characters attorney upgrade di factor growing thousands km stream apartments pick hearing eastern auctions therapy entries dates generated signed upper administrative serious prime samsung limit began louis steps errors shops bondage del efforts informed ga ac thoughts creek ft worked quantity urban practices sorted reporting essential myself tours platform load affiliate labor immediately admin nursing defense machines designated tags heavy covered recovery joe guys integrated configuration cock merchant comprehensive expert universal protect drop solid cds presentation languages became orange compliance vehicles prevent theme rich im campaign marine improvement vs guitar finding pennsylvania examples ipod saying spirit ar claims porno challenge motorola acceptance strategies mo seem affairs touch intended towards sa goals hire election suggest branch charges serve affiliates reasons magic mount smart talking gave ones latin multimedia xp tits avoid certified manage corner rank computing oregon element birth virus abuse interactive".split(" ");
@@ -1430,6 +1477,606 @@ function relativesOf(rootText, self, limit) {
   });
   return pool.slice(0, limit);
 }
+
+</script>
+<script>
+/* ============================================================
+   片語 / 慣用語 / 動詞片語 / 寫作用語
+   格式：[分類, 片語, 繁中意思, 例句]
+   ============================================================ */
+const PHRASE_CATS = {
+  phrasal: '動詞片語 Phrasal Verbs',
+  idiom: '慣用語／成語 Idioms',
+  daily: '日常用語 Daily Expressions',
+  link: '連接與寫作用語 Linking & Writing'
+};
+
+const PHRASE_RAW = [
+  /* ---------------- 動詞片語 ---------------- */
+  ["phrasal", "look after", "照顧、照料", "She looks after her younger brother every day."],
+  ["phrasal", "look forward to", "期待、盼望", "I'm looking forward to the weekend."],
+  ["phrasal", "look up", "查閱（字典）；好轉", "You can look up the word in this dictionary."],
+  ["phrasal", "look up to", "尊敬、欽佩", "He has always looked up to his teacher."],
+  ["phrasal", "look down on", "輕視、看不起", "Never look down on people who are less lucky."],
+  ["phrasal", "look into", "調查、研究", "The council will look into the complaint."],
+  ["phrasal", "look out", "小心、當心", "Look out! There's a car coming."],
+  ["phrasal", "look over", "檢查、審閱", "Could you look over my essay before I hand it in?"],
+  ["phrasal", "look through", "瀏覽、翻閱", "She looked through the report quickly."],
+  ["phrasal", "look back on", "回顧", "Looking back on it, I should have studied harder."],
+  ["phrasal", "look for", "尋找", "I'm looking for my keys."],
+  ["phrasal", "look on", "旁觀", "They just looked on instead of helping."],
+  ["phrasal", "give up", "放棄", "Don't give up on your dream."],
+  ["phrasal", "give in", "屈服、讓步", "He finally gave in and bought the ticket."],
+  ["phrasal", "give out", "分發；耗盡", "Volunteers gave out leaflets at the station."],
+  ["phrasal", "give away", "贈送；洩漏", "She gave away all her old books."],
+  ["phrasal", "give back", "歸還", "Please give back the book by Friday."],
+  ["phrasal", "give off", "散發（氣味、光、熱）", "The flowers give off a sweet smell."],
+  ["phrasal", "take off", "起飛；脫下；突然走紅", "The plane took off on time."],
+  ["phrasal", "take on", "承擔、接受（工作）", "She took on too much work last month."],
+  ["phrasal", "take up", "開始從事；佔用", "He took up photography last year."],
+  ["phrasal", "take over", "接管、接手", "The new manager will take over next week."],
+  ["phrasal", "take after", "長得像（長輩）", "She takes after her mother."],
+  ["phrasal", "take in", "吸收；理解；欺騙", "It took me a while to take in the news."],
+  ["phrasal", "take out", "取出；帶…出去", "He took out a loan to buy the car."],
+  ["phrasal", "take back", "收回（說過的話）；退貨", "I take back what I said yesterday."],
+  ["phrasal", "take away", "帶走；減去", "Take away 5 from 12 and you get 7."],
+  ["phrasal", "take down", "記下；拆除", "The reporter took down every word."],
+  ["phrasal", "take to", "喜歡上、開始習慣", "He took to the new job immediately."],
+  ["phrasal", "take care of", "照顧、處理", "I'll take care of the arrangements."],
+  ["phrasal", "take part in", "參加", "Over 200 students took part in the survey."],
+  ["phrasal", "take advantage of", "利用（機會／人）", "Take advantage of the free trial."],
+  ["phrasal", "take into account", "考慮到、納入考量", "We must take the cost into account."],
+  ["phrasal", "put off", "延期；使卻步", "Don't put off until tomorrow what you can do today."],
+  ["phrasal", "put on", "穿上；增加（體重）；上演", "She put on her coat and left."],
+  ["phrasal", "put out", "熄滅；發布", "Firefighters put out the blaze in an hour."],
+  ["phrasal", "put up", "張貼；提供住宿", "They put up posters around the campus."],
+  ["phrasal", "put up with", "忍受、容忍", "I can't put up with the noise any longer."],
+  ["phrasal", "put away", "收好、放好", "Put away your toys before dinner."],
+  ["phrasal", "put down", "放下；鎮壓；記下", "Put down your name and phone number."],
+  ["phrasal", "put forward", "提出（建議、理論）", "She put forward an interesting idea."],
+  ["phrasal", "put together", "組合；整理", "It took us hours to put the shelf together."],
+  ["phrasal", "get up", "起床；起身", "I get up at six every morning."],
+  ["phrasal", "get on", "上（車）；相處；進展", "How are you getting on with your project?"],
+  ["phrasal", "get off", "下（車）；離開", "We got off at the wrong stop."],
+  ["phrasal", "get along", "相處", "They get along with each other very well."],
+  ["phrasal", "get over", "克服；從…康復", "It took him months to get over the illness."],
+  ["phrasal", "get through", "完成；通過；接通（電話）", "I finally got through to the helpline."],
+  ["phrasal", "get by", "勉強過活、將就", "We can get by on a small budget."],
+  ["phrasal", "get away", "逃離、離開", "We got away to the coast for a few days."],
+  ["phrasal", "get back", "回來；取回", "I'll get back to you tomorrow."],
+  ["phrasal", "get across", "把…講清楚、傳達", "The message didn't get across to the audience."],
+  ["phrasal", "get around", "四處走動；規避", "It's easy to get around by underground."],
+  ["phrasal", "get rid of", "擺脫、除去", "I need to get rid of these old files."],
+  ["phrasal", "get hold of", "取得；聯絡上", "I couldn't get hold of him all day."],
+  ["phrasal", "get together", "聚會、聚集", "Let's get together for lunch next week."],
+  ["phrasal", "come up", "出現；被提出", "The issue came up during the meeting."],
+  ["phrasal", "come up with", "想出、提出", "She came up with a brilliant solution."],
+  ["phrasal", "come across", "偶然遇見、偶然發現", "I came across an old photo yesterday."],
+  ["phrasal", "come out", "出版；公開；結果是", "Her novel comes out next spring."],
+  ["phrasal", "come off", "成功；脫落", "The deal didn't come off in the end."],
+  ["phrasal", "come in", "進來；流行起來", "Minimalist design has come in again."],
+  ["phrasal", "come back", "回來；重新流行", "Short haircuts are coming back."],
+  ["phrasal", "come down", "下降；生病", "Prices have come down recently."],
+  ["phrasal", "come along", "進展；一起來", "How is your work coming along?"],
+  ["phrasal", "come over", "順道拜訪", "Come over whenever you're free."],
+  ["phrasal", "come true", "實現、成真", "Her dream finally came true."],
+  ["phrasal", "go on", "繼續；發生", "What's going on here?"],
+  ["phrasal", "go off", "響起；爆炸；變質", "The alarm went off at seven."],
+  ["phrasal", "go out", "外出；熄滅；交往", "They've been going out for two years."],
+  ["phrasal", "go over", "複習、仔細檢查", "Let's go over the answers together."],
+  ["phrasal", "go through", "經歷；仔細檢查", "She went through a difficult period."],
+  ["phrasal", "go up", "上升、上漲", "House prices have gone up again."],
+  ["phrasal", "go down", "下降", "The number of applicants went down."],
+  ["phrasal", "go ahead", "進行；請便", "Go ahead — I'm listening."],
+  ["phrasal", "go back", "返回、回去", "I want to go back to my hometown."],
+  ["phrasal", "go by", "（時間）流逝", "As the years went by, things changed."],
+  ["phrasal", "go for", "選擇；爭取", "I think I'll go for the blue one."],
+  ["phrasal", "go without", "沒有…也將就", "We went without water for two days."],
+  ["phrasal", "break down", "故障；崩潰；分解", "Our car broke down on the motorway."],
+  ["phrasal", "break up", "分手；解散", "The band broke up in 2010."],
+  ["phrasal", "break out", "爆發、突然發生", "A fire broke out in the kitchen."],
+  ["phrasal", "break in", "闖入；打斷", "Someone broke in while we were away."],
+  ["phrasal", "break into", "闖入；突然開始", "The thieves broke into the shop."],
+  ["phrasal", "break through", "突破", "Scientists have broken through in this field."],
+  ["phrasal", "break off", "中斷、突然停止", "They broke off the talks last week."],
+  ["phrasal", "bring up", "撫養；提出（話題）", "She was brought up in Hong Kong."],
+  ["phrasal", "bring about", "導致、引起", "The policy brought about real change."],
+  ["phrasal", "bring in", "引進；賺得", "The scheme brings in extra income."],
+  ["phrasal", "bring out", "推出（產品）；使顯現", "The company will bring out a new model."],
+  ["phrasal", "bring back", "帶回；使回憶起", "These photos bring back memories."],
+  ["phrasal", "bring down", "降低；擊垮", "The new tax brought prices down."],
+  ["phrasal", "carry on", "繼續", "Carry on with your work, please."],
+  ["phrasal", "carry out", "執行、進行", "They carried out a large survey."],
+  ["phrasal", "carry off", "成功完成（困難的事）", "She carried off the performance brilliantly."],
+  ["phrasal", "turn up", "出現；調大（音量）", "He turned up an hour late."],
+  ["phrasal", "turn down", "拒絕；調小", "She turned down the job offer."],
+  ["phrasal", "turn on", "打開（電源）", "Turn on the lights, please."],
+  ["phrasal", "turn off", "關掉", "Don't forget to turn off the oven."],
+  ["phrasal", "turn out", "結果是；生產", "It turned out to be a great idea."],
+  ["phrasal", "turn in", "上交；就寢", "Please turn in your homework on Monday."],
+  ["phrasal", "turn over", "翻轉；移交", "He turned the company over to his son."],
+  ["phrasal", "turn into", "變成", "The old factory turned into a museum."],
+  ["phrasal", "turn to", "求助於；翻到", "She turned to her friends for help."],
+  ["phrasal", "set up", "建立、創立", "They set up a small business in 2019."],
+  ["phrasal", "set off", "出發；引發", "We set off early to avoid traffic."],
+  ["phrasal", "set out", "出發；闡述", "He set out his plans clearly."],
+  ["phrasal", "set aside", "撥出；擱置", "Set aside some time for revision."],
+  ["phrasal", "set back", "延誤；使退步", "The storm set the project back a month."],
+  ["phrasal", "hold on", "等一下；抓緊", "Hold on — I'll be right back."],
+  ["phrasal", "hold up", "舉起；延誤；阻擋", "The flight was held up by fog."],
+  ["phrasal", "hold back", "抑制；退縮", "She held back her tears."],
+  ["phrasal", "hold out", "堅持；伸出", "They held out for better pay."],
+  ["phrasal", "keep up", "保持、維持", "Keep up the good work!"],
+  ["phrasal", "keep up with", "跟上、不落後", "It's hard to keep up with technology."],
+  ["phrasal", "keep on", "繼續", "Keep on trying and you'll succeed."],
+  ["phrasal", "keep off", "避開、不接近", "Keep off the grass."],
+  ["phrasal", "keep out", "阻止進入", "The sign says 'Keep out'."],
+  ["phrasal", "keep back", "保留；隱瞞", "She kept back some information."],
+  ["phrasal", "make up", "編造；組成；和解；化妝", "He made up an excuse for being late."],
+  ["phrasal", "make up for", "彌補、補償", "Nothing can make up for lost time."],
+  ["phrasal", "make out", "辨認出；理解", "I couldn't make out what he said."],
+  ["phrasal", "make for", "走向；促成", "She made for the door."],
+  ["phrasal", "run into", "偶然遇見；撞上；遭遇", "I ran into my old classmate yesterday."],
+  ["phrasal", "run out of", "用完、耗盡", "We've run out of milk."],
+  ["phrasal", "run over", "碾過；快速複習", "Let's run over the main points again."],
+  ["phrasal", "run away", "逃跑、離家出走", "The child ran away from home."],
+  ["phrasal", "run across", "偶然遇見", "I ran across this article online."],
+  ["phrasal", "run through", "瀏覽；排練", "Let's run through the plan one more time."],
+  ["phrasal", "work out", "鍛鍊；解決；算出", "I work out at the gym twice a week."],
+  ["phrasal", "work on", "致力於、著手處理", "She's working on a new project."],
+  ["phrasal", "figure out", "弄清楚、想出", "I can't figure out how it works."],
+  ["phrasal", "find out", "查明、發現", "I found out the truth yesterday."],
+  ["phrasal", "point out", "指出", "He pointed out a mistake in the report."],
+  ["phrasal", "pick up", "撿起；接（人）；學會", "I picked up some Spanish while travelling."],
+  ["phrasal", "pick out", "挑選", "She picked out a dress for the party."],
+  ["phrasal", "show up", "出現、露面", "He didn't show up to the meeting."],
+  ["phrasal", "show off", "炫耀", "He loves showing off his new phone."],
+  ["phrasal", "end up", "最終成為、結果", "We ended up staying home all day."],
+  ["phrasal", "cut down", "減少、削減", "You should cut down on sugar."],
+  ["phrasal", "cut off", "切斷、中斷", "The village was cut off by snow."],
+  ["phrasal", "cut out", "刪掉；停止", "Cut out the unnecessary details."],
+  ["phrasal", "let down", "使失望", "I don't want to let my parents down."],
+  ["phrasal", "let out", "放出；解散（放學）", "School lets out at four."],
+  ["phrasal", "call off", "取消", "The match was called off due to rain."],
+  ["phrasal", "call on", "拜訪；呼籲", "He called on the government to act."],
+  ["phrasal", "call for", "要求；需要", "This situation calls for patience."],
+  ["phrasal", "call back", "回電", "Could you call back in ten minutes?"],
+  ["phrasal", "deal with", "處理、應對", "We need to deal with this problem now."],
+  ["phrasal", "do away with", "廢除、去掉", "The company did away with paper records."],
+  ["phrasal", "do without", "沒有…也行", "I can do without coffee for a day."],
+  ["phrasal", "drop out", "退學、退出", "He dropped out of university."],
+  ["phrasal", "drop by", "順道拜訪", "Drop by whenever you're in town."],
+  ["phrasal", "drop off", "下降；送…下車", "Sales dropped off in March."],
+  ["phrasal", "fall behind", "落後", "He fell behind with his payments."],
+  ["phrasal", "fall out", "吵架、鬧翻", "They fell out over money."],
+  ["phrasal", "fall through", "失敗、落空", "Our plans fell through at the last minute."],
+  ["phrasal", "fall apart", "崩潰、散架", "The plan fell apart quickly."],
+  ["phrasal", "fill in", "填寫；代替", "Please fill in this form."],
+  ["phrasal", "hand in", "提交、上交", "I handed in my essay this morning."],
+  ["phrasal", "hand out", "分發", "They handed out free samples."],
+  ["phrasal", "hang out", "閒逛、一起玩", "We used to hang out here after school."],
+  ["phrasal", "hang on", "稍等、堅持", "Hang on a second, please."],
+  ["phrasal", "lay off", "解僱", "The factory laid off 200 workers."],
+  ["phrasal", "leave out", "遺漏、略去", "You left out an important detail."],
+  ["phrasal", "live up to", "不辜負、符合（期望）", "The film didn't live up to the hype."],
+  ["phrasal", "pass away", "去世（委婉語）", "Her grandfather passed away last year."],
+  ["phrasal", "pass out", "昏倒；分發", "He passed out from the heat."],
+  ["phrasal", "pay off", "還清；（努力）有回報", "All that practice finally paid off."],
+  ["phrasal", "pull off", "成功完成（困難的事）", "They pulled off a surprise victory."],
+  ["phrasal", "pull through", "渡過難關、康復", "He pulled through after the operation."],
+  ["phrasal", "rule out", "排除、不考慮", "We can't rule out the possibility of delay."],
+  ["phrasal", "see off", "送行", "We went to the airport to see her off."],
+  ["phrasal", "see through", "看穿、識破", "I saw through his excuse immediately."],
+  ["phrasal", "settle down", "安頓下來、定居", "They settled down in the countryside."],
+  ["phrasal", "sort out", "解決；整理", "Let me sort out the tickets."],
+  ["phrasal", "stand out", "突出、顯眼", "Her work stands out from the rest."],
+  ["phrasal", "stand up for", "支持、維護", "Stand up for what you believe in."],
+  ["phrasal", "stand by", "支持；待命", "I'll stand by you whatever happens."],
+  ["phrasal", "stick to", "堅持、遵守", "Stick to the plan and we'll be fine."],
+  ["phrasal", "sum up", "總結、概括", "To sum up, the results are encouraging."],
+  ["phrasal", "switch off", "關掉；不再理會", "Remember to switch off the computer."],
+  ["phrasal", "try out", "試用、測試", "I'd like to try out this new app."],
+  ["phrasal", "use up", "用完、耗盡", "We've used up all the paper."],
+  ["phrasal", "watch out", "小心、提防", "Watch out for pickpockets on the train."],
+  ["phrasal", "wear out", "磨損；使疲憊不堪", "These shoes are worn out."],
+  ["phrasal", "wipe out", "消滅、徹底摧毀", "The disease wiped out the whole crop."],
+  ["phrasal", "back up", "支持；備份", "Remember to back up your files."],
+  ["phrasal", "brush up on", "溫習、重拾（技能）", "I need to brush up on my French."],
+  ["phrasal", "catch up on", "補上（進度、消息）", "I need to catch up on my sleep."],
+  ["phrasal", "check in", "辦理登機／入住手續", "We checked in at the hotel at noon."],
+  ["phrasal", "check out", "退房；查看", "Check out this amazing video."],
+  ["phrasal", "come down with", "染上（病）", "She came down with a cold."],
+  ["phrasal", "count on", "依賴、指望", "You can count on me."],
+  ["phrasal", "cut in", "插嘴；超車切入", "Sorry to cut in, but I have a question."],
+  ["phrasal", "die down", "（風、聲音）漸弱", "The applause finally died down."],
+  ["phrasal", "do over", "重做", "The teacher asked me to do it over."],
+  ["phrasal", "draw up", "起草、擬定", "They drew up a contract."],
+  ["phrasal", "face up to", "勇敢面對", "You must face up to reality."],
+  ["phrasal", "fall for", "愛上；上當", "He fell for her the moment they met."],
+  ["phrasal", "get at", "暗示；意指", "What exactly are you getting at?"],
+  ["phrasal", "give up on", "對…放棄希望", "Don't give up on him just yet."],
+  ["phrasal", "hand over", "移交、交出", "He handed over the documents to the police."],
+  ["phrasal", "head for", "朝…前進", "We're heading for trouble."],
+  ["phrasal", "join in", "加入（活動）", "Everyone joined in the singing."],
+  ["phrasal", "leave behind", "留下、遺留", "Don't leave your bag behind."],
+  ["phrasal", "look ahead", "展望未來", "We must look ahead to next year."],
+  ["phrasal", "make off with", "帶著…逃跑", "The thief made off with my wallet."],
+  ["phrasal", "miss out on", "錯過（機會）", "Don't miss out on this offer."],
+  ["phrasal", "narrow down", "縮小範圍", "We narrowed the list down to five."],
+  ["phrasal", "open up", "打開；坦白；開業", "A new café has opened up nearby."],
+  ["phrasal", "pass on", "傳遞；轉告", "Please pass on my thanks to your team."],
+  ["phrasal", "phase out", "逐步淘汰", "The factory is phasing out plastic packaging."],
+  ["phrasal", "pile up", "堆積", "Work has piled up while I was away."],
+  ["phrasal", "rule in", "納入考慮", "Doctors have not ruled in food poisoning."],
+  ["phrasal", "scale up", "擴大規模", "The company plans to scale up production."],
+  ["phrasal", "single out", "單獨挑出", "Why was I singled out for criticism?"],
+  ["phrasal", "slow down", "減速、放慢", "Slow down — you're driving too fast."],
+  ["phrasal", "smooth over", "化解、平息", "She tried to smooth over the disagreement."],
+  ["phrasal", "speed up", "加速", "We need to speed up the process."],
+  ["phrasal", "split up", "分開、分手", "They split up after five years together."],
+  ["phrasal", "step down", "辭職、下台", "The chairman stepped down last month."],
+  ["phrasal", "step up", "加強、增加", "The team needs to step up its efforts."],
+  ["phrasal", "stick up for", "為…辯護", "He always sticks up for his little sister."],
+  ["phrasal", "take aback", "使吃驚", "I was completely taken aback by his reply."],
+  ["phrasal", "take issue with", "對…提出異議", "I take issue with that conclusion."],
+  ["phrasal", "throw away", "丟掉、浪費", "Don't throw away this opportunity."],
+  ["phrasal", "tidy up", "整理、收拾", "Please tidy up your room."],
+  ["phrasal", "touch on", "稍為提及", "The lecture touched on several key themes."],
+  ["phrasal", "turn around", "轉身；扭轉（局面）", "The new boss turned the company around."],
+  ["phrasal", "veer off", "偏離", "The discussion veered off topic."],
+  ["phrasal", "wait on", "侍候、招呼", "She waits on customers at the café."],
+  ["phrasal", "warm up", "暖身；熱身", "Let's warm up before the race."],
+  ["phrasal", "wind down", "放鬆；逐步结束", "I like to wind down with a book."],
+  ["phrasal", "zero in on", "鎖定、專注於", "Let's zero in on the main problem."],
+  /* ---------------- 慣用語／成語 ---------------- */
+  ["idiom", "a piece of cake", "小菜一碟、非常容易", "The final exam was a piece of cake."],
+  ["idiom", "break the ice", "打破僵局、緩和氣氛", "He told a joke to break the ice."],
+  ["idiom", "hit the books", "開始用功讀書", "I have to hit the books tonight — exam tomorrow."],
+  ["idiom", "bite the bullet", "咬牙硬撐、忍痛去做", "We had to bite the bullet and pay the fine."],
+  ["idiom", "cost an arm and a leg", "貴得離譜、花一大筆錢", "That laptop cost me an arm and a leg."],
+  ["idiom", "let the cat out of the bag", "說漏嘴、洩漏秘密", "She let the cat out of the bag about the party."],
+  ["idiom", "hit the nail on the head", "一針見血、說得正中要害", "Your comment really hit the nail on the head."],
+  ["idiom", "when pigs fly", "絕不可能的事", "He'll tidy his room when pigs fly."],
+  ["idiom", "the ball is in your court", "輪到你採取行動了", "I've done my part — the ball is in your court."],
+  ["idiom", "bite off more than you can chew", "不自量力、攬太多做不來", "I bit off more than I could chew this semester."],
+  ["idiom", "spill the beans", "洩漏秘密", "Come on, spill the beans!"],
+  ["idiom", "under the weather", "身體不適、不舒服", "I'm feeling a bit under the weather today."],
+  ["idiom", "once in a blue moon", "千載難逢、極少發生", "We only eat out once in a blue moon."],
+  ["idiom", "kill two birds with one stone", "一石二鳥、一舉兩得", "Cycling to work kills two birds with one stone."],
+  ["idiom", "the last straw", "最後一根稻草（忍無可忍）", "Being late again was the last straw."],
+  ["idiom", "burn the midnight oil", "熬夜苦幹、開夜車", "She burned the midnight oil before the deadline."],
+  ["idiom", "call it a day", "今天就到此為止", "Let's call it a day and finish tomorrow."],
+  ["idiom", "cut corners", "偷工減料、馬虎了事", "Don't cut corners on safety."],
+  ["idiom", "get out of hand", "失控", "The argument got out of hand quickly."],
+  ["idiom", "go the extra mile", "加倍努力、做到最好", "Our staff always go the extra mile."],
+  ["idiom", "hang in there", "撐下去、別放棄", "Hang in there — exams finish next week."],
+  ["idiom", "in the same boat", "處境相同、同病相憐", "We're all in the same boat here."],
+  ["idiom", "jump on the bandwagon", "跟風、趕潮流", "Every brand jumped on the bandwagon."],
+  ["idiom", "keep an eye on", "留意、照看", "Keep an eye on the soup while I'm out."],
+  ["idiom", "learn the ropes", "摸清門路、學會基本功", "It takes a month to learn the ropes."],
+  ["idiom", "miss the boat", "錯失良機", "Book now or you'll miss the boat."],
+  ["idiom", "on the same page", "意見一致、有共識", "Let's make sure we're on the same page."],
+  ["idiom", "pull someone's leg", "開玩笑、逗某人", "Are you pulling my leg?"],
+  ["idiom", "rain cats and dogs", "下傾盆大雨", "It was raining cats and dogs yesterday."],
+  ["idiom", "read between the lines", "領會弦外之音", "Reading between the lines, she was unhappy."],
+  ["idiom", "sit on the fence", "觀望、不表態", "Stop sitting on the fence and decide."],
+  ["idiom", "speak of the devil", "說曹操曹操到", "Speak of the devil — here she comes!"],
+  ["idiom", "take it with a grain of salt", "半信半疑、不可盡信", "Take his advice with a grain of salt."],
+  ["idiom", "the tip of the iceberg", "冰山一角（問題的一小部分）", "This complaint is just the tip of the iceberg."],
+  ["idiom", "throw in the towel", "認輸、放棄", "After ten years he finally threw in the towel."],
+  ["idiom", "up in the air", "懸而未決", "Our holiday plans are still up in the air."],
+  ["idiom", "wrap your head around", "搞懂、弄明白", "I can't wrap my head around this data."],
+  ["idiom", "back to square one", "回到原點、從頭再來", "The experiment failed — back to square one."],
+  ["idiom", "beat around the bush", "拐彎抹角、東拉西扯", "Stop beating around the bush and tell me."],
+  ["idiom", "better late than never", "遲做總比不做好", "He apologised at last — better late than never."],
+  ["idiom", "blow off steam", "發洩情緒", "He goes running to blow off steam."],
+  ["idiom", "by the book", "照規矩、一板一眼", "Our auditor does everything by the book."],
+  ["idiom", "cold feet", "臨陣退縮、緊張怯場", "She got cold feet before the interview."],
+  ["idiom", "come rain or shine", "風雨無阻、無論如何", "He jogs every morning, come rain or shine."],
+  ["idiom", "cross that bridge when we come to it", "到時再說、船到橋頭自然直", "Let's cross that bridge when we come to it."],
+  ["idiom", "cry over spilt milk", "為已發生的事後悔", "It's done — no use crying over spilt milk."],
+  ["idiom", "cut to the chase", "切入正題", "Let me cut to the chase: we need more money."],
+  ["idiom", "down to earth", "務實、腳踏實地", "She's very down to earth despite her fame."],
+  ["idiom", "draw a blank", "想不起來、一無所獲", "I asked her name but drew a blank."],
+  ["idiom", "easier said than done", "說來容易做來難", "Saving money is easier said than done."],
+  ["idiom", "every cloud has a silver lining", "塞翁失馬、壞事也有好處", "Losing that job was a blessing — every cloud has a silver lining."],
+  ["idiom", "face the music", "面對現實、承擔後果", "You broke it — now face the music."],
+  ["idiom", "fair and square", "光明正大、公平地", "We won the game fair and square."],
+  ["idiom", "far cry from", "與…天差地遠", "This hotel is a far cry from the one we stayed in."],
+  ["idiom", "few and far between", "稀少、難得一見", "Good jobs around here are few and far between."],
+  ["idiom", "get a taste of your own medicine", "自食其果", "He finally got a taste of his own medicine."],
+  ["idiom", "give the benefit of the doubt", "姑且相信、從寬認定", "I'll give you the benefit of the doubt this time."],
+  ["idiom", "go back to the drawing board", "從頭再來、重新構思", "The design failed, so it's back to the drawing board."],
+  ["idiom", "go out on a limb", "冒險一試、孤注一擲", "I'll go out on a limb and predict a win."],
+  ["idiom", "head over heels", "神魂顛倒、深陷愛河", "He's head over heels in love with her."],
+  ["idiom", "hit the road", "出發、上路", "It's late — time to hit the road."],
+  ["idiom", "hold your horses", "別急、等一下", "Hold your horses! Let me finish."],
+  ["idiom", "in hot water", "有麻煩、惹上麻煩", "He's in hot water with his boss."],
+  ["idiom", "in the blink of an eye", "一瞬間、轉眼間", "The years passed in the blink of an eye."],
+  ["idiom", "it takes two to tango", "一個巴掌拍不響", "Don't blame only him — it takes two to tango."],
+  ["idiom", "jump the gun", "操之過急、過早行動", "Don't jump the gun — wait for the results."],
+  ["idiom", "keep your chin up", "振作一點、別氣餒", "Keep your chin up; things will improve."],
+  ["idiom", "kill time", "打發時間", "I read a magazine to kill time."],
+  ["idiom", "last but not least", "最後但同樣重要", "Last but not least, I'd like to thank my family."],
+  ["idiom", "let sleeping dogs lie", "別自找麻煩、別翻舊帳", "I'd let sleeping dogs lie if I were you."],
+  ["idiom", "look on the bright side", "往好處想", "Look on the bright side — at least it's sunny."],
+  ["idiom", "make ends meet", "收支平衡、勉強糊口", "Many families struggle to make ends meet."],
+  ["idiom", "make a mountain out of a molehill", "小題大做", "Relax — you're making a mountain out of a molehill."],
+  ["idiom", "miss the point", "抓不到重點", "You've completely missed the point."],
+  ["idiom", "no pain no gain", "一分耕耘一分收穫", "Keep training — no pain, no gain."],
+  ["idiom", "off the top of my head", "我隨便一想（未經查證）", "Off the top of my head, I'd say about 300."],
+  ["idiom", "on cloud nine", "欣喜若狂", "She's been on cloud nine since the news."],
+  ["idiom", "on thin ice", "如履薄冰、處境危險", "You're on thin ice with your boss."],
+  ["idiom", "once bitten twice shy", "一朝被蛇咬、十年怕草繩", "He won't invest again — once bitten, twice shy."],
+  ["idiom", "out of the blue", "突然、出其不意", "She called me out of the blue."],
+  ["idiom", "over the moon", "非常高興、樂瘋了", "I was over the moon when I passed."],
+  ["idiom", "paint the town red", "出去狂歡", "Let's paint the town red tonight!"],
+  ["idiom", "pass with flying colours", "高分通過、表現優異", "She passed the exam with flying colours."],
+  ["idiom", "play devil's advocate", "故意唱反調（為激發討論）", "Let me play devil's advocate for a moment."],
+  ["idiom", "pull yourself together", "振作起來、冷靜下來", "Pull yourself together and try again."],
+  ["idiom", "put all your eggs in one basket", "孤注一擲", "Don't put all your eggs in one basket."],
+  ["idiom", "ring a bell", "聽起來耳熟", "That name rings a bell."],
+  ["idiom", "rock the boat", "搗亂、破壞現狀", "Nobody wants to rock the boat."],
+  ["idiom", "save for a rainy day", "未雨綢繆、存起來備用", "Put some money aside for a rainy day."],
+  ["idiom", "see eye to eye", "看法一致", "We don't see eye to eye on this issue."],
+  ["idiom", "sit tight", "靜候、按兵不動", "Sit tight — help is on the way."],
+  ["idiom", "spread yourself too thin", "分身乏術、攬太多", "I've spread myself too thin this term."],
+  ["idiom", "take the bull by the horns", "迎難而上、果斷處理", "It's time to take the bull by the horns."],
+  ["idiom", "the bottom line", "重點、底線", "The bottom line is we can't afford it."],
+  ["idiom", "the elephant in the room", "顯而易見卻被迴避的問題", "Let's talk about the elephant in the room."],
+  ["idiom", "think outside the box", "跳脫框架思考、創新思考", "We need someone who thinks outside the box."],
+  ["idiom", "through thick and thin", "同甘共苦、無論順逆", "They stayed friends through thick and thin."],
+  ["idiom", "throw caution to the wind", "不顧一切、豁出去", "He threw caution to the wind and resigned."],
+  ["idiom", "turn a blind eye", "視而不見、裝作沒看見", "The manager turned a blind eye to the problem."],
+  ["idiom", "under the table", "私下、暗中（多指非法）", "They paid him under the table."],
+  ["idiom", "up to date", "最新的、跟上時代的", "Keep your software up to date."],
+  ["idiom", "water under the bridge", "過去的事、已成過去", "That argument is water under the bridge."],
+  ["idiom", "wear your heart on your sleeve", "情緒外露、毫不掩飾", "He wears his heart on his sleeve."],
+  ["idiom", "win hands down", "輕而易舉獲勝", "Our team won hands down."],
+  ["idiom", "a blessing in disguise", "因禍得福、看似壞實則好", "Losing that job was a blessing in disguise."],
+  ["idiom", "a dime a dozen", "多得不值錢、隨處可見", "Cheap phone cases are a dime a dozen."],
+  ["idiom", "a far cry from", "與…相差甚遠", "The result is a far cry from what we hoped."],
+  ["idiom", "a hot potato", "燙手山芋、棘手話題", "Immigration is a political hot potato."],
+  ["idiom", "a penny for your thoughts", "你在想什麼？", "You look worried — a penny for your thoughts."],
+  ["idiom", "add insult to injury", "雪上加霜", "It rained, and to add insult to injury, we got lost."],
+  ["idiom", "an arm and a leg", "極高的價錢、非常昂貴", "Those tickets cost an arm and a leg."],
+  ["idiom", "at the drop of a hat", "二話不說、立刻", "He'd move abroad at the drop of a hat."],
+  ["idiom", "bark up the wrong tree", "搞錯對象、白費力氣", "You're barking up the wrong tree — I wasn't there."],
+  ["idiom", "behind the scenes", "幕後、私下", "A lot of work happens behind the scenes."],
+  ["idiom", "bend over backwards", "竭盡全力、拼命幫忙", "They bent over backwards to help us."],
+  ["idiom", "bird's eye view", "鳥瞰、全貌", "The tower gives a bird's eye view of the city."],
+  ["idiom", "break new ground", "開創新局、有突破", "The study breaks new ground in medicine."],
+  ["idiom", "bury the hatchet", "和解、言歸於好", "After years apart they buried the hatchet."],
+  ["idiom", "by and large", "大體上、一般而言", "By and large, the plan worked."],
+  ["idiom", "call it quits", "停止、到此為止", "After ten years they called it quits."],
+  ["idiom", "caught between a rock and a hard place", "進退兩難", "I'm caught between a rock and a hard place."],
+  ["idiom", "chip in", "湊錢、出一分力", "Everyone chipped in for the gift."],
+  ["idiom", "come full circle", "繞回原點、回到原狀", "Fashion has come full circle."],
+  ["idiom", "cost a fortune", "花一大筆錢", "That wedding must have cost a fortune."],
+  ["idiom", "down the road", "將來、日後", "Problems may appear further down the road."],
+  ["idiom", "every now and then", "偶爾、不時", "I visit my grandparents every now and then."],
+  ["idiom", "for the time being", "暫時、目前", "We'll stay here for the time being."],
+  ["idiom", "get the hang of", "掌握訣竅、摸熟", "I finally got the hang of it."],
+  ["idiom", "give someone a hand", "幫某人一把", "Could you give me a hand with this box?"],
+  ["idiom", "go hand in hand", "息息相關、相伴而行", "Poverty and poor health go hand in hand."],
+  ["idiom", "hands down", "毫無疑問地", "She's the best candidate hands down."],
+  ["idiom", "have second thoughts", "改變主意、重新考慮", "I'm having second thoughts about the trip."],
+  ["idiom", "in the nick of time", "千鈞一髮、及時", "The ambulance arrived in the nick of time."],
+  ["idiom", "keep something at bay", "使…無法逼近、防範", "Exercise keeps illness at bay."],
+  ["idiom", "know the ropes", "懂得門道、經驗豐富", "Ask Sam — he knows the ropes."],
+  ["idiom", "lose track of", "失去聯繫／忘記（時間）", "I've lost track of the days."],
+  ["idiom", "make a fuss", "大驚小怪、小題大做", "Don't make a fuss about nothing."],
+  ["idiom", "money talks", "有錢好辦事", "In politics, money talks."],
+  ["idiom", "no strings attached", "沒有附帶條件", "The grant comes with no strings attached."],
+  ["idiom", "on the fence", "猶豫不決", "I'm still on the fence about it."],
+  ["idiom", "on the whole", "整體而言", "On the whole, it was a success."],
+  ["idiom", "once in a lifetime", "一生一次、難得一遇", "It's a once-in-a-lifetime opportunity."],
+  ["idiom", "out of the question", "不可能、免談", "Buying a car is out of the question."],
+  ["idiom", "over the top", "太過分、誇張", "His reaction was a bit over the top."],
+  ["idiom", "pay through the nose", "被敲竹槓、付高價", "We paid through the nose for tickets."],
+  ["idiom", "piece of the pie", "一份利益、分一杯羹", "Every department wants a piece of the pie."],
+  ["idiom", "put your foot in it", "說錯話、失言", "I really put my foot in it at the party."],
+  ["idiom", "raise the bar", "提高標準", "This product really raises the bar."],
+  ["idiom", "shed light on", "闡明、使…清楚", "The report sheds light on the causes."],
+  ["idiom", "sit back and relax", "放鬆、袖手旁觀", "Just sit back and relax — I'll handle it."],
+  ["idiom", "take it easy", "放輕鬆、別緊張", "Take it easy; there's plenty of time."],
+  ["idiom", "take the plunge", "毅然行動、下定決心去做", "After years of saving, they took the plunge."],
+  ["idiom", "the ballpark figure", "大概的數字", "Give me a ballpark figure, not exact."],
+  ["idiom", "the bigger picture", "大局、全貌", "Don't lose sight of the bigger picture."],
+  ["idiom", "tighten your belt", "勒緊褲帶、節省開支", "We had to tighten our belts last year."],
+  ["idiom", "time will tell", "時間會證明", "Whether it works, only time will tell."],
+  ["idiom", "to be on the safe side", "為保險起見", "Take an umbrella to be on the safe side."],
+  ["idiom", "trial and error", "反覆嘗試、試錯法", "We found the answer through trial and error."],
+  ["idiom", "under your nose", "就在你眼前（卻沒發現）", "It was under your nose the whole time."],
+  ["idiom", "wear and tear", "耗損、正常使用造成的損壞", "The contract covers normal wear and tear."],
+  ["idiom", "with flying colours", "出色地、成功地", "She came through with flying colours."],
+  ["idiom", "worth its weight in gold", "非常寶貴、價值連城", "A good assistant is worth their weight in gold."],
+  ["idiom", "you can't judge a book by its cover", "人不可貌相", "He looks strict but is kind — you can't judge a book by its cover."],
+  /* ---------------- 日常用語 ---------------- */
+  ["daily", "how are you doing", "你好嗎、近來如何", "Hi Tom, how are you doing?"],
+  ["daily", "long time no see", "好久不見", "Long time no see! Where have you been?"],
+  ["daily", "what's up", "近來怎樣、有什麼事", "Hey, what's up?"],
+  ["daily", "no worries", "不用擔心、沒關係", "Thanks for waiting. — No worries."],
+  ["daily", "you're welcome", "不客氣", "Thanks! — You're welcome."],
+  ["daily", "excuse me", "不好意思、借過", "Excuse me, is this seat taken?"],
+  ["daily", "I beg your pardon", "請再說一次（或表示歉意）", "I beg your pardon, could you repeat that?"],
+  ["daily", "never mind", "沒關係、別放在心上", "Never mind, I'll do it myself."],
+  ["daily", "that's a pity", "真可惜", "That's a pity — I was looking forward to it."],
+  ["daily", "sounds good", "聽起來不錯", "Dinner at seven? — Sounds good."],
+  ["daily", "fair enough", "有道理、說得對", "Fair enough, let's do it your way."],
+  ["daily", "it's up to you", "由你決定", "Pizza or pasta? — It's up to you."],
+  ["daily", "I couldn't agree more", "我完全同意", "We need more time. — I couldn't agree more."],
+  ["daily", "let me see", "讓我想想", "Let me see... how about Friday?"],
+  ["daily", "give me a hand", "幫我一下", "Give me a hand with these bags, please."],
+  ["daily", "hang on a second", "等一下", "Hang on a second, I'm almost ready."],
+  ["daily", "I'm sorry to hear that", "聽到這消息我很遺憾", "I'm sorry to hear that you were ill."],
+  ["daily", "take care", "保重", "Take care, and see you soon."],
+  ["daily", "have a nice day", "祝你有美好的一天", "Thanks for coming. Have a nice day!"],
+  ["daily", "see you later", "待會見、回頭見", "See you later, alligator!"],
+  ["daily", "so far so good", "目前為止還不錯", "How's the new job? — So far, so good."],
+  ["daily", "just in case", "以防萬一", "Take a spare key just in case."],
+  ["daily", "by the way", "順帶一提", "By the way, did you call him?"],
+  ["daily", "to be honest", "老實說", "To be honest, I'm not sure."],
+  ["daily", "believe it or not", "信不信由你", "Believe it or not, he finished in an hour."],
+  ["daily", "as a matter of fact", "事實上", "As a matter of fact, I already knew."],
+  ["daily", "in my opinion", "我認為", "In my opinion, the plan needs work."],
+  ["daily", "on second thought", "轉念一想、再想想", "On second thought, let's stay home."],
+  ["daily", "make yourself at home", "別客氣、當自己家", "Come in and make yourself at home."],
+  ["daily", "help yourself", "請自便、自己來", "There's cake on the table — help yourself."],
+  ["daily", "it's on me", "我請客", "Put your wallet away, it's on me."],
+  ["daily", "I'm beat", "我累壞了", "I'm beat — I've been working since six."],
+  ["daily", "no kidding", "不騙你；真的假的", "I ran ten kilometres. — No kidding!"],
+  ["daily", "you bet", "當然、一點也沒錯", "Are you coming? — You bet!"],
+  ["daily", "my bad", "我的錯", "Oops, my bad — I dropped your pen."],
+  ["daily", "cheer up", "振作點、開心點", "Cheer up! It's not the end of the world."],
+  ["daily", "calm down", "冷靜點", "Calm down and tell me what happened."],
+  ["daily", "come on", "拜託；加油", "Come on, we're going to be late!"],
+  ["daily", "get well soon", "早日康復", "Get well soon — we miss you at work."],
+  ["daily", "good luck", "祝你好運", "Good luck with your interview!"],
+  ["daily", "way to go", "做得好、幹得漂亮", "You passed? Way to go!"],
+  ["daily", "time flies", "光陰似箭", "Time flies when you're having fun."],
+  ["daily", "it's a small world", "世界真小", "You know her too? It's a small world!"],
+  ["daily", "better safe than sorry", "謹慎為上", "Check the brakes — better safe than sorry."],
+  ["daily", "first things first", "先做要緊的事", "First things first: let's book the tickets."],
+  ["daily", "I'll get back to you", "我稍後回覆你", "I'll get back to you by email tomorrow."],
+  ["daily", "keep in touch", "保持聯絡", "Keep in touch after you move."],
+  ["daily", "let me know", "告訴我、通知我", "Let me know if you need anything."],
+  ["daily", "thanks anyway", "還是要謝謝你", "No, but thanks anyway."],
+  ["daily", "that's news to me", "我完全不知道", "They're closing? That's news to me."],
+  ["daily", "what a coincidence", "真巧", "We're on the same flight — what a coincidence!"],
+  ["daily", "you can say that again", "說得太對了", "It's freezing today. — You can say that again."],
+  ["daily", "I'm all ears", "我洗耳恭聽", "Go on, I'm all ears."],
+  ["daily", "I'm on it", "我來處理、正在辦", "Don't worry, I'm on it."],
+  ["daily", "it slipped my mind", "我忘了", "Sorry, it completely slipped my mind."],
+  ["daily", "just kidding", "開玩笑的啦", "Of course I'll help — just kidding, I really will."],
+  ["daily", "no way", "不可能、不會吧", "You met the mayor? No way!"],
+  ["daily", "same here", "我也是", "I'm exhausted. — Same here."],
+  ["daily", "speak up", "大聲一點", "Speak up, please — I can't hear you."],
+  ["daily", "there you go", "就是這樣、拿去吧", "There you go, one coffee and one tea."],
+  ["daily", "what's the matter", "怎麼了", "You look sad — what's the matter?"],
+  ["daily", "would you mind", "你介意…嗎", "Would you mind closing the window?"],
+  ["daily", "you got it", "沒問題；你說對了", "Can you send it today? — You got it."],
+  ["daily", "anything else", "還要什麼嗎", "Anything else, or is that all?"],
+  ["daily", "be my guest", "請便、隨意", "Can I use your laptop? — Be my guest."],
+  ["daily", "don't mention it", "別客氣", "Thanks for the ride. — Don't mention it."],
+  ["daily", "feel free to", "隨時可以、別客氣", "Feel free to ask questions anytime."],
+  ["daily", "I have no idea", "我不知道", "Where is he? — I have no idea."],
+  ["daily", "it doesn't matter", "沒關係", "Sorry I'm late. — It doesn't matter."],
+  ["daily", "keep it up", "繼續加油、保持下去", "Great progress — keep it up!"],
+  ["daily", "let's get started", "我們開始吧", "Let's get started, shall we?"],
+  ["daily", "thanks for having me", "謝謝你的邀請／招待", "Thanks for having me — it was lovely."],
+  ["daily", "excuse me for a moment", "失陪一下", "Excuse me for a moment, I'll be right back."],
+  ["daily", "I'll take it", "我要這個", "That jacket is lovely — I'll take it."],
+  ["daily", "not a big deal", "沒什麼大不了", "It's not a big deal, don't worry."],
+  ["daily", "that works for me", "這樣我可以／這樣行", "Friday at three? That works for me."],
+  ["daily", "speaking of which", "說到這個", "Speaking of which, did you finish the report?"],
+  ["daily", "to tell you the truth", "老實告訴你", "To tell you the truth, I'm not ready."],
+  ["daily", "what do you think", "你覺得呢", "It's your call — what do you think?"],
+  ["daily", "you're telling me", "我完全同意（你說得對極了）", "It's been a long week. — You're telling me!"],
+  /* ---------------- 連接與寫作用語 ---------------- */
+  ["link", "in addition", "此外、另外", "The plan is cheap. In addition, it is quick."],
+  ["link", "moreover", "而且、此外", "The data is limited; moreover, it is outdated."],
+  ["link", "furthermore", "再者、更進一步", "Furthermore, the cost has doubled."],
+  ["link", "however", "然而、但是", "The idea sounds good; however, it is costly."],
+  ["link", "nevertheless", "儘管如此、然而", "The task was hard. Nevertheless, they succeeded."],
+  ["link", "on the other hand", "另一方面", "On the other hand, it creates jobs."],
+  ["link", "as a result", "因此、結果", "It rained heavily. As a result, the match was cancelled."],
+  ["link", "consequently", "因此、結果", "Demand fell; consequently, prices dropped."],
+  ["link", "therefore", "因此、所以", "The evidence is weak; therefore, we reject the claim."],
+  ["link", "for instance", "例如", "Some cities, for instance Tokyo, have solved this."],
+  ["link", "for example", "例如", "Many factors, for example income, affect health."],
+  ["link", "in conclusion", "總之、總結來說", "In conclusion, the policy should be revised."],
+  ["link", "to sum up", "總結來說", "To sum up, both sides have valid points."],
+  ["link", "in summary", "總結", "In summary, the results are inconclusive."],
+  ["link", "overall", "整體而言", "Overall, the scheme has been a success."],
+  ["link", "in contrast", "相比之下、相反地", "In contrast, rural areas are less affected."],
+  ["link", "on the contrary", "正相反", "It is not cheap; on the contrary, it is very expensive."],
+  ["link", "similarly", "同樣地", "Similarly, education levels have risen."],
+  ["link", "likewise", "同樣地", "Likewise, the unemployment rate fell."],
+  ["link", "first and foremost", "首先、最重要的是", "First and foremost, safety must come first."],
+  ["link", "to begin with", "首先", "To begin with, let us define the problem."],
+  ["link", "in the first place", "首先、一開始", "Why did you agree in the first place?"],
+  ["link", "in other words", "換句話說", "The plan failed — in other words, we must start again."],
+  ["link", "that is to say", "也就是說", "It is affordable, that is to say, under $100."],
+  ["link", "for this reason", "基於這個原因", "For this reason, I disagree with the proposal."],
+  ["link", "despite this", "儘管如此", "Despite this, the trend continues."],
+  ["link", "in spite of", "儘管、雖然", "In spite of the rain, we went out."],
+  ["link", "due to", "由於、因為", "The delay was due to bad weather."],
+  ["link", "owing to", "由於", "Owing to illness, he could not attend."],
+  ["link", "thanks to", "多虧、由於", "Thanks to your help, we finished on time."],
+  ["link", "in terms of", "就…而言、在…方面", "In terms of cost, it is reasonable."],
+  ["link", "with regard to", "關於、至於", "With regard to your question, I have no data."],
+  ["link", "in addition to", "除…之外（還有）", "In addition to French, she speaks Spanish."],
+  ["link", "apart from", "除了", "Apart from the price, it is perfect."],
+  ["link", "in fact", "事實上", "In fact, the opposite is true."],
+  ["link", "generally speaking", "一般來說", "Generally speaking, this holds true."],
+  ["link", "in general", "一般而言", "In general, students prefer online classes."],
+  ["link", "on average", "平均而言", "On average, people spend two hours online."],
+  ["link", "in particular", "特別是", "Young people in particular are affected."],
+  ["link", "above all", "最重要的是", "Above all, keep it simple."],
+  ["link", "after all", "畢竟", "After all, it was his idea."],
+  ["link", "at least", "至少", "At least we tried."],
+  ["link", "to some extent", "在某種程度上", "This is true to some extent."],
+  ["link", "to a certain extent", "在某種程度上", "I agree to a certain extent."],
+  ["link", "in the long run", "長遠來看", "It pays off in the long run."],
+  ["link", "in the short term", "短期來看", "In the short term, costs will rise."],
+  ["link", "at present", "目前、現在", "At present, there is no solution."],
+  ["link", "nowadays", "現今、時下", "Nowadays, most people shop online."],
+  ["link", "in recent years", "近年來", "In recent years, the city has grown rapidly."],
+  ["link", "over the past decade", "在過去十年間", "Over the past decade, emissions have fallen."],
+  ["link", "it is worth noting that", "值得注意的是", "It is worth noting that the gap is widening."],
+  ["link", "it is widely believed that", "普遍認為", "It is widely believed that diet affects mood."],
+  ["link", "there is no doubt that", "毫無疑問", "There is no doubt that the plan works."],
+  ["link", "it goes without saying that", "不用說、理所當然", "It goes without saying that safety matters most."],
+  ["link", "a growing number of", "越來越多的", "A growing number of people work from home."],
+  ["link", "play a key role in", "在…扮演關鍵角色", "Education plays a key role in development."],
+  ["link", "have an impact on", "對…有影響", "Sleep has a huge impact on health."],
+  ["link", "contribute to", "有助於、促成", "Exercise contributes to well-being."],
+  ["link", "lead to", "導致", "Poor planning can lead to failure."],
+  ["link", "result in", "導致、造成", "The strike resulted in long delays."],
+  ["link", "result from", "起因於、由…導致", "Many illnesses result from poor diet."],
+  ["link", "be associated with", "與…有關聯", "Smoking is associated with lung disease."],
+  ["link", "be attributed to", "歸因於", "The rise is attributed to better care."],
+  ["link", "take into consideration", "考慮到、納入考量", "We must take cost into consideration."],
+  ["link", "in light of", "鑑於、考慮到", "In light of the findings, we should act now."],
+  ["link", "with respect to", "關於、就…而言", "With respect to your request, I agree."],
+  ["link", "from my point of view", "就我看來、我認為", "From my point of view, it is worth trying."],
+  ["link", "as far as I am concerned", "就我而言", "As far as I am concerned, the matter is closed."],
+  ["link", "on balance", "權衡之下、總的來說", "On balance, the benefits outweigh the risks."],
+  ["link", "to illustrate", "舉例來說", "To illustrate, consider the case of Japan."],
+  ["link", "in this regard", "在這方面", "In this regard, the policy has failed."],
+  ["link", "with this in mind", "考慮到這一點", "With this in mind, we chose a simpler design."],
+  ["link", "as a consequence", "因此、結果", "As a consequence, attendance dropped."],
+  ["link", "by comparison", "相比之下", "By comparison, the second group did better."],
+  ["link", "in the meantime", "與此同時、在此期間", "In the meantime, we continue our research."],
+  ["link", "subsequently", "隨後、之後", "He left in 2019 and subsequently moved abroad."],
+  ["link", "prior to", "在…之前", "Prior to the meeting, please read the report."],
+  ["link", "in view of", "鑑於", "In view of the risks, we cancelled the trip."],
+  ["link", "put simply", "簡單來說", "Put simply, the system does not work."],
+  ["link", "broadly speaking", "廣義來說", "Broadly speaking, there are two approaches."],
+  ["link", "to a large extent", "在很大程度上", "This is true to a large extent."],
+  ["link", "a case in point", "一個恰當的例子", "Japan is a case in point."],
+  ["link", "take for example", "以…為例", "Take Spain, for example."],
+  ["link", "to conclude", "總結、最後", "To conclude, early intervention is essential."],
+  ["link", "all in all", "總而言之", "All in all, it was a worthwhile investment."],
+  ["link", "as has been noted", "正如前面提到的", "As has been noted, the data is limited."],
+  ["link", "it should be emphasised that", "應該強調的是", "It should be emphasised that results vary."],
+  ["link", "there is a tendency to", "有…的趨勢", "There is a tendency to overestimate the risks."],
+  ["link", "be likely to", "很可能", "Prices are likely to rise next year."],
+  ["link", "be prone to", "容易…的、有…傾向的", "Low-lying areas are prone to flooding."],
+  ["link", "in accordance with", "依照、根據", "In accordance with the rules, we must wait."],
+  ["link", "with the aim of", "目的是、旨在", "The scheme was set up with the aim of reducing waste."],
+  ["link", "as opposed to", "相對於、而不是", "We studied urban areas as opposed to rural ones."],
+  ["link", "regardless of", "不論、不管", "Everyone can apply, regardless of age."],
+  ["link", "in relation to", "關於、與…相關", "Questions in relation to pay should go to HR."],
+  ["link", "the former", "前者", "Between tea and coffee, I prefer the former."],
+  ["link", "the latter", "後者", "Between tea and coffee, I prefer the latter."],
+  ["link", "on the grounds that", "基於…的理由", "He refused on the grounds that it was unsafe."],
+  ["link", "there is evidence that", "有證據顯示", "There is evidence that sleep aids memory."],
+  ["link", "a wide range of", "各式各樣的、廣泛的", "The course covers a wide range of topics."],
+  ["link", "in the context of", "在…的背景下", "In the context of a recession, this is expected."],
+  ["link", "by means of", "藉由、透過", "Data was collected by means of a survey."]
+];
 
 </script>
 <script>
@@ -2940,7 +3587,8 @@ const LS = {
   hist: 'spelldict.history',
   dia: 'spelldict.dialect',
   ipa: 'spelldict.ipa',
-  gloss: 'spelldict.gloss'
+  gloss: 'spelldict.gloss',
+  phrBook: 'spelldict.phrbook'
 };
 
 const state = {
@@ -2954,11 +3602,50 @@ const state = {
   tab: 'search',
   quiz: false,
   ielts: { lvl: 'all', topic: 'all', q: '' },
+  phr: { cat: 'all', q: '' },
+  phrBook: new Set(JSON.parse(localStorage.getItem(LS.phrBook) || '[]')),
   // 線上查過、但離線詞表沒有的詞，音標會存這裡，之後離線也能顯示字典音標
   ipaCache: JSON.parse(localStorage.getItem(LS.ipa) || '{}'),
   // 線上查到的中文釋義快取（離線詞表沒收錄的詞）
   glossCache: JSON.parse(localStorage.getItem(LS.gloss) || '{}')
 };
+
+/* ============================================================
+   Header 高度同步 + 安全捲動
+   ------------------------------------------------------------
+   header 是 sticky（固定在頂端、但仍佔文件空間），所以任何「捲到某個
+   元素」的動作都必須扣掉 header 的高度，否則目標會被 header 蓋住。
+   這裡把量到的高度寫進 CSS 變數 --hd，CSS 的 scroll-padding-top、
+   .doc-side 的 sticky top 也一起吃這個值。
+   ============================================================ */
+function syncHeaderHeight() {
+  const h = document.querySelector('header');
+  if (!h) return;
+  const px = Math.round(h.getBoundingClientRect().height);
+  if (px > 0) document.documentElement.style.setProperty('--hd', px + 'px');
+}
+function headerH() {
+  const h = document.querySelector('header');
+  return h ? h.getBoundingClientRect().height : 0;
+}
+/* 捲動到元素，並自動預留 header 的空間 */
+function scrollToEl(el, extra) {
+  if (!el) return;
+  const gap = (extra == null ? 14 : extra);
+  const y = el.getBoundingClientRect().top + window.scrollY - headerH() - gap;
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  window.scrollTo({ top: Math.max(0, Math.min(y, Math.max(0, max))), behavior: 'smooth' });
+}
+/* 元素若被 header 遮住（或完全在視窗外）才捲動，捲到剛好露在 header 下方 */
+function ensureVisible(el, gap) {
+  if (!el) return;
+  const g = gap == null ? 24 : gap;
+  const top = headerH() + g;
+  const r = el.getBoundingClientRect();
+  if (r.top >= top && r.bottom <= window.innerHeight - 8) return; // 已經完整可見
+  const y = r.top + window.scrollY - top;
+  window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+}
 
 /* ---------------- 雅思詞彙統計 ---------------- */
 const IELTS_STATS = (function () {
@@ -3151,8 +3838,10 @@ function renderResults(list, q, mode) {
   html += `<span class="res-mode">${modeLabel(mode)}：<code>${esc(q)}</code></span></div>`;
   if (!shown.length) {
     html += `<div class="empty">詞庫中沒有符合的詞。<br>直接按 <b>Enter</b> 就能查詢「${esc(q)}」的發音與詞根分析 —— 引擎可以分析任何英文單詞，不限於詞庫。</div>`;
+    html += phrHitsHTML(q, 12);
   } else {
     html += '<div class="res-grid">' + shown.map(itemHTML).join('') + '</div>';
+    if (/\s/.test(q) || q.length >= 3) html += phrHitsHTML(q, 12);
   }
   box.innerHTML = html;
 }
@@ -3310,19 +3999,23 @@ function buildWordCard(w) {
     ${extra}
   </div>`;
 
-  // 音節
-  html += '<div class="sec"><div class="sec-h">音節切分與重音</div><div class="syl-row">';
-  r.sylPhones.forEach((s, i) => {
-    const ipa = sylIPA(s, r);
+  // 音節：有字典音標時，音標與重音對齊字典（與上方一致）；否則用引擎推測
+  const syl = (bi ? dictSyllables(bi, r) : null) ||
+    r.sylPhones.map(s => ({ text: s.text, ipa: sylIPA(s, r), stress: s.stress, eng: true }));
+  const sylSrc = bi ? '字典' : '引擎推測';
+  html += `<div class="sec"><div class="sec-h">音節切分與重音
+      <span class="ipa-src${bi ? ' ok' : ''}" style="margin-left:8px">${esc(sylSrc)}</span></div><div class="syl-row">`;
+  syl.forEach(s => {
     const mark = s.stress === 1 ? '<span class="st-main">ˈ</span>' : s.stress === 2 ? '<span class="st-sec">ˌ</span>' : '';
     html += `<div class="syl${s.stress === 1 ? ' st1' : s.stress === 2 ? ' st2' : ''}">
       <div class="syl-t">${mark}${esc(s.text)}</div>
-      <div class="syl-i">${esc(ipa)}</div>
+      <div class="syl-i">${esc(s.ipa)}</div>
       ${s.stress === 1 ? '<div class="syl-tag">重音</div>' : ''}
     </div>`;
   });
   html += '</div><div class="hint">ˈ 主要重音　ˌ 次要重音　無記號＝輕讀';
-  if (bi) html += '<br>上方音標為字典權威標注；下列音節切分是引擎分析，用來理解「怎麼斷氣、重音落在哪」。';
+  if (bi) html += '<br>字母切分由規則引擎產生，音標與重音則直接取自上方的字典音標 —— 兩者永遠一致。';
+  else html += '<br>此詞不在離線字典音標表中，音標與重音由規則引擎推測，僅供參考。';
   html += '</div></div>';
 
   // 詞根分析（取代原本的逐字素拼讀拆解）
@@ -3375,8 +4068,8 @@ function showWord(raw) {
   if (!root) return;
   root.innerHTML = buildWordCard(w);
   bindWordCard(w, root);
-  root.scrollIntoView({ behavior: 'smooth', block: 'start' });
   loadApi(w, root);
+  scrollToEl(root);   // 扣掉 header 高度，才不會被 fixed/sticky header 蓋住
 }
 
 function sylIPA(s, r) {
@@ -3385,6 +4078,118 @@ function sylIPA(s, r) {
   if (state.dialect === 'ga') body = americanize(body);
   else body = derhoticize(body);
   return body;
+}
+
+/* ============================================================
+   音節切分與重音 —— 字典優先
+   ------------------------------------------------------------
+   舊版下方音節的音標與重音由引擎規則產生，與上方的字典音標各自獨立
+   計算，因此會不一致（引擎不弱化母音、複合詞重音常判錯）。
+   這裡改成：有字典音標時，字母切分沿用引擎（引擎切字母還算可靠），
+   但「音標」與「重音」一律對齊到字典音標，保證下方拼起來就等於上方。
+   ============================================================ */
+const IPA_MULTI3 = ['ɜːr', 'ɑːr', 'ɔːr', 'ɪər', 'eɪə', 'aʊə'];
+const IPA_MULTI = ['tʃ', 'dʒ', 'eɪ', 'aɪ', 'ɔɪ', 'aʊ', 'əʊ', 'oʊ', 'ɪə', 'eə', 'ʊə',
+  'iː', 'ɑː', 'ɔː', 'ɜː', 'uː', 'ɐː', 'ɛː', 'ɝ', 'ɚ', 'ju', 'aɪə'];
+const IPA_MOD = 'ːˑʰʲʷ̩̯̃̈˞ˠˤ˥˩';
+const IPA_VOWCH = 'iɪeɛæɑɒɔʊuʌəɜayɐɵɘɤœøɯʉɨɶɝɚ';
+
+/* 把音標字串切成「音位」陣列，並記錄 ˈ / ˌ 落在第幾個音位 */
+function parseIPA(str) {
+  const units = [], stress = {};
+  const s = String(str || '').replace(/[\/\[\]]/g, '');
+  let i = 0, pend = 0;
+  while (i < s.length) {
+    const c = s.charAt(i);
+    if (c === 'ˈ') { pend = 1; i++; continue; }
+    if (c === 'ˌ') { pend = 2; i++; continue; }
+    if (c === '.' || c === ' ' || c === ',') { i++; continue; }
+    let u = s.substr(i, 3);
+    if (IPA_MULTI3.indexOf(u) >= 0) { units.push(u); if (pend) { stress[units.length - 1] = pend; pend = 0; } i += 3; continue; }
+    u = s.substr(i, 2);
+    if (IPA_MULTI.indexOf(u) >= 0) { units.push(u); if (pend) { stress[units.length - 1] = pend; pend = 0; } i += 2; continue; }
+    if (IPA_MOD.indexOf(c) >= 0 && units.length) { units[units.length - 1] += c; i++; continue; }
+    units.push(c); if (pend) { stress[units.length - 1] = pend; pend = 0; } i++;
+  }
+  return { units: units, stress: stress, str: units.join('') };
+}
+function isVowelUnit(u) {
+  const c = String(u).replace(/[ˈˌ]/g, '').charAt(0);
+  return IPA_VOWCH.indexOf(c) >= 0;
+}
+/* Needleman-Wunsch 全域對齊：回傳 [aIdx, bIdx] 配對（-1 表示缺口） */
+function alignUnits(A, B) {
+  const n = A.length, m = B.length;
+  const GAP = -1;
+  const sc = (x, y) => (x === y ? 3 : (isVowelUnit(x) && isVowelUnit(y) ? -0.4 : -1.5));
+  const dp = [], bt = [];
+  for (let i = 0; i <= n; i++) { dp.push(new Float64Array(m + 1)); bt.push(new Uint8Array(m + 1)); }
+  for (let i = 1; i <= n; i++) { dp[i][0] = i * GAP; bt[i][0] = 1; }
+  for (let j = 1; j <= m; j++) { dp[0][j] = j * GAP; bt[0][j] = 2; }
+  for (let i = 1; i <= n; i++) {
+    for (let j = 1; j <= m; j++) {
+      let best = dp[i - 1][j - 1] + sc(A[i - 1], B[j - 1]), dir = 0;
+      const u = dp[i - 1][j] + GAP, l = dp[i][j - 1] + GAP;
+      if (u > best) { best = u; dir = 1; }
+      if (l > best) { best = l; dir = 2; }
+      dp[i][j] = best; bt[i][j] = dir;
+    }
+  }
+  const pairs = [];
+  let i = n, j = m;
+  while (i > 0 || j > 0) {
+    const dir = (i > 0 && j > 0) ? bt[i][j] : (i > 0 ? 1 : 2);
+    if (dir === 0) { pairs.push([i - 1, j - 1]); i--; j--; }
+    else if (dir === 1) { pairs.push([i - 1, -1]); i--; }
+    else { pairs.push([-1, j - 1]); j--; }
+  }
+  pairs.reverse();
+  return pairs;
+}
+/* 用字典音標重寫每個音節的音標與重音；字母切分沿用引擎 */
+function dictSyllables(bi, r) {
+  if (!bi || !r || !r.sylPhones || !r.sylPhones.length) return null;
+  const raw = (state.dialect === 'ga' ? (bi.ga || bi.rp) : (bi.rp || bi.ga)) || '';
+  const D = parseIPA(raw);
+  if (!D.units.length) return null;
+
+  // 引擎音位與所屬音節
+  const engUnits = [], owner = [];
+  r.sylPhones.forEach((s, k) => {
+    parseIPA(s.ipa).units.forEach(u => { engUnits.push(u); owner.push(k); });
+  });
+  if (!engUnits.length) return null;
+
+  const pairs = alignUnits(D.units, engUnits);
+  const span = r.sylPhones.map(() => ({ a: Infinity, b: -1 }));
+  pairs.forEach(p => {
+    if (p[0] < 0 || p[1] < 0) return;
+    const k = owner[p[1]];
+    if (k == null) return;
+    if (p[0] < span[k].a) span[k].a = p[0];
+    if (p[0] > span[k].b) span[k].b = p[0];
+  });
+
+  // 未被覆蓋的字典音位（例如引擎切分少了一段）→ 丟棄，避免重複
+  const out = r.sylPhones.map((s, k) => {
+    const sp = span[k];
+    let ipa, st = 0;
+    if (sp.b >= sp.a) {
+      ipa = D.units.slice(sp.a, sp.b + 1).join('');
+      for (let x = sp.a; x <= sp.b; x++) { if (D.stress[x]) { st = D.stress[x]; break; } }
+    } else {
+      ipa = sylIPA(s, r);
+    }
+    return { text: s.text, ipa: ipa, stress: st, eng: sp.b < sp.a };
+  });
+
+  // 保險：對齊後完全沒有重音、但引擎有，就退回引擎重音
+  if (!out.some(o => o.stress) && r.sylPhones.some(s => s.stress)) {
+    r.sylPhones.forEach((s, k) => { if (!out[k].stress) out[k].stress = s.stress; });
+  }
+  // 單音節詞不標重音符號（字典慣例：單音節本身就重讀，不加 ˈ）
+  if (out.length <= 1) out.forEach(o => { o.stress = 0; });
+  return out;
 }
 
 /* ---------------- 線上字典 ----------------
@@ -3883,12 +4688,130 @@ function renderHist() {
 }
 function renderBookCount() { $('#bookCount').textContent = state.book.size; }
 
+/* ============================================================
+   片語 / 慣用語
+   ============================================================ */
+const PHRASES = (typeof PHRASE_RAW !== 'undefined' ? PHRASE_RAW : []).map(function (r) {
+  return { c: r[0], p: r[1], m: r[2], ex: r[3], k: r[1].toLowerCase() };
+});
+const PHRASE_BY_KEY = Object.create(null);
+PHRASES.forEach(function (o) { if (!PHRASE_BY_KEY[o.k]) PHRASE_BY_KEY[o.k] = o; });
+
+function phrCatName(c) {
+  return (typeof PHRASE_CATS !== 'undefined' && PHRASE_CATS[c]) ? PHRASE_CATS[c] : c;
+}
+function phrCatShort(c) {
+  return ({ phrasal: '動詞片語', idiom: '成語', daily: '日常用語', link: '寫作用語' })[c] || c;
+}
+/* 搜尋：片語文字、中文意思、例句都算；空白視為單一空格 */
+function phrMatch(o, q) {
+  if (!q) return true;
+  if (o.k.indexOf(q) >= 0) return true;
+  if (o.m.indexOf(q) >= 0) return true;
+  if (o.ex.toLowerCase().indexOf(q) >= 0) return true;
+  // 中文查英文意思（例如輸入「放棄」找 give up）
+  return false;
+}
+function phrSearch(q) {
+  q = String(q || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  if (!q) return PHRASES.slice();
+  const words = q.split(' ');
+  return PHRASES.filter(function (o) {
+    return words.every(function (w) {
+      return o.k.indexOf(w) >= 0 || o.m.indexOf(w) >= 0 || o.ex.toLowerCase().indexOf(w) >= 0;
+    });
+  });
+}
+function phrItemHTML(o) {
+  return `<button class="phr-item" data-phr="${esc(o.k)}">
+    <div class="phr-top">
+      <span class="phr-p">${esc(o.p)}</span>
+      <span class="phr-cat c-${o.c}">${esc(phrCatShort(o.c))}</span>
+    </div>
+    <div class="phr-m">${esc(o.m)}</div>
+    <div class="phr-ex">${esc(o.ex)}</div>
+  </button>`;
+}
+function renderPhrases() {
+  const st = state.phr;
+  const box = $('#phr');
+  if (!box) return;
+  const cats = [['all', '全部 ' + PHRASES.length]];
+  Object.keys(PHRASE_CATS).forEach(function (c) {
+    cats.push([c, phrCatName(c) + ' ' + PHRASES.filter(o => o.c === c).length]);
+  });
+  let h = '<div class="chips">' + cats.map(([k, t]) =>
+    `<button class="chip${st.cat === k ? ' on' : ''}" data-pcat="${k}">${esc(t)}</button>`).join('') + '</div>';
+
+  let list = phrSearch(st.q);
+  if (st.cat !== 'all') list = list.filter(o => o.c === st.cat);
+
+  h += `<div class="phr-bar">
+      <input id="phrQ" type="text" placeholder="搜尋片語、成語或中文意思（例如 give up、放棄、however）…" value="${esc(st.q)}" autocomplete="off">
+      <span>共 <b>${list.length}</b> 條</span>
+      <span class="ielts-ops"><button class="btn btn-sm" id="phrRandom">🎲 隨機</button></span>
+    </div>`;
+  if (!list.length) {
+    h += '<div class="empty">找不到符合的片語。<br>可以試著只輸入其中一個字，例如 <b>take</b>、<b>up</b>。</div>';
+  } else {
+    h += '<div class="phr-grid">' + list.slice(0, 240).map(phrItemHTML).join('') + '</div>';
+    if (list.length > 240) h += `<div class="hint" style="margin-top:12px">僅顯示前 240 條，共 ${list.length} 條 —— 輸入更多關鍵字可縮小範圍。</div>`;
+  }
+  h += '<div id="phrDetail"></div>';
+  box.innerHTML = h;
+
+  $$('#phr .chip[data-pcat]').forEach(c => c.onclick = () => { state.phr.cat = c.dataset.pcat; renderPhrases(); });
+  $$('#phr .phr-item').forEach(b => b.onclick = () => showPhrase(b.dataset.phr));
+  const iq = $('#phrQ');
+  if (iq) {
+    iq.addEventListener('input', () => { state.phr.q = iq.value; renderPhrases(); const n = $('#phrQ'); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } });
+  }
+  const rd = $('#phrRandom');
+  if (rd) rd.onclick = () => showPhrase(PHRASES[Math.floor(Math.random() * PHRASES.length)].k);
+}
+function showPhrase(key) {
+  const o = PHRASE_BY_KEY[key];
+  const box = $('#phrDetail');
+  if (!o || !box) return;
+  const saved = state.phrBook.has(o.k);
+  box.innerHTML = `<div class="phr-detail">
+    <div class="pd-w">${esc(o.p)}</div>
+    <div class="pd-m">${esc(o.m)}</div>
+    <div class="pd-ex"><b>例句：</b>${esc(o.ex)}</div>
+    <div class="pd-ops">
+      <button class="btn btn-sm btn-speak" id="pdSpeak">🔊 朗讀</button>
+      <button class="btn btn-sm${saved ? ' btn-on' : ''}" id="pdStar">${saved ? '★ 已收藏' : '☆ 收藏'}</button>
+      <span class="muted small">${esc(phrCatName(o.c))}</span>
+    </div>
+  </div>`;
+  $('#pdSpeak').onclick = () => speak(o.p);
+  $('#pdStar').onclick = () => {
+    if (state.phrBook.has(o.k)) { state.phrBook.delete(o.k); toast('已取消收藏'); }
+    else { state.phrBook.add(o.k); toast('已收藏片語'); }
+    savePhrBook();
+    showPhrase(o.k);
+  };
+  ensureVisible(box, 20);
+}
+function savePhrBook() {
+  try { localStorage.setItem(LS.phrBook, JSON.stringify([...state.phrBook])); } catch (e) { }
+}
+/* 查詞頁：把命中的片語附在單詞結果後面 */
+function phrHitsHTML(q, limit) {
+  const list = phrSearch(q).slice(0, limit || 12);
+  if (!list.length) return '';
+  return `<div class="res-head"><span><b>片語／成語</b> 也找到 <b>${list.length}</b> 條</span>
+    <span class="res-mode">點一下看例句</span></div>
+    <div class="phr-grid">${list.map(phrItemHTML).join('')}</div>`;
+}
+
 /* ---------------- 分頁切換 ---------------- */
 function switchTab(t) {
   state.tab = t;
   $$('.tab').forEach(b => b.classList.toggle('on', b.dataset.t === t));
   $$('.page').forEach(p => p.classList.toggle('on', p.dataset.p === t));
   if (t === 'ielts' && !$('#ielts').innerHTML) renderIelts();
+  if (t === 'phr' && !$('#phr').innerHTML) renderPhrases();
   if (t === 'rules' && !$('#rules').innerHTML) renderRules('全部');
   if (t === 'chart' && !$('#chart').innerHTML) renderChart();
   if (t === 'book') renderBook();
@@ -3900,7 +4823,17 @@ function switchTab(t) {
    初始化
    ============================================================ */
 function init() {
+  // header 會因為視窗寬度、分頁列換行而改變高度，這裡持續同步給 CSS
+  syncHeaderHeight();
+  window.addEventListener('resize', syncHeaderHeight);
+  window.addEventListener('orientationchange', syncHeaderHeight);
+  if (typeof ResizeObserver !== 'undefined') {
+    try { new ResizeObserver(syncHeaderHeight).observe(document.querySelector('header')); } catch (e) { }
+  }
+
   $('#bookCount').textContent = state.book.size;
+  const pc = $('#phrCount');
+  if (pc) pc.textContent = PHRASES.length;
   renderHist();
   renderRules('全部');
   renderChart();
@@ -3944,6 +4877,8 @@ function init() {
   document.addEventListener('click', e => {
     const ri = e.target.closest('.res-item');
     if (ri && !ri.closest('#ielts')) { showWord(ri.dataset.w); return; }
+    const pi = e.target.closest('.phr-item');
+    if (pi && !pi.closest('#phr')) { switchTab('phr'); showPhrase(pi.dataset.phr); return; }
   });
 
   // 隨機推薦
@@ -4704,11 +5639,18 @@ function showDocWord(raw) {
   bindWordCard(w, root);
   loadApi(w, root);
   const text = $('.doc-text');
+  let hit = null;
   if (text) {
     $$('.tk.tk-on', text).forEach(function (x) { x.classList.remove('tk-on'); });
-    $$('.tk[data-w="' + w + '"]', text).forEach(function (x) { x.classList.add('tk-on'); });
+    const hits = $$('.tk[data-w="' + w + '"]', text);
+    hits.forEach(function (x) { x.classList.add('tk-on'); });
+    hit = hits[0] || null;
   }
   root.scrollTop = 0;
+  // 點到的單詞若剛好在 header 底下被遮住，就把它捲到 header 下方露出來
+  if (hit && typeof ensureVisible === 'function') ensureVisible(hit, 20);
+  // 窄螢幕（單欄）時單詞卡在內文下方，捲過去才看得到
+  if (window.innerWidth <= 900 && typeof scrollToEl === 'function') scrollToEl(root, 12);
 }
 
 /* 生詞本增減後，同步內文底色 */
