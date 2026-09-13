@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" data-page-node-id="aXkZLha7P7ZkfEuRcRCFTN">
-<head data-page-node-id="GosJ4bL5ER0JSMROx50hO5">
-<meta charset="UTF-8" data-page-node-id="HDj8m9bCCJfJZoGFhRHaDe">
-<meta name="viewport" content="width=device-width, initial-scale=1" data-page-node-id="jSlAzigAtDYXwnZvVeKZKb">
+<html lang="zh-Hant" data-page-node-id="HdLhYv1duqoZ4fgjbu345b">
+<head data-page-node-id="CRjiDj1Rhg4YoUJSbYlSVD">
+<meta charset="UTF-8" data-page-node-id="KkAACzvYnktCu2dpNGZxBb">
+<meta name="viewport" content="width=device-width, initial-scale=1" data-page-node-id="ILE32iGDocfF6NvE6Y6cbW">
 <title>拼讀字典 Spell &amp; Sound — 看字就會讀</title>
 <style>
 :root{
@@ -109,16 +109,23 @@ header{
 .res-item.saved{border-color:#fcd34d;background:#fffdf5}
 .res-item.on{border-color:var(--pri);background:var(--pri-s);box-shadow:0 0 0 1.5px var(--pri)}
 /* 左清單 / 右內容 兩欄 */
-.split{display:grid;grid-template-columns:minmax(0,1fr) 460px;gap:16px;align-items:start}
+.split{display:grid;grid-template-columns:minmax(0,1fr) 460px;gap:16px;align-items:stretch}
 .split-list{min-width:0}
+/* 右欄：白色底（容器）跟左邊清單一樣高 */
 .split-side{
+  display:flex;flex-direction:column;min-height:0;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+}
+.split-side #phrDetail{flex:1 0 auto;display:flex;flex-direction:column;min-height:0}
+/* 內容塊 sticky 跟著視口：點左邊任何一個詞，結果都馬上出現在眼前 */
+.split-side .card,.split-side .phr-detail{
+  margin-top:0;box-shadow:none;border:0;background:transparent;border-radius:0;
   position:sticky;top:calc(var(--hd) + var(--hdgap));
   max-height:calc(100vh - var(--hd) - var(--hdgap) * 2);overflow:auto;
-  border-radius:var(--r);scrollbar-width:thin;
+  scrollbar-width:thin;
 }
 .split-side::-webkit-scrollbar{width:8px}
 .split-side::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:99px}
-.split-side .card{margin-top:0;box-shadow:0 2px 10px rgba(20,25,50,.09)}
 .split-side .wc-top{padding:16px 16px 12px}
 .split-side .wc-word{font-size:31px}
 .split-side .sec{padding:13px 16px}
@@ -126,7 +133,13 @@ header{
 .split-side .mp-t{font-size:16px}
 @media(max-width:1100px){
   .split{grid-template-columns:1fr}
-  .split-side{position:static;max-height:none;overflow:visible}
+  .split-side{display:block;background:none;border:0}
+  .split-side #phrDetail{display:block}
+  .split-side .card,.split-side .phr-detail{
+    position:static;max-height:none;overflow:visible;
+    background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:0 1px 3px rgba(20,25,50,.06);
+  }
 }
 .ri-w{font-size:15.5px;font-weight:600}
 .ri-p{font-size:12.5px;color:var(--muted);font-family:ui-monospace,Menlo,Consolas,monospace}
@@ -421,6 +434,7 @@ header{
 .tk-ielts{background:#faf5ff;box-shadow:inset 0 -2px 0 #d8b4fe}
 .tk-awl{background:#f5f3ff;box-shadow:inset 0 -2px 0 #a78bfa}
 .tk-book{background:#fef9c3;box-shadow:inset 0 -2px 0 #facc15;font-weight:600}
+.tk-verb{background:#ecfdf5;box-shadow:inset 0 -2px 0 #6ee7b7}
 .tk.tk-on{background:var(--pri);color:#fff;box-shadow:none}
 .doc-text mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
 
@@ -479,100 +493,100 @@ footer{text-align:center;color:var(--faint);font-size:12.5px;margin-top:34px;lin
 }
 </style>
 </head>
-<body data-page-node-id="Q3LuuP1TsDYqmXzcLDw9pR">
+<body data-page-node-id="EIFVd9cit1ZW3cwaxVhVYq">
 
-<header data-page-node-id="nWTXmRgFsD750WpdXp2efM">
-  <div class="hd-in" data-page-node-id="S9XevzQStW7BKLfBrkkm8s">
-    <div class="brand" data-page-node-id="sROBI1Ydqqc1nUUGvmyGje">
-      <h1 data-page-node-id="KioXAx25RCE3LSqqlCJnyt">拼讀字典</h1>
-      <span class="en" data-page-node-id="AJQhq6xrGM30BvCxW3wODQ">Spell &amp; Sound</span>
-      <span class="sub" data-page-node-id="WbRjzOYfiRW2lEzxURSgcU">看字就會讀 —— 拆解每一個字母為什麼這樣發音</span>
+<header data-page-node-id="KYWvooD3IH1G1EsLj4pEpV">
+  <div class="hd-in" data-page-node-id="TM3zOvNrvL19XGbas6pAoO">
+    <div class="brand" data-page-node-id="ww5UHMOtitSPBBVdB8pOpC">
+      <h1 data-page-node-id="NPhJcjpEss3DDmgFjYmveA">拼讀字典</h1>
+      <span class="en" data-page-node-id="eiFGOT4kYHIhNoRq7GAexQ">Spell &amp; Sound</span>
+      <span class="sub" data-page-node-id="hFPy0W1bso1bQqsFDB2pGu">看字就會讀 —— 拆解每一個字母為什麼這樣發音</span>
     </div>
-    <div class="tabs" data-page-node-id="oPpg567M0ukZMjkTSoFgOm">
-      <button class="tab on" data-t="search" data-page-node-id="HbiIKw3hqaFEF2wO0EFsXB">查詞</button>
-      <button class="tab" data-t="phr" data-page-node-id="eDbbVwaXNrWcB9kk1uWmnI">片語成語 <span class="badge" id="phrCount" data-page-node-id="wqdrEurCu34uzgWrXfleOX">0</span></button>
-      <button class="tab" data-t="ielts" data-page-node-id="OqJSJOodpiKCHa88RlE19b">雅思詞彙</button>
-      <button class="tab" data-t="doc" data-page-node-id="Cozb6BO4xxPbFEyc0RwSdb">文件閱讀</button>
-      <button class="tab" data-t="rules" data-page-node-id="OA7zNycjZBy4NCrY2D10rV">發音規則速查</button>
-      <button class="tab" data-t="chart" data-page-node-id="ORG1VeFbETSBAImL2PbSxx">國際音標表</button>
-      <button class="tab" data-t="book" data-page-node-id="hzSvfqP9O7o2ikGOWOvhkr">生詞本 <span class="badge" id="bookCount" data-page-node-id="iIicSXKjfhDQHZ57XNVCIe">0</span></button>
+    <div class="tabs" data-page-node-id="sdDKzKZFUC2oxgkh0HoGnT">
+      <button class="tab on" data-t="search" data-page-node-id="kA4I920wDhZo5lOFkaRsqq">查詞</button>
+      <button class="tab" data-t="phr" data-page-node-id="ZI6Myo001gQn6dW2Hxmnc6">片語成語 <span class="badge" id="phrCount" data-page-node-id="GuAxcZweFpvU2KMacjp2ci">0</span></button>
+      <button class="tab" data-t="ielts" data-page-node-id="Hpi2ZVfFp755Yx4jvU1kC0">雅思詞彙</button>
+      <button class="tab" data-t="doc" data-page-node-id="Hio4982j1qrbIUOYIpe9z0">文件閱讀</button>
+      <button class="tab" data-t="rules" data-page-node-id="PwbTwguO4isfgOM85lTsj4">發音規則速查</button>
+      <button class="tab" data-t="chart" data-page-node-id="pphBm03SltBJYnrci3e5lM">國際音標表</button>
+      <button class="tab" data-t="book" data-page-node-id="UYYoZXDhrTQEa0wTIQ9TDD">生詞本 <span class="badge" id="bookCount" data-page-node-id="uFOhkJNZlyYQwYY5hlTiEl">0</span></button>
     </div>
   </div>
 </header>
 
-<div class="wrap" data-page-node-id="Q8w2RMd2x9nhTKCIaMz4vx">
+<div class="wrap" data-page-node-id="5fFvpdizvGwAthqy8FAKuW">
 
   <!-- ========== 查詞 ========== -->
-  <section class="page on" data-p="search" data-page-node-id="IyA6sBnvPtDCJp66EKAb9S">
-    <div class="search-box" data-page-node-id="FjZdOwqqFQubH4anIX3JfX">
-      <div class="sb-row" data-page-node-id="VkNP4IVAwzpRZGaL9s4ICR">
-        <input id="q" type="text" placeholder="輸入詞首…" autocomplete="off" spellcheck="false" data-page-node-id="LdOhRAGN29tHOT8VFpgMJo">
-        <button class="btn" id="btnRandom" title="隨機挑一個詞" data-page-node-id="RnA7ayAngA7XfoydwQIwgE">🎲 隨機</button>
+  <section class="page on" data-p="search" data-page-node-id="HzARCO6EaXFSLfgYDvA6AY">
+    <div class="search-box" data-page-node-id="nwaBwdypOC18gAW0dLblnj">
+      <div class="sb-row" data-page-node-id="jxm9MJvPVwT3eeeh9sHNe9">
+        <input id="q" type="text" placeholder="輸入詞首…" autocomplete="off" spellcheck="false" data-page-node-id="WaJcfW2GfsEaZhjPOrI14Q">
+        <button class="btn" id="btnRandom" title="隨機挑一個詞" data-page-node-id="EWAY6X9Aw8sVhG9vKtIgr0">🎲 隨機</button>
       </div>
-      <div class="modes" data-page-node-id="8xs8YowAW9mf2BGvJEIi3n">
-        <span class="lbl" data-page-node-id="IXq8QlyD8obdVKXNItcBVD">搜尋方式</span>
-        <button class="mode-btn on" data-m="start" data-page-node-id="v0Qtrhswm0bjB3LDclNoM8">詞首</button>
-        <button class="mode-btn" data-m="contain" data-page-node-id="QhUVBResJA9ryCg28bHmtd">詞中（包含）</button>
-        <button class="mode-btn" data-m="end" data-page-node-id="aOX8BoK9EdBS1MHwRwR7Z0">詞尾</button>
-        <button class="mode-btn" data-m="exact" data-page-node-id="r7qWkTvBNGbD9LiVixVoZi">精確</button>
-        <button class="mode-btn" data-m="wild" data-page-node-id="hbURj4zcqXEDXpAK4IeYFh">萬用字元 * ?</button>
+      <div class="modes" data-page-node-id="kQi0kO4MMqOsoZadGG3oS4">
+        <span class="lbl" data-page-node-id="5rXxovBGTBarfHJSVDE72G">搜尋方式</span>
+        <button class="mode-btn on" data-m="start" data-page-node-id="kHmncNaFLTjbxySKiltz3S">詞首</button>
+        <button class="mode-btn" data-m="contain" data-page-node-id="ShYv52WgzjM53zhi6G3E2b">詞中（包含）</button>
+        <button class="mode-btn" data-m="end" data-page-node-id="qxsJaAlCx3MnkMaLd3Srya">詞尾</button>
+        <button class="mode-btn" data-m="exact" data-page-node-id="O3btN2N9V5yKjcFEjDE48g">精確</button>
+        <button class="mode-btn" data-m="wild" data-page-node-id="9dGU3YAVBTtFEysgNFOPVQ">萬用字元 * ?</button>
       </div>
-      <div class="modes" data-page-node-id="QjBKMtcDD6murjrcFuQdvZ">
-        <span class="lbl" data-page-node-id="DQCOBCKDZLQOitD0ITGtOM">詞庫範圍</span>
-        <button class="mode-btn on" data-scope="all" data-page-node-id="pQEfTDC5kSG4mcRhzU4wfQ">全部</button>
-        <button class="mode-btn" data-scope="common" data-page-node-id="KCE5agd8fXJCrmuDtl5kgt">常用詞</button>
-        <button class="mode-btn" data-scope="ielts" data-page-node-id="O2Kv0kFmCER9WEm1f8AGjp">雅思詞</button>
+      <div class="modes" data-page-node-id="X5QuCCpCSF7jR2edsGlDey">
+        <span class="lbl" data-page-node-id="HY3AOf04oFBFAvKanAgXpD">詞庫範圍</span>
+        <button class="mode-btn on" data-scope="all" data-page-node-id="nOLXnLL2w1aZKQH4y0BFxV">全部</button>
+        <button class="mode-btn" data-scope="common" data-page-node-id="9VvMZ0rpqxVPJbv17LZT75">常用詞</button>
+        <button class="mode-btn" data-scope="ielts" data-page-node-id="4LLOkDXmOAZtyaLk3sSNMd">雅思詞</button>
       </div>
-      <div class="modes" data-page-node-id="lGWtx5Fl7fMqRK7WWjfAi6">
-        <span class="lbl" data-page-node-id="9pm2jNI5sKEEXno10JO7JF">發音來源</span>
-        <button class="mode-btn on" data-audio="cam" title="連網時優先播劍橋字典真人錄音，取不到才退回系統語音" data-page-node-id="iAkKHixqRNEtHD9kGH7eg0">劍橋真人優先</button>
-        <button class="mode-btn" data-audio="sys" title="只用瀏覽器內建語音，完全不連網" data-page-node-id="BvUDhymUACPA2DojR6AYNg">只用系統語音</button>
+      <div class="modes" data-page-node-id="dXAsREZMn84XF1QzT5wCnT">
+        <span class="lbl" data-page-node-id="E7pk3whGyDSwQIqoMTyArS">發音來源</span>
+        <button class="mode-btn on" data-audio="cam" title="連網時優先播劍橋字典真人錄音，取不到才退回系統語音" data-page-node-id="rdMH6LkAbaerFBjfr8jVSD">劍橋真人優先</button>
+        <button class="mode-btn" data-audio="sys" title="只用瀏覽器內建語音，完全不連網" data-page-node-id="L4Dyxa8SneKOV74bc9mfSE">只用系統語音</button>
       </div>
-      <div id="modeTip" data-page-node-id="e8qNoEx5YHto9TQCG1fZHw"></div>
-      <div id="hist" data-page-node-id="63LgzjEGtKtuCLzp9lrxww"></div>
+      <div id="modeTip" data-page-node-id="gU6yNGsIWv8QVylcifGJUr"></div>
+      <div id="hist" data-page-node-id="GjhqYp8uyCUCrXa1nAV8PH"></div>
     </div>
 
-    <div id="results" data-page-node-id="fGX4ofmQIL0sC6EJ6G3ilo"></div>
-    <div id="detail" data-page-node-id="FvVyLkVZd7FeugloN55lVX"></div>
+    <div id="results" data-page-node-id="blUX9tlDzr0QLoz1F07lBF"></div>
+    <div id="detail" data-page-node-id="wV7jz58PO2DE5U4B3xZP5E"></div>
   </section>
 
   <!-- ========== 片語成語 ========== -->
-  <section class="page" data-p="phr" data-page-node-id="3cUYrti0OqB0L5fCiJyuwi">
-    <div id="phr" data-page-node-id="EQ6tqV4pxQiBx29zKQxU1w"></div>
+  <section class="page" data-p="phr" data-page-node-id="XizJlcFDIQ4Dv0ruUOdLSg">
+    <div id="phr" data-page-node-id="cSFNvjvhUYwx67EOHBii78"></div>
   </section>
 
   <!-- ========== 雅思詞彙 ========== -->
-  <section class="page" data-p="ielts" data-page-node-id="Gtix2BCHPH0wFDGu4ti6SB">
-    <div id="ielts" data-page-node-id="KwgwowOLsWZCeVbHKv8nF6"></div>
+  <section class="page" data-p="ielts" data-page-node-id="zDhFX60lckX67tLa1WCYms">
+    <div id="ielts" data-page-node-id="YSGDifWtaMPkLRsbIyHwOv"></div>
   </section>
 
   <!-- ========== 文件閱讀 ========== -->
-  <section class="page" data-p="doc" data-page-node-id="9QGbnLG5yati2UEwBproCh">
-    <div id="doc" data-page-node-id="P6KK8Kr90qQcYkwtAoTleJ"></div>
+  <section class="page" data-p="doc" data-page-node-id="GROGc4idHrrpYafco3FYnF">
+    <div id="doc" data-page-node-id="DEbLSQZuPX7FHymauAcT1P"></div>
   </section>
 
   <!-- ========== 規則速查 ========== -->
-  <section class="page" data-p="rules" data-page-node-id="SxaWAvz5ftF9cZQpx08eoB">
-    <div id="rules" data-page-node-id="ebCGXVfvnSaUncUH50u6Xi"></div>
+  <section class="page" data-p="rules" data-page-node-id="uLOuFyFAkT7lsxnq29faae">
+    <div id="rules" data-page-node-id="kTNbbCiDX1mhieHhacejAR"></div>
   </section>
 
   <!-- ========== 音標表 ========== -->
-  <section class="page" data-p="chart" data-page-node-id="8ZNIDEWBiMLyDyHaFnLD4i">
-    <div id="chart" data-page-node-id="hiSTWWTZremfYTCJRptc9l"></div>
+  <section class="page" data-p="chart" data-page-node-id="wbpnOrQBPu294N4d43kwIn">
+    <div id="chart" data-page-node-id="CxfzvCaB69uplO3KU9UjHM"></div>
   </section>
 
   <!-- ========== 生詞本 ========== -->
-  <section class="page" data-p="book" data-page-node-id="6rRCfVLXAJm5JyJAbUPe6g">
-    <div id="book" data-page-node-id="lelGMhk9qOgZm8vpEvxBNY"></div>
+  <section class="page" data-p="book" data-page-node-id="lLvuxRcy8QwUB1fDgCxQ3O">
+    <div id="book" data-page-node-id="UspRdcRi9xEeYvJYkTIDkQ"></div>
   </section>
 
-  <footer data-page-node-id="JJpwprCw5CVgjbYFuxvOKY">
-    音標、音節切分與詞根分析皆由內建詞表與規則引擎離線運算，任何英文單詞都能分析；連網時優先播放 Cambridge 劍橋字典的真人發音（查過一次即離線快取），並從 Wiktionary 補充英／美音標、釋義與真人錄音。<br data-page-node-id="FK8tSlEtuffGeflGE68Eij">
+  <footer data-page-node-id="dJ0pRusjfpWueYxCpT8FRG">
+    音標、音節切分與詞根分析皆由內建詞表與規則引擎離線運算，任何英文單詞都能分析；連網時優先播放 Cambridge 劍橋字典的真人發音（查過一次即離線快取），並從 Wiktionary 補充英／美音標、釋義與真人錄音。<br data-page-node-id="2gqPEuIHMyTG1tWeFzHGjb">
     英文拼讀例外極多，規則推測僅供學習參考，聽力與口說請以真人發音為準。
   </footer>
 </div>
 
-<div id="toast" data-page-node-id="FbqtAhvlpE2MUWWkDtp4mB"></div>
+<div id="toast" data-page-node-id="lRFFrvP6LLPrPqCtucKpWO"></div>
 
 <script>
 const RAW_WORDS="the of and to in for is on that by this with you it not or be are from at as your all have new more an was we will home can us about if page my has search free but our one other do no information time they site he up may what which their news out use any there see only so his when contact here business who web also now help get pm view online first am been would how were me services some these click its like service than find price date back top people had list name just over state year day into email two health world re next used go work last most products music buy data make them should product system post her city add policy number such please available copyright support message after best software then jan good video well where info rights public books high school through each links she review years order very privacy book items company read group sex need many user said de does set under general research university january mail full map reviews program life know games way days management part could great united hotel real item international center ebay must store travel comments made development report off member details line terms before hotels did send right type because local those using results office education national car design take posted internet address community within states area want phone dvd shipping reserved subject between forum family long based code show even black check special prices website index being women much sign file link open today technology south case project same pages uk version section own found sports house related security both county american photo game members power while care network down computer systems three total place end following download him without per access think north resources current posts big media law control water history pictures size art personal since including guide shop directory board location change white text small rating rate government children during usa return students shopping account times sites level digital profile previous form events love old john main call hours image department title description non insurance another why shall property class cd still money quality every listing content country private little visit save tools low reply customer december compare movies include college value article york man card jobs provide food source author different press learn sale around print course job canada process teen room stock training too credit point join science men categories advanced west sales look english left team estate box conditions select windows photos gay thread week category note live large gallery table register however june october november market library really action start series model features air industry plan human provided tv yes required second hot accessories cost movie forums march la september better say questions july yahoo going medical test friend come dec server pc study application cart staff articles san feedback again play looking issues april never users complete street topic comment financial things working against standard tax person below mobile less got blog party payment equipment login student let programs offers legal above recent park stores side act problem red give memory performance social august quote language story sell options experience rates create key body young america important field few east paper single ii age activities club example girls additional password latest something road gift question changes night ca hard texas oct pay four poker status browse issue range building seller court february always result audio light write war nov offer blue groups al easy given files event release analysis request fax china making picture needs possible might professional yet month major star areas future space committee hand sun cards problems london washington meeting rss become interest id child keep enter california porn share similar garden schools million added reference companies listed baby learning energy run delivery net popular term film stories put computers journal reports co try welcome central images president notice god original head radio until cell color self council away includes track australia discussion archive once others entertainment agreement format least society months log safety friends sure faq trade edition cars messages marketing tell further updated association able having provides david fun already green studies close common drive specific several gold feb living sep collection called short arts lot ask display limited powered solutions means director daily beach past natural whether due et electronics five upon period planning database says official weather mar land average done technical window france pro region island record direct microsoft conference environment records st district calendar costs style url front statement update parts aug ever downloads early miles sound resource present applications either ago document word works material bill apr written talk federal hosting rules final adult tickets thing centre requirements via cheap nude kids finance true minutes else mark third rock gifts europe reading topics bad individual tips plus auto cover usually edit together videos percent fast function fact unit getting global tech meet far economic en player projects lyrics often subscribe submit germany amount watch included feel though bank risk thanks everything deals various words linux jul production commercial james weight town heart advertising received choose treatment newsletter archives points knowledge magazine error camera jun girl currently construction toys registered clear golf receive domain methods chapter makes protection policies loan wide beauty manager india position taken sort listings models michael known half cases step engineering florida simple quick none wireless license paul friday lake whole annual published later basic sony shows corporate google church method purchase customers active response practice hardware figure materials fire holiday chat enough designed along among death writing speed html countries loss face brand discount higher effects created remember standards oil bit yellow political increase advertise kingdom base near environmental thought stuff french storage oh japan doing loans shoes entry stay nature orders availability africa summary turn mean growth notes agency king monday european activity copy although drug pics western income force cash employment overall bay river commission ad package contents seen players engine port album regional stop supplies started administration bar institute views plans double dog build screen exchange types soon sponsored lines electronic continue across benefits needed season apply someone held ny anything printer condition effective believe organization effect asked eur mind sunday selection casino pdf lost tour menu volume cross anyone mortgage hope silver corporation wish inside solution mature role rather weeks addition came supply nothing certain usr executive running lower necessary union jewelry according dc clothing mon com particular fine names robert homepage hour gas skills six bush islands advice career military rental decision leave british teens pre huge sat woman facilities zip bid kind sellers middle move cable opportunities taking values division coming tuesday object lesbian appropriate machine logo length actually nice score statistics client ok returns capital follow sample investment sent shown saturday christmas england culture band flash ms lead george choice went starting registration fri thursday courses consumer hi airport foreign artist outside furniture levels channel letter mode phones ideas wednesday structure fund summer allow degree contract button releases wed homes super male matter custom virginia almost took located multiple asian distribution editor inn industrial cause potential song cnet ltd los hp focus late fall featured idea rooms female responsible inc communications win associated thomas primary cancer numbers reason tool browser spring foundation answer voice eg friendly schedule documents communication purpose feature bed comes police everyone independent ip approach cameras brown physical operating hill maps medicine deal hold ratings chicago forms glass happy tue smith wanted developed thank safe unique survey prior telephone sport ready feed animal sources mexico population pa regular secure navigation operations therefore ass simply evidence station christian round paypal favorite understand option master valley recently probably thu rentals sea built publications blood cut worldwide improve connection publisher hall larger anti networks earth parents nokia impact transfer introduction kitchen strong tel carolina wedding properties hospital ground overview ship accommodation owners disease tx excellent paid italy perfect hair opportunity kit classic basis command cities william express anal award distance tree peter assessment ensure thus wall ie involved el extra especially interface pussy partners budget rated guides success maximum ma operation existing quite selected boy amazon patients restaurants beautiful warning wine locations horse vote forward flowers stars significant lists technologies owner retail animals useful directly manufacturer ways est son providing rule mac housing takes iii gmt bring catalog searches max trying mother authority considered told xml traffic programme joined input strategy feet agent valid bin modern senior ireland sexy teaching door grand testing trial charge units instead canadian cool normal wrote enterprise ships entire educational md leading metal positive fl fitness chinese opinion mb asia football abstract uses output funds mr greater likely develop employees artists alternative processing responsibility resolution java guest seems publication pass relations trust van contains session multi photography republic fees components vacation century academic assistance completed skin graphics indian prev ads mary il expected ring grade dating pacific mountain organizations pop filter mailing vehicle longer consider int northern behind panel floor german buying match proposed default require iraq boys outdoor deep morning otherwise allows rest protein plant reported hit transportation mm pool mini politics partner disclaimer authors boards faculty parties fish membership mission eye string sense modified pack released stage internal goods recommended born unless richard detailed japanese race approved background target except character usb maintenance ability maybe functions ed moving brands places php pretty trademarks phentermine spain southern yourself etc winter rape battery youth pressure submitted boston incest debt keywords medium television interested core break purposes throughout sets dance wood msn itself defined papers playing awards fee studio reader virtual device established answers rent las remote dark programming external apple le regarding instructions min offered theory enjoy remove aid surface minimum visual host variety teachers isbn martin manual block subjects agents increased repair fair civil steel understanding songs fixed wrong beginning hands associates finally az updates desktop classes paris ohio gets sector capacity requires jersey un fat fully father electric saw instruments quotes officer driver businesses dead respect unknown specified restaurant mike trip pst worth mi procedures poor teacher xxx eyes relationship workers farm fucking georgia peace traditional campus tom showing creative coast benefit progress funding devices lord grant sub agree fiction hear sometimes watches careers beyond goes families led museum themselves fan transport interesting blogs wife evaluation accepted former implementation ten hits zone complex th cat galleries references die presented jack flat flow agencies literature respective parent spanish michigan columbia setting dr scale stand economy highest helpful monthly critical frame musical definition secretary angeles networking path australian employee chief gives kb bottom magazines packages detail francisco laws changed pet heard begin individuals colorado royal clean switch russian largest african guy titles relevant guidelines justice connect bible dev cup basket applied weekly vol installation described demand pp suite vegas na square chris attention advance skip diet army auction gear lee os difference allowed correct charles nation selling lots piece sheet firm seven older illinois regulations elements species jump cells module resort facility random pricing dvds certificate minister motion looks fashion directions visitors documentation monitor trading forest calls whose coverage couple giving chance vision ball ending clients actions listen discuss accept automotive naked goal successful sold wind communities clinical situation sciences markets lowest highly publishing appear emergency developing lives currency leather determine milf temperature palm announcements patient actual historical stone bob commerce ringtones perhaps persons difficult scientific satellite fit tests village accounts amateur ex met pain xbox particularly factors coffee www settings cum buyer cultural steve easily oral ford poster edge functional root au fi closed holidays ice pink zealand balance monitoring graduate replies shot nc architecture initial label thinking scott llc sec recommend canon hardcore league waste minute bus provider optional dictionary cold accounting manufacturing sections chair fishing effort phase fields bag fantasy po letters motor va professor context install shirt apparel generally continued foot mass crime count breast techniques ibm rd johnson sc quickly dollars websites religion claim driving permission surgery patch heat wild measures generation kansas miss chemical doctor task reduce brought himself nor component enable exercise bug santa mid guarantee leader diamond israel se processes soft servers alone meetings seconds jones arizona keyword interests flight congress fuel username walk fuck produced italian paperback classifieds wait supported pocket saint rose freedom argument competition creating jim drugs joint premium providers fresh characters attorney upgrade di factor growing thousands km stream apartments pick hearing eastern auctions therapy entries dates generated signed upper administrative serious prime samsung limit began louis steps errors shops bondage del efforts informed ga ac thoughts creek ft worked quantity urban practices sorted reporting essential myself tours platform load affiliate labor immediately admin nursing defense machines designated tags heavy covered recovery joe guys integrated configuration cock merchant comprehensive expert universal protect drop solid cds presentation languages became orange compliance vehicles prevent theme rich im campaign marine improvement vs guitar finding pennsylvania examples ipod saying spirit ar claims porno challenge motorola acceptance strategies mo seem affairs touch intended towards sa goals hire election suggest branch charges serve affiliates reasons magic mount smart talking gave ones latin multimedia xp tits avoid certified manage corner rank computing oregon element birth virus abuse interactive".split(" ");
@@ -4133,7 +4147,7 @@ function itemHTML(w) {
 
 function renderResults(list, q, mode) {
   const box = $('#results');
-  if (!q) { renderPopular(); return; }
+  if (!q) { $('#results').innerHTML = ''; return; }
   const total = runSearch(q, mode).length;
   const shown = list.slice(0, 120);
   let html = `<div class="res-head"><span>找到 <b>${total}</b> 個詞${total > shown.length ? `，顯示前 ${shown.length} 個` : ''}</span>`;
@@ -4146,14 +4160,6 @@ function renderResults(list, q, mode) {
     if (/\s/.test(q) || q.length >= 3) html += phrHitsHTML(q, 12);
   }
   box.innerHTML = html;
-}
-function renderPopular() {
-  const list = WORDS.slice(0, 72);
-  const nIelts = IELTS_WORDS.length;
-  $('#results').innerHTML =
-    `<div class="res-head"><span><b>熱門常見詞</b>（按實際使用頻率排序）</span>
-     <span class="res-mode">內建 ${WORDS.length} 詞（含 ${nIelts} 雅思詞）· 搜尋或按 Enter 查任何單詞</span></div>
-     <div class="res-grid">${list.map(itemHTML).join('')}</div>`;
 }
 function modeLabel(m) {
   return { start: '詞首', contain: '詞中（包含）', end: '詞尾', exact: '精確', wild: '萬用字元' }[m] || m;
@@ -4380,6 +4386,8 @@ function showPaneWord(paneId, raw) {
   bindWordCard(w, root);
   loadApi(w, root);
   root.scrollTop = 0;
+  // 窄螢幕（單欄）時右欄在下方，點了要把結果帶進視野
+  if (window.matchMedia('(max-width:1100px)').matches) ensureVisible(root);
 }
 
 /* 記錄查詢歷史（查詞頁與閱讀頁共用） */
@@ -5172,7 +5180,7 @@ function showPhrase(key) {
     showPhrase(o.k);
   };
   // 寬螢幕右欄就在旁邊，不用捲動；窄螢幕單欄時才捲過去
-  if (window.innerWidth <= 1000) ensureVisible(box, 20);
+  if (window.matchMedia('(max-width:1100px)').matches) ensureVisible(box, 20);
 }
 function savePhrBook() {
   try { localStorage.setItem(LS.phrBook, JSON.stringify([...state.phrBook])); } catch (e) { }
@@ -5226,7 +5234,7 @@ function init() {
     clearTimeout(t);
     t = setTimeout(() => {
       const v = q.value.trim();
-      if (!v) { renderPopular(); $('#detail').innerHTML = ''; return; }
+      if (!v) { $('#results').innerHTML = ''; $('#detail').innerHTML = ''; return; }
       renderResults(runSearch(v, state.mode, 200), v, state.mode);
     }, 130);
   });
@@ -5276,9 +5284,7 @@ function init() {
     switchTab('search'); q.value = w; showWord(w);
   };
 
-  // 首次進入顯示一個示範詞
-  showWord('pronunciation');
-  renderPopular();
+  // 首次進入不預載任何示範詞：等使用者輸入查詢才出現結果
 }
 function syncAudioMode() {
   $$('.mode-btn[data-audio]').forEach(b => b.classList.toggle('on', b.dataset.audio === state.audio));
@@ -5734,12 +5740,42 @@ function wordKey(w) {
   b = b.replace(/'+$/, '');                                // 複數所有格 students' → students
   return b;
 }
+/* 「本文的生詞列表」仍然是 buildVocab() 獨立統計，與這裡的底色無關 */
+
+/* 判斷一個詞是否英文動詞：看中文釋義裡有沒有 v. / vt. / vi. / aux. 的詞性段
+   （資料形如 "vt.放棄、拋棄／vi.減輕、失效"，不同詞性以 ／ 分隔）
+   純語法功能的 be / have / do / 情態動詞不上色，否則整篇都是底色 */
+const VERB_POS_RE = /(?:^|／)\s*(v|vt|vi|aux|vt&vi)\./;
+const VERB_STOP = new Set(['am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'ai',
+  'have', 'has', 'had', 'having', 've',
+  'do', 'does', 'did', 'done', 'doing',
+  'will', 'would', 'shall', 'should', 'ca', 'can', 'could',
+  'may', 'might', 'must', 'gotta', 'gonna', 'wanna']);
+const _verbCache = Object.create(null);
+function isDocVerb(k) {
+  if (!k) return false;
+  if (k in _verbCache) return _verbCache[k];
+  let v = false;
+  if (!VERB_STOP.has(k)) {
+    // 除了詞本身，也還原回原形再判斷：
+    // 字典裡 abandoned 常只給 adj. 釋義，但其原形 abandon 是 vt.
+    const forms = [k].concat(glossStems(k));
+    for (let i = 0; i < forms.length; i++) {
+      const f = forms[i];
+      const g = glossOf(f);
+      const gd = (typeof GLOSS_MAP !== 'undefined' && GLOSS_MAP[f]) || '';
+      if ((g && VERB_POS_RE.test(g)) || (gd && VERB_POS_RE.test(gd))) { v = true; break; }
+    }
+  }
+  _verbCache[k] = v;
+  return v;
+}
+
 function wordKind(k) {
   if (!k) return '';
   if (state.book.has(k)) return 'tk-book';
-  if (IELTS_MAP[k]) return IELTS_MAP[k].lv ? 'tk-awl' : 'tk-ielts';
-  if (COMMON_SET.has(k)) return '';
-  return 'tk-hard';
+  if (isDocVerb(k)) return 'tk-verb';
+  return '';
 }
 
 /* ============================================================
@@ -5881,9 +5917,7 @@ function sideHintHTML() {
   return '<div class="card"><div class="sec"><div class="sec-h">📖 點單詞查發音</div>'
     + '<div class="muted small">在左邊內文中<b>點任何一個英文字</b>，這裡就會顯示它的音標、音節切分與詞根分析。'
     + '<br><br><b>底色意思：</b><br>'
-    + '<span class="tk tk-hard" style="cursor:default">橘底</span> 超出常用 2200 詞的生詞　'
-    + '<span class="tk tk-ielts" style="cursor:default">紫底</span> 雅思詞<br>'
-    + '<span class="tk tk-awl" style="cursor:default">深紫底</span> 學術核心 AWL　'
+    + '<span class="tk tk-verb" style="cursor:default">綠底</span> 英文動詞（含 -s / -ed / -ing 變化）　'
     + '<span class="tk tk-book" style="cursor:default">黃底</span> 已收進生詞本'
     + '</div></div></div>';
 }
@@ -6134,7 +6168,7 @@ function remarkDoc() {
   if (!text) return;
   $$('.tk', text).forEach(function (el) {
     const k = el.dataset.w;
-    el.classList.remove('tk-book', 'tk-hard', 'tk-ielts', 'tk-awl');
+    el.classList.remove('tk-book', 'tk-hard', 'tk-ielts', 'tk-awl', 'tk-verb');
     const kind = DOC.mark ? wordKind(k) : (state.book.has(k) ? 'tk-book' : '');
     if (kind) el.classList.add(kind);
   });
