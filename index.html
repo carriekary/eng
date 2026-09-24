@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>拼讀字典 Spell &amp; Sound — 看字就會讀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#f5f6fb; --card:#ffffff; --ink:#151827; --muted:#6b7280; --faint:#9ca3af;
@@ -491,25 +494,174 @@ footer{text-align:center;color:var(--faint);font-size:12.5px;margin-top:34px;lin
   .doc-pane{padding:16px 14px}
   .dk-block{padding-left:0}
 }
+
+/* =========================================================
+   可愛化覆蓋層（cute layer）
+   只覆寫樣式，不修改任何原有結構與 class，確保功能不變
+   ========================================================= */
+:root{
+  --bg:#fdf4fb;
+  --card:#ffffff;
+  --ink:#413a5c;
+  --muted:#8b85a3;
+  --faint:#b9b3cc;
+  --line:#efe6f7;
+  --pri:#7c6cf0;
+  --pri-s:#efe9ff;
+  --pri-d:#5b4fd6;
+  --v1:#fff7e3; --v2:#ffd36b; --v3:#c98a00;
+  --c1:#e6f9ff; --c2:#8fdcf2; --c3:#0d91b3;
+  --s1:#f5f3fb; --s2:#ddd7ee; --s3:#8b85a3;
+  --ok:#34c98a;
+  --pink:#ff8fab; --pink-s:#ffe3ec; --mint:#5eead4;
+  --r:18px;
+  --sh:0 10px 30px rgba(124,108,240,.12);
+  --sh-sm:0 4px 14px rgba(124,108,240,.10);
+  --font:"Nunito","Baloo 2","PingFang HK","Microsoft JhengHei","Noto Sans TC",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-head:"Baloo 2","Nunito","PingFang HK","Microsoft JhengHei","Noto Sans TC",system-ui,sans-serif;
+}
+body{font-family:var(--font);color:var(--ink);-webkit-font-smoothing:antialiased}
+a{color:var(--pri)}
+
+/* 柔和粉彩裝飾背景 */
+.bg-deco{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;
+  background:
+    radial-gradient(680px 680px at 6% -6%, #ffe3ec 0%, transparent 55%),
+    radial-gradient(620px 620px at 100% 0%, #e7e0ff 0%, transparent 55%),
+    radial-gradient(760px 760px at 48% 112%, #d9f7ef 0%, transparent 55%);
+}
+
+/* 字型：可愛圓體標題 */
+.brand h1,.wc-word,.pd-w,.rule-t,.cg-h,.dt-h,.hb-h,.phr-p,.drop-t,
+.res-mode b,.tab{font-family:var(--font-head)}
+
+/* ---------- Header：奶油漸層 + 圓角 ---------- */
+header{
+  background:linear-gradient(135deg,#ffd9ec 0%,#d9c8ff 48%,#c7e9ff 100%);
+  border-radius:0 0 30px 30px;
+  box-shadow:0 10px 30px rgba(150,120,230,.18);
+  margin-bottom:26px;
+}
+.brand{align-items:center}
+.brand-txt{display:flex;flex-direction:column;line-height:1.05}
+.brand h1{font-size:26px;color:#5b4fd6;margin:0}
+.brand .en{opacity:.72;color:#6d5bbf;font-size:13px}
+.brand .sub{color:#6b5fa6;font-weight:600}
+.mascot{width:54px;height:54px;flex:0 0 auto;display:inline-flex;
+  animation:bob 3.2s ease-in-out infinite;
+  filter:drop-shadow(0 5px 9px rgba(124,108,240,.28))}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-5px) rotate(2deg)}}
+
+/* ---------- Tabs：圓潤藥丸 ---------- */
+.tab{
+  background:rgba(255,255,255,.6);color:#5b4fd6;border-radius:999px;padding:9px 16px;
+  font-weight:700;border:1.5px solid rgba(255,255,255,.75);
+  box-shadow:0 3px 10px rgba(150,120,230,.12);transition:transform .15s,background .15s,box-shadow .15s;
+}
+.tab:hover{background:#fff;transform:translateY(-2px) rotate(-1.5deg)}
+.tab.on{background:#fff;color:#6d28d9;border-color:#fff;box-shadow:0 6px 18px rgba(124,108,240,.28)}
+.tab .badge{background:rgba(124,108,240,.18);color:#5b4fd6}
+.tab.on .badge{background:var(--pri-s);color:var(--pri)}
+
+/* ---------- Search ---------- */
+.search-box{border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--line);padding:18px}
+#q{border-radius:14px;border:2px solid var(--line);background:#fbfaff;font-weight:600;transition:.15s}
+#q:focus{border-color:var(--pri);background:#fff;box-shadow:0 0 0 4px rgba(124,108,240,.14)}
+.btn{border-radius:14px;border:1.5px solid var(--line);box-shadow:var(--sh-sm);font-weight:600;transition:transform .12s,box-shadow .15s,color .15s,border-color .15s}
+.btn:hover{border-color:var(--pri);color:var(--pri);transform:translateY(-1px)}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn-on{background:var(--pri-s);border-color:var(--pri);color:var(--pri)}
+.btn-speak{background:linear-gradient(135deg,#8b7cf6,#a78bfa);border-color:transparent;color:#fff;box-shadow:0 4px 14px rgba(124,108,240,.3)}
+.btn-speak:hover{background:linear-gradient(135deg,#7c6cf0,#8b7cf6);color:#fff}
+.mode-btn{border-radius:999px;border:1.5px solid var(--line);font-weight:600;transition:transform .12s,background .15s}
+.mode-btn:hover{border-color:var(--pri);color:var(--pri);transform:translateY(-1px)}
+.mode-btn.on{background:linear-gradient(135deg,#8b7cf6,#a78bfa);border-color:transparent;color:#fff;box-shadow:0 4px 14px rgba(124,108,240,.35)}
+.chip{border-radius:999px;font-weight:600;transition:transform .12s,background .15s,color .15s,border-color .15s}
+.chip:hover{border-color:var(--pri);color:var(--pri);transform:translateY(-1px)}
+.chip.on{background:linear-gradient(135deg,#8b7cf6,#a78bfa);border-color:transparent;color:#fff}
+
+/* ---------- Results / cards ---------- */
+.card{border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--line)}
+.res-item{border-radius:14px;box-shadow:var(--sh-sm);font-weight:600;transition:transform .13s,box-shadow .15s,border-color .15s}
+.res-item:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(124,108,240,.18);border-color:var(--pri)}
+.res-item.saved{border-color:#ffd36b;background:#fffdf5}
+.res-item.on{border-color:var(--pri);background:var(--pri-s);box-shadow:0 0 0 2px var(--pri)}
+.wc-word{background:linear-gradient(135deg,#7c6cf0,#ff8fab);-webkit-background-clip:text;background-clip:text;color:transparent}
+.empty{border-radius:var(--r);border:2px dashed #e7d8f5;background:#fbf7ff;color:var(--muted);font-weight:600}
+.phr-item{border-radius:16px;box-shadow:var(--sh-sm);transition:transform .13s,box-shadow .15s,border-color .15s}
+.phr-item:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(124,108,240,.18);border-color:var(--pri)}
+.ci{border-radius:14px;box-shadow:var(--sh-sm);transition:transform .13s,box-shadow .15s,background .15s}
+.ci:hover{transform:translateY(-2px);box-shadow:var(--sh);border-color:var(--pri)}
+.rule{border-radius:16px;box-shadow:var(--sh-sm)}
+.chart-grp{border-radius:16px;box-shadow:var(--sh-sm)}
+.bi-main{border-radius:14px;box-shadow:var(--sh-sm);font-weight:600}
+.rule-cat{color:var(--pri)}
+
+/* ---------- 文件閱讀 ---------- */
+.drop{border-radius:var(--r);box-shadow:var(--sh-sm);background:linear-gradient(135deg,#ffffff,#fbf3ff);border:2px dashed #d9c8ff}
+.drop:hover,.drop.over{border-color:var(--pri);background:linear-gradient(135deg,#fbf3ff,#efe9ff)}
+.drop-ico::before{content:"📂";font-size:40px;line-height:1}
+.doc-pane{border-radius:var(--r);box-shadow:var(--sh)}
+.doc-tips{border-radius:var(--r);box-shadow:var(--sh-sm)}
+.dt-priv{background:#effaf3;border-color:#bbf7d0;color:#1f8a57}
+.tk-hard{background:#fff3e6;box-shadow:inset 0 -2px 0 #ffb877}
+.tk-ielts{background:#faf0ff;box-shadow:inset 0 -2px 0 #e3b6ff}
+.tk-awl{background:#f3f0ff;box-shadow:inset 0 -2px 0 #b79bff}
+.tk-book{background:#fff7cf;box-shadow:inset 0 -2px 0 #ffd84d}
+.tk-verb{background:#e9fbf4;box-shadow:inset 0 -2px 0 #6ee7b7}
+
+/* ---------- Toast ---------- */
+#toast{background:linear-gradient(135deg,#8b7cf6,#a78bfa);box-shadow:0 8px 24px rgba(124,108,240,.4);font-weight:600}
+
+/* ---------- 輕微入場動效 ---------- */
+.page.on{animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- 手機微調 ---------- */
+@media(max-width:640px){
+  .brand h1{font-size:22px}
+  .mascot{width:44px;height:44px}
+  .brand .sub{font-size:12.5px}
+}
 </style>
 </head>
 <body>
 
+<div class="bg-deco"></div>
+
 <header>
   <div class="hd-in">
     <div class="brand">
-      <h1>拼讀字典</h1>
-      <span class="en">Spell &amp; Sound</span>
-      <span class="sub">看字就會讀 —— 拆解每一個字母為什麼這樣發音</span>
+      <span class="mascot" aria-hidden="true">
+        <svg viewBox="0 0 100 100" width="54" height="54">
+          <circle cx="50" cy="52" r="38" fill="#a78bfa"/>
+          <circle cx="34" cy="61" r="6" fill="#ff8fab" opacity=".7"/>
+          <circle cx="66" cy="61" r="6" fill="#ff8fab" opacity=".7"/>
+          <circle cx="38" cy="46" r="5.5" fill="#3b3550"/>
+          <circle cx="62" cy="46" r="5.5" fill="#3b3550"/>
+          <circle cx="40" cy="44" r="1.8" fill="#fff"/>
+          <circle cx="64" cy="44" r="1.8" fill="#fff"/>
+          <path d="M40 62 Q50 72 60 62" stroke="#3b3550" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <path d="M22 50 A28 28 0 0 1 78 50" stroke="#5b4fd6" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <rect x="15" y="46" width="11" height="18" rx="5" fill="#5b4fd6"/>
+          <rect x="74" y="46" width="11" height="18" rx="5" fill="#5b4fd6"/>
+          <path d="M86 44 q6 8 0 16" stroke="#34c98a" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <div class="brand-txt">
+        <h1>拼讀字典</h1>
+        <span class="en">Spell &amp; Sound</span>
+      </div>
+      <span class="sub">看字就會讀 ✨ 拆解每一個字母為什麼這樣發音</span>
     </div>
     <div class="tabs">
-      <button class="tab on" data-t="search">查詞</button>
-      <button class="tab" data-t="phr">片語成語 <span class="badge" id="phrCount">0</span></button>
-      <button class="tab" data-t="ielts">雅思詞彙</button>
-      <button class="tab" data-t="doc">文件閱讀</button>
-      <button class="tab" data-t="rules">發音規則速查</button>
-      <button class="tab" data-t="chart">國際音標表</button>
-      <button class="tab" data-t="book">生詞本 <span class="badge" id="bookCount">0</span></button>
+      <button class="tab on" data-t="search">🔍 查詞</button>
+      <button class="tab" data-t="phr">💬 片語成語 <span class="badge" id="phrCount">0</span></button>
+      <button class="tab" data-t="ielts">🎓 雅思詞彙</button>
+      <button class="tab" data-t="doc">📖 文件閱讀</button>
+      <button class="tab" data-t="rules">🧩 發音規則</button>
+      <button class="tab" data-t="chart">🔤 音標表</button>
+      <button class="tab" data-t="book">⭐ 生詞本 <span class="badge" id="bookCount">0</span></button>
     </div>
   </div>
 </header>
