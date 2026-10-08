@@ -103,6 +103,14 @@ header{
 .res-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:22px 0 10px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
 .res-mode code{background:var(--pri-s);color:var(--pri);padding:1px 7px;border-radius:5px}
 .res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:9px}
+.recent-chips{display:flex;gap:8px;flex-wrap:wrap;padding:2px 0 26px;max-width:100%}
+.rc-chip{
+  border:1.5px solid var(--line);background:#fff;border-radius:999px;
+  padding:7px 15px;cursor:pointer;font-size:15px;font-weight:700;font-family:inherit;color:var(--txt);
+  transition:transform .12s,background .15s,color .15s,border-color .15s,box-shadow .15s;
+}
+.rc-chip:hover{border-color:var(--pri);color:var(--pri);transform:translateY(-2px);box-shadow:0 6px 16px rgba(124,108,240,.18)}
+.rc-chip:active{transform:translateY(0)}
 .res-item{
   display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;
   background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;
@@ -363,6 +371,7 @@ header{
   cursor:pointer;font-family:inherit;transition:.13s;
 }
 .bi-main:hover{border-color:var(--pri)}
+.book-item .ri-g{font-size:12px;color:var(--muted);line-height:1.45;margin-top:1px}
 .bi-x{position:absolute;top:6px;right:6px;border:0;background:transparent;color:var(--faint);
   cursor:pointer;font-size:17px;line-height:1;padding:2px 5px;border-radius:5px;font-family:inherit}
 .bi-x:hover{color:#dc2626;background:#fef2f2}
@@ -684,7 +693,6 @@ header{
             <button class="mode-btn" data-m="end">詞尾</button>
           </div>
           <div id="modeTip"></div>
-          <div id="hist"></div>
         </div>
 
         <div id="results"></div>
@@ -4018,7 +4026,7 @@ if (typeof module !== 'undefined') {
 </script>
 <script>
 /* ============================================================
-   小野字典 — 介面邏輯
+   拼讀字典 — 介面邏輯
    ============================================================ */
 
 const LS = {
@@ -4190,11 +4198,6 @@ function matchWord(w, q, mode) {
     case 'start': return w.indexOf(q) === 0;
     case 'end': return w.length >= q.length && w.lastIndexOf(q) === w.length - q.length;
     case 'contain': return w.indexOf(q) >= 0;
-    case 'exact': return w === q;
-    case 'wild': {
-      const re = new RegExp('^' + q.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\?/g, '.') + '$');
-      return re.test(w);
-    }
     default: return w.indexOf(q) === 0;
   }
 }
@@ -4320,7 +4323,7 @@ function renderResults(list, q, mode) {
   box.innerHTML = html;
 }
 function modeLabel(m) {
-  return { start: '詞首', contain: '詞中（包含）', end: '詞尾', exact: '精確', wild: '萬用字元' }[m] || m;
+  return { start: '詞首', contain: '詞中（包含）', end: '詞尾' }[m] || m;
 }
 
 /* ============================================================
@@ -5174,10 +5177,13 @@ function renderBook() {
     list.forEach(w => {
       const r = analyze(w);
       const b = bestIPA(w);
+      const g = glossOf(w);
+      const ipa = state.quiz ? '••••' : '/' + esc(b ? (state.dialect === 'ga' ? b.ga : b.rp) : (state.dialect === 'ga' ? r.ipaGA : r.ipaRP)) + '/';
       h += `<div class="book-item">
         <button class="bi-main" data-w="${esc(w)}">
           <span class="ri-w">${esc(w)}</span>
-          <span class="ri-p">${state.quiz ? '••••' : '/' + esc(b ? (state.dialect === 'ga' ? b.ga : b.rp) : (state.dialect === 'ga' ? r.ipaGA : r.ipaRP)) + '/'}</span>
+          <span class="ri-p">${ipa}</span>
+          ${g ? `<span class="ri-g">${esc(g)}</span>` : ''}
         </button>
         <button class="bi-x" data-del="${esc(w)}" title="移除">×</button>
       </div>`;
@@ -5212,12 +5218,18 @@ function exportCSV() {
   toast('已匯出生詞本 CSV');
 }
 
-function renderHist() {
-  const el = $('#hist');
-  if (!state.history.length) { el.innerHTML = ''; return; }
-  el.innerHTML = '<span class="hk">最近查詢</span>' + state.history.slice(0, 14).map(w =>
-    `<button class="chip" data-w="${esc(w)}">${esc(w)}</button>`).join('');
-  $$('#hist .chip').forEach(b => b.onclick = () => { $('#q').value = b.dataset.w; showWord(b.dataset.w); });
+/* 查詢頁左下空白區：把「最近查詢」的單詞以可愛小單詞（藥丸 chip）形式顯示，點一下就查 */
+function renderRecentCards() {
+  const box = $('#results');
+  if (!box) return;
+  if (!state.history.length) { box.innerHTML = ''; return; }
+  const list = state.history.slice(0, 16);
+  let html = '<div class="res-head"><span>🕘 最近查詢</span></div>';
+  html += '<div class="recent-chips">';
+  list.forEach(w => { html += `<button class="rc-chip" data-w="${esc(w)}">${esc(w)}</button>`; });
+  html += '</div>';
+  box.innerHTML = html;
+  box.querySelectorAll('.rc-chip').forEach(c => c.onclick = () => showWord(c.dataset.w));
 }
 function renderBookCount() { $('#bookCount').textContent = state.book.size; }
 
@@ -5382,7 +5394,7 @@ function init() {
   $('#bookCount').textContent = state.book.size;
   const pc = $('#phrCount');
   if (pc) pc.textContent = PHRASES.length;
-  renderHist();
+  renderRecentCards();
   renderRules('全部');
   renderChart();
   // 查詞頁右欄初始提示（與片語成語頁一致）
@@ -5396,7 +5408,7 @@ function init() {
     t = setTimeout(() => {
       const v = q.value.trim();
       if (!v) {
-        $('#results').innerHTML = '';
+        renderRecentCards();
         const dh = $('#detail');
         if (dh) dh.innerHTML = paneHintHTML('👈 點左邊任一個詞', '這裡會顯示它的音標、音節、詞根分析與中文意思，也可以直接朗讀或收進生詞本。');
         return;
@@ -5439,9 +5451,9 @@ function init() {
 }
 function syncMode() {
   $$('.mode-btn[data-m]').forEach(b => b.classList.toggle('on', b.dataset.m === state.mode));
-  const tip = { start: '輸入 a 會找到 apple、about…', contain: '輸入 tion 會找到 nation、station…', end: '輸入 tion 會找到所有 -tion 結尾的詞', exact: '只找完全相同的詞', wild: '用 * 代表任意長度、? 代表一個字母，例如 *tion 或 c?t' };
+  const tip = { start: '輸入 a 會找到 apple、about…', contain: '輸入 tion 會找到 nation、station…', end: '輸入 tion 會找到所有 -tion 結尾的詞' };
   $('#modeTip').textContent = tip[state.mode] || '';
-  const ph = { start: '輸入詞首…', contain: '輸入詞中片段…', end: '輸入詞尾…', exact: '輸入完整單詞…', wild: '例如 *tion、c?t' };
+  const ph = { start: '輸入詞首…', contain: '輸入詞中片段…', end: '輸入詞尾…' };
   $('#q').placeholder = ph[state.mode] || '輸入單詞…';
 }
 document.addEventListener('DOMContentLoaded', init);
@@ -5890,6 +5902,7 @@ function wordKey(w) {
 }
 /* 「本文的生詞列表」仍然是 buildVocab() 獨立統計，與這裡的底色無關 */
 
+/* 判斷一個詞是否英文動詞：看中文釋義裡有沒有 v. / vt. / vi. / aux. 的詞性段
 /* 文中「雅思詞彙」判定：
    綠底標示本文中屬於雅思詞彙表的英文詞（含 -s / -ed / -ing / 複數等衍生，
    還原回原形後再查 IELTS_MAP，提升涵蓋率） */
