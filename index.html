@@ -368,10 +368,11 @@ header{
 .bi-main{
   width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;
   background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 28px 9px 12px;
-  cursor:pointer;font-family:inherit;transition:.13s;
+  cursor:pointer;font-family:inherit;transition:.13s;box-sizing:border-box;height:96px;
 }
 .bi-main:hover{border-color:var(--pri)}
-.book-item .ri-g{font-size:12px;color:var(--muted);line-height:1.45;margin-top:1px}
+.book-item .ri-g{font-size:12px;color:var(--muted);line-height:1.45;margin-top:1px;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
 .bi-x{position:absolute;top:6px;right:6px;border:0;background:transparent;color:var(--faint);
   cursor:pointer;font-size:17px;line-height:1;padding:2px 5px;border-radius:5px;font-family:inherit}
 .bi-x:hover{color:#dc2626;background:#fef2f2}
