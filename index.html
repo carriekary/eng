@@ -582,6 +582,7 @@ header{
 
 /* ---------- Results / cards ---------- */
 .card{border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--line)}
+.split-side #detail{flex:1 0 auto;display:flex;flex-direction:column;min-height:0}
 .res-item{border-radius:14px;box-shadow:var(--sh-sm);font-weight:600;transition:transform .13s,box-shadow .15s,border-color .15s}
 .res-item:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(124,108,240,.18);border-color:var(--pri)}
 .res-item.saved{border-color:#ffd36b;background:#fffdf5}
@@ -670,36 +671,27 @@ header{
 
   <!-- ========== 查詞 ========== -->
   <section class="page on" data-p="search">
-    <div class="search-box">
-      <div class="sb-row">
-        <input id="q" type="text" placeholder="輸入詞首…" autocomplete="off" spellcheck="false">
-        <button class="btn" id="btnRandom" title="隨機挑一個詞">🎲 隨機</button>
-      </div>
-      <div class="modes">
-        <span class="lbl">搜尋方式</span>
-        <button class="mode-btn on" data-m="start">詞首</button>
-        <button class="mode-btn" data-m="contain">詞中（包含）</button>
-        <button class="mode-btn" data-m="end">詞尾</button>
-        <button class="mode-btn" data-m="exact">精確</button>
-        <button class="mode-btn" data-m="wild">萬用字元 * ?</button>
-      </div>
-      <div class="modes">
-        <span class="lbl">詞庫範圍</span>
-        <button class="mode-btn on" data-scope="all">全部</button>
-        <button class="mode-btn" data-scope="common">常用詞</button>
-        <button class="mode-btn" data-scope="ielts">雅思詞</button>
-      </div>
-      <div class="modes">
-        <span class="lbl">發音來源</span>
-        <button class="mode-btn on" data-audio="cam" title="連網時優先播劍橋字典真人錄音，取不到才退回系統語音">劍橋真人優先</button>
-        <button class="mode-btn" data-audio="sys" title="只用瀏覽器內建語音，完全不連網">只用系統語音</button>
-      </div>
-      <div id="modeTip"></div>
-      <div id="hist"></div>
-    </div>
+    <div class="split">
+      <div class="split-list">
+        <div class="search-box">
+          <div class="sb-row">
+            <input id="q" type="text" placeholder="輸入詞首…" autocomplete="off" spellcheck="false">
+            <button class="btn" id="btnRandom" title="隨機挑一個詞">🎲 隨機</button>
+          </div>
+          <div class="modes">
+            <span class="lbl">搜尋方式</span>
+            <button class="mode-btn on" data-m="start">詞首</button>
+            <button class="mode-btn" data-m="contain">詞中（包含）</button>
+            <button class="mode-btn" data-m="end">詞尾</button>
+          </div>
+          <div id="modeTip"></div>
+          <div id="hist"></div>
+        </div>
 
-    <div id="results"></div>
-    <div id="detail"></div>
+        <div id="results"></div>
+      </div>
+      <div class="split-side" id="searchSide"><div id="detail"></div></div>
+    </div>
   </section>
 
   <!-- ========== 片語成語 ========== -->
@@ -4573,7 +4565,8 @@ function showWord(raw) {
   root.innerHTML = buildWordCard(w);
   bindWordCard(w, root);
   loadApi(w, root);
-  scrollToEl(root);   // 扣掉 header 高度，才不會被 fixed/sticky header 蓋住
+  // 寬螢幕右欄就在旁邊，不用捲動；窄螢幕單欄時才捲過去
+  if (window.matchMedia('(max-width:1100px)').matches) ensureVisible(root, 20);
 }
 
 function sylIPA(s, r) {
@@ -5381,7 +5374,6 @@ function switchTab(t) {
 function init() {
   // header 會因為視窗寬度、分頁列換行而改變高度，這裡持續同步給 CSS
   syncHeaderHeight();
-  syncAudioMode();
   window.addEventListener('resize', syncHeaderHeight);
   window.addEventListener('orientationchange', syncHeaderHeight);
   if (typeof ResizeObserver !== 'undefined') {
@@ -5394,6 +5386,9 @@ function init() {
   renderHist();
   renderRules('全部');
   renderChart();
+  // 查詞頁右欄初始提示（與片語成語頁一致）
+  const dh = $('#detail');
+  if (dh && !dh.innerHTML) dh.innerHTML = paneHintHTML('👈 點左邊任一個詞', '這裡會顯示它的音標、音節、詞根分析與中文意思，也可以直接朗讀或收進生詞本。');
 
   const q = $('#q');
   let t = null;
@@ -5401,15 +5396,19 @@ function init() {
     clearTimeout(t);
     t = setTimeout(() => {
       const v = q.value.trim();
-      if (!v) { $('#results').innerHTML = ''; $('#detail').innerHTML = ''; return; }
+      if (!v) {
+        $('#results').innerHTML = '';
+        const dh = $('#detail');
+        if (dh) dh.innerHTML = paneHintHTML('👈 點左邊任一個詞', '這裡會顯示它的音標、音節、詞根分析與中文意思，也可以直接朗讀或收進生詞本。');
+        return;
+      }
       renderResults(runSearch(v, state.mode, 200), v, state.mode);
     }, 130);
   });
   q.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
-      const v = q.value.trim().toLowerCase().replace(/[^a-z*?]/g, '');
+      const v = q.value.trim().toLowerCase().replace(/[^a-z]/g, '');
       if (!v) return;
-      if (/[*?]/.test(v)) { state.mode = 'wild'; syncMode(); renderResults(runSearch(v, 'wild', 200), v, 'wild'); return; }
       const hit = runSearch(v, state.mode, 1);
       showWord(hit.length ? hit[0] : v);
     }
@@ -5420,20 +5419,6 @@ function init() {
     syncMode();
     const v = q.value.trim();
     if (v) renderResults(runSearch(v, state.mode, 200), v, state.mode);
-  });
-
-  $$('.mode-btn[data-scope]').forEach(b => b.onclick = () => {
-    state.scope = b.dataset.scope;
-    $$('.mode-btn[data-scope]').forEach(x => x.classList.toggle('on', x.dataset.scope === state.scope));
-    const v = q.value.trim();
-    if (v) renderResults(runSearch(v, state.mode, 200), v, state.mode);
-  });
-
-  $$('.mode-btn[data-audio]').forEach(b => b.onclick = () => {
-    state.audio = b.dataset.audio;
-    localStorage.setItem(LS.audio, state.audio);
-    syncAudioMode();
-    toast(state.audio === 'cam' ? '發音：劍橋真人錄音優先' : '發音：只用系統語音（不連網）');
   });
 
   $$('.tab').forEach(b => b.onclick = () => switchTab(b.dataset.t));
@@ -5452,9 +5437,6 @@ function init() {
   };
 
   // 首次進入不預載任何示範詞：等使用者輸入查詢才出現結果
-}
-function syncAudioMode() {
-  $$('.mode-btn[data-audio]').forEach(b => b.classList.toggle('on', b.dataset.audio === state.audio));
 }
 function syncMode() {
   $$('.mode-btn[data-m]').forEach(b => b.classList.toggle('on', b.dataset.m === state.mode));
@@ -5909,39 +5891,28 @@ function wordKey(w) {
 }
 /* 「本文的生詞列表」仍然是 buildVocab() 獨立統計，與這裡的底色無關 */
 
-/* 判斷一個詞是否英文動詞：看中文釋義裡有沒有 v. / vt. / vi. / aux. 的詞性段
-   （資料形如 "vt.放棄、拋棄／vi.減輕、失效"，不同詞性以 ／ 分隔）
-   純語法功能的 be / have / do / 情態動詞不上色，否則整篇都是底色 */
-const VERB_POS_RE = /(?:^|／)\s*(v|vt|vi|aux|vt&vi)\./;
-const VERB_STOP = new Set(['am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'ai',
-  'have', 'has', 'had', 'having', 've',
-  'do', 'does', 'did', 'done', 'doing',
-  'will', 'would', 'shall', 'should', 'ca', 'can', 'could',
-  'may', 'might', 'must', 'gotta', 'gonna', 'wanna']);
-const _verbCache = Object.create(null);
-function isDocVerb(k) {
+/* 文中「雅思詞彙」判定：
+   綠底標示本文中屬於雅思詞彙表的英文詞（含 -s / -ed / -ing / 複數等衍生，
+   還原回原形後再查 IELTS_MAP，提升涵蓋率） */
+const _ieltsCache = Object.create(null);
+function isIeltsWord(k) {
   if (!k) return false;
-  if (k in _verbCache) return _verbCache[k];
-  let v = false;
-  if (!VERB_STOP.has(k)) {
-    // 除了詞本身，也還原回原形再判斷：
-    // 字典裡 abandoned 常只給 adj. 釋義，但其原形 abandon 是 vt.
-    const forms = [k].concat(glossStems(k));
+  if (k in _ieltsCache) return _ieltsCache[k];
+  let v = !!IELTS_MAP[k];
+  if (!v) {
+    const forms = glossStems(k);
     for (let i = 0; i < forms.length; i++) {
-      const f = forms[i];
-      const g = glossOf(f);
-      const gd = (typeof GLOSS_MAP !== 'undefined' && GLOSS_MAP[f]) || '';
-      if ((g && VERB_POS_RE.test(g)) || (gd && VERB_POS_RE.test(gd))) { v = true; break; }
+      if (IELTS_MAP[forms[i]]) { v = true; break; }
     }
   }
-  _verbCache[k] = v;
+  _ieltsCache[k] = v;
   return v;
 }
 
 function wordKind(k) {
   if (!k) return '';
   if (state.book.has(k)) return 'tk-book';
-  if (isDocVerb(k)) return 'tk-verb';
+  if (isIeltsWord(k)) return 'tk-verb';
   return '';
 }
 
@@ -6084,7 +6055,7 @@ function sideHintHTML() {
   return '<div class="card"><div class="sec"><div class="sec-h">📖 點單詞查發音</div>'
     + '<div class="muted small">在左邊內文中<b>點任何一個英文字</b>，這裡就會顯示它的音標、音節切分與詞根分析。'
     + '<br><br><b>底色意思：</b><br>'
-    + '<span class="tk tk-verb" style="cursor:default">綠底</span> 英文動詞（含 -s / -ed / -ing 變化）　'
+    + '<span class="tk tk-verb" style="cursor:default">綠底</span> 雅思詞彙（含衍生變化）　'
     + '<span class="tk tk-book" style="cursor:default">黃底</span> 已收進生詞本'
     + '</div></div></div>';
 }
