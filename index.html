@@ -387,6 +387,8 @@ header{
 .drop-t{font-size:16px;font-weight:600;margin:10px 0 4px}
 .drop-s{font-size:13.5px;color:var(--muted);margin-bottom:16px}
 .doc-tips{margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 20px}
+/* 視覺隱藏但仍留在渲染樹：手機瀏覽器才允許用 .click() 開啟選檔視窗（display:none 會被擋） */
+.vis-hide{position:absolute!important;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .dt-h{font-size:14px;font-weight:700;margin-bottom:8px}
 .doc-tips ul{margin:0;padding-left:20px;font-size:13.5px;color:var(--muted);line-height:1.85}
 .dt-priv{margin-top:11px;font-size:13px;color:var(--muted);background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;padding:9px 12px}
@@ -494,6 +496,11 @@ footer{text-align:center;color:var(--faint);font-size:12.5px;margin-top:34px;lin
 @media(max-width:900px){
   .doc-wrap{grid-template-columns:1fr}
   .doc-side{position:static;max-height:none}
+}
+/* 小屏幕：7 個 tab 按鈕固定排成 2 行（4 + 3），不高不擠 */
+@media(max-width:760px){
+  .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+  .tab{width:100%;padding:8px 4px;font-size:13px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 }
 @media(max-width:640px){
   .wc-word{font-size:34px}
@@ -6080,7 +6087,7 @@ function renderDocHome() {
     + '<div class="drop-t">把檔案拖到這裡，或按下面的按鈕選擇</div>'
     + '<div class="drop-s">支援 <b>PDF</b> · <b>Word（.docx）</b> · <b>字幕（.srt / .ass / .ssa）</b> · <b>純文字（.txt / .md）</b></div>'
     + '<button class="btn btn-speak" id="btnPick">📂 選擇檔案</button>'
-    + '<input type="file" id="fileInput" hidden accept=".pdf,.docx,.srt,.ass,.ssa,.txt,.md,.text">'
+    + '<input type="file" id="fileInput" class="vis-hide" accept=".pdf,.docx,.srt,.ass,.ssa,.txt,.md,.text">'
     + '</div>'
     + '<div class="doc-tips">'
     + '<div class="dt-h">適合這樣用</div>'
@@ -6146,7 +6153,7 @@ function renderDoc() {
   /* ---- 搜尋本文 ---- */
   h += '<div class="doc-find"><input id="docFind" type="text" placeholder="在本文內搜尋（支援中英文）…" value="' + esc(DOC.find) + '" autocomplete="off">'
     + (DOC.find ? '<button class="btn btn-sm" data-op="clearfind">清除</button>' : '')
-    + '<input type="file" id="fileInput" hidden accept=".pdf,.docx,.srt,.ass,.ssa,.txt,.md,.text"></div>';
+    + '<input type="file" id="fileInput" class="vis-hide" accept=".pdf,.docx,.srt,.ass,.ssa,.txt,.md,.text"></div>';
 
   /* ---- 生詞表 ---- */
   if (DOC.showHard) {
@@ -6190,7 +6197,7 @@ function bindPicker() {
   const zone = $('#dropZone'), inp = $('#fileInput'), pick = $('#btnPick');
   if (pick && inp) pick.onclick = function () { inp.click(); };
   if (zone && inp) {
-    zone.onclick = function (e) { if (e.target !== inp) inp.click(); };
+    zone.onclick = function (e) { if (e.target !== inp && e.target !== pick) inp.click(); };
     ['dragenter', 'dragover'].forEach(function (ev) {
       zone.addEventListener(ev, function (e) { e.preventDefault(); zone.classList.add('over'); });
     });
