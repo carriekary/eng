@@ -42,7 +42,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 /* ---------- Header ---------- */
 header{
   background:linear-gradient(160deg,#4f46e5 0%,#6366f1 45%,#0ea5e9 100%);
-  color:#fff; padding:14px 0 0; margin-bottom:22px;
+  color:#fff; padding:14px 0 13px; margin-bottom:22px;
   position:sticky; top:0; z-index:300;
   box-shadow:0 4px 16px rgba(31,41,80,.18);
 }
@@ -497,17 +497,17 @@ footer{text-align:center;color:var(--faint);font-size:12.5px;margin-top:34px;lin
   .doc-wrap{grid-template-columns:1fr}
   .doc-side{position:static;max-height:none}
 }
-/* 小屏幕：7 個 tab 按鈕固定排成 2 行（4 + 3），不高不擠 */
+/* 小屏幕：6 個 tab 按鈕固定排成 2 行（每行 3 個），字完整顯示 */
 @media(max-width:760px){
-  .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
-  .tab{width:100%;padding:8px 4px;font-size:13px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+  .tab{width:100%;padding:7px 2px;font-size:12.5px;text-align:center;white-space:normal;line-height:1.25}
 }
 @media(max-width:640px){
   .wc-word{font-size:34px}
   .brand h1{font-size:21px}
   .wc-top{padding:16px}
   .sec{padding:15px 16px}
-  .tab{padding:8px 13px;font-size:13.5px}
+  .tab{padding:6px 1px;font-size:12px}
   .doc-pane{padding:16px 14px}
   .dk-block{padding-left:0}
 }
@@ -673,12 +673,11 @@ header{
     </div>
     <div class="tabs">
       <button class="tab on" data-t="search">🔍 查詞</button>
-      <button class="tab" data-t="phr">💬 片語成語 <span class="badge" id="phrCount">0</span></button>
+      <button class="tab" data-t="phr">💬 片語成語</button>
       <button class="tab" data-t="ielts">🎓 雅思詞彙</button>
       <button class="tab" data-t="doc">📖 文件閱讀</button>
       <button class="tab" data-t="rules">🧩 發音規則</button>
-      <button class="tab" data-t="chart">🔤 音標表</button>
-      <button class="tab" data-t="book">⭐ 生詞本 <span class="badge" id="bookCount">0</span></button>
+      <button class="tab" data-t="book">⭐ 生詞本</button>
     </div>
   </div>
 </header>
@@ -727,11 +726,6 @@ header{
   <!-- ========== 規則速查 ========== -->
   <section class="page" data-p="rules">
     <div id="rules"></div>
-  </section>
-
-  <!-- ========== 音標表 ========== -->
-  <section class="page" data-p="chart">
-    <div id="chart"></div>
   </section>
 
   <!-- ========== 生詞本 ========== -->
@@ -5001,28 +4995,36 @@ function toggleBook(w) {
    分頁：規則速查 / 音標表 / 生詞本
    ============================================================ */
 function renderRules(cat) {
-  const cats = ['全部', ...new Set(LEARN_RULES.map(r => r.cat))];
+  cat = cat || '全部';
+  const cats = ['全部', '音標表（IPA）', ...new Set(LEARN_RULES.map(r => r.cat))];
   let h = '<div class="chips">' + cats.map(c =>
-    `<button class="chip${(cat || '全部') === c ? ' on' : ''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('') + '</div>';
-  const list = (!cat || cat === '全部') ? LEARN_RULES : LEARN_RULES.filter(r => r.cat === cat);
-  h += '<div class="rule-grid">';
-  list.forEach(r => {
-    h += `<div class="rule">
-      <div class="rule-cat">${esc(r.cat)}</div>
-      <div class="rule-t">${esc(r.title)}</div>
-      <div class="rule-pat"><span class="k">拼法</span><code>${esc(r.pat)}</code><span class="k">讀音</span><code class="snd">${esc(r.sound)}</code></div>
-      <div class="rule-ex">${r.ex.map(x => `<span class="exw" data-w="${esc(String(x).split(' ')[0].replace(/[^a-z]/gi, ''))}">${esc(x)}</span>`).join('')}</div>
-      <div class="rule-tip">${esc(r.tip)}</div>
-    </div>`;
-  });
-  h += '</div>';
+    `<button class="chip${cat === c ? ' on' : ''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('') + '</div>';
+  if (cat === '音標表（IPA）') {
+    h += chartHTML();
+  } else {
+    const list = (cat === '全部') ? LEARN_RULES : LEARN_RULES.filter(r => r.cat === cat);
+    h += '<div class="rule-grid">';
+    list.forEach(r => {
+      h += `<div class="rule">
+        <div class="rule-cat">${esc(r.cat)}</div>
+        <div class="rule-t">${esc(r.title)}</div>
+        <div class="rule-pat"><span class="k">拼法</span><code>${esc(r.pat)}</code><span class="k">讀音</span><code class="snd">${esc(r.sound)}</code></div>
+        <div class="rule-ex">${r.ex.map(x => `<span class="exw" data-w="${esc(String(x).split(' ')[0].replace(/[^a-z]/gi, ''))}">${esc(x)}</span>`).join('')}</div>
+        <div class="rule-tip">${esc(r.tip)}</div>
+      </div>`;
+    });
+    h += '</div>';
+  }
   $('#rules').innerHTML = h;
   $$('#rules .chip').forEach(c => c.onclick = () => renderRules(c.dataset.cat));
   $$('#rules .exw').forEach(e => e.onclick = () => { switchTab('search'); showWord(e.dataset.w); });
+  $$('#rules .ci').forEach(b => b.onclick = () => speak(b.dataset.w));
 }
 
-function renderChart() {
-  let h = '<div class="chart-wrap">';
+function chartHTML() {
+  let h = '<div class="sec" style="margin-top:26px"><div class="sec-h">🔤 音標表（IPA）</div>'
+    + '<div class="muted small" style="margin:6px 0 14px">點擊任一個音標可聽示範發音（使用系統語音）。</div>';
+  h += '<div class="chart-wrap">';
   IPA_CHART.forEach(g => {
     h += `<div class="chart-grp">
       <div class="cg-h">${esc(g.name)}<span class="cg-d">${esc(g.desc)}</span></div>
@@ -5037,9 +5039,8 @@ function renderChart() {
     });
     h += '</div></div>';
   });
-  h += '</div><div class="hint">點擊任一個音標可聽示範發音（使用系統語音）。</div>';
-  $('#chart').innerHTML = h;
-  $$('#chart .ci').forEach(b => b.onclick = () => speak(b.dataset.w));
+  h += '</div></div>';
+  return h;
 }
 
 /* ============================================================
@@ -5239,7 +5240,7 @@ function renderRecentCards() {
   box.innerHTML = html;
   box.querySelectorAll('.rc-chip').forEach(c => c.onclick = () => showWord(c.dataset.w));
 }
-function renderBookCount() { $('#bookCount').textContent = state.book.size; }
+function renderBookCount() {}
 
 /* ============================================================
    片語 / 慣用語
@@ -5381,7 +5382,6 @@ function switchTab(t) {
   if (t === 'ielts' && !$('#ielts').innerHTML) renderIelts();
   if (t === 'phr' && !$('#phr').innerHTML) renderPhrases();
   if (t === 'rules' && !$('#rules').innerHTML) renderRules('全部');
-  if (t === 'chart' && !$('#chart').innerHTML) renderChart();
   if (t === 'book') renderBook();
   if (t === 'doc' && typeof renderDoc === 'function') renderDoc();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -5399,12 +5399,8 @@ function init() {
     try { new ResizeObserver(syncHeaderHeight).observe(document.querySelector('header')); } catch (e) { }
   }
 
-  $('#bookCount').textContent = state.book.size;
-  const pc = $('#phrCount');
-  if (pc) pc.textContent = PHRASES.length;
   renderRecentCards();
   renderRules('全部');
-  renderChart();
   // 查詞頁右欄初始提示（與片語成語頁一致）
   const dh = $('#detail');
   if (dh && !dh.innerHTML) dh.innerHTML = paneHintHTML('👈 點左邊任一個詞', '這裡會顯示它的音標、音節、詞根分析與中文意思，也可以直接朗讀或收進生詞本。');
