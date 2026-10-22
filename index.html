@@ -202,14 +202,8 @@ header{
 .res-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:22px 0 10px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
 .res-mode code{background:var(--pri-s);color:var(--pri);padding:1px 7px;border-radius:5px}
 .res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:9px}
-.recent-chips{display:flex;gap:8px;flex-wrap:wrap;padding:2px 0 26px;max-width:100%}
-.rc-chip{
-  border:1.5px solid var(--line);background:#fff;border-radius:999px;
-  padding:7px 15px;cursor:pointer;font-size:15px;font-weight:700;font-family:inherit;color:var(--txt);
-  transition:transform .12s,background .15s,color .15s,border-color .15s,box-shadow .15s;
-}
-.rc-chip:hover{border-color:var(--pri);color:var(--pri);transform:translateY(-2px);box-shadow:0 6px 16px rgba(124,108,240,.18)}
-.rc-chip:active{transform:translateY(0)}
+/* 最近查詢卡片：與生詞本同結構、同字級、同列等高（沒有移除鈕，右側留白縮小） */
+.rc-item .bi-main{padding-right:12px}
 .res-item{
   display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;
   background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;
@@ -5563,18 +5557,42 @@ function exportCSV() {
   toast('已匯出生詞本 CSV');
 }
 
-/* 查詢頁左下空白區：把「最近查詢」的單詞以可愛小單詞（藥丸 chip）形式顯示，點一下就查 */
+/* 查詢頁左下空白區：「最近查詢」以生詞本同款卡片顯示（單詞＋音標＋意思），點一下就查 */
 function renderRecentCards() {
   const box = $('#results');
   if (!box) return;
   if (!state.history.length) { box.innerHTML = ''; return; }
   const list = state.history.slice(0, 16);
-  let html = '<div class="res-head"><span>🕘 最近查詢</span></div>';
-  html += '<div class="recent-chips">';
-  list.forEach(w => { html += `<button class="rc-chip" data-w="${esc(w)}">${esc(w)}</button>`; });
+  let html = '<div class="res-head"><span>🕘 最近查詢</span></div><div class="res-grid">';
+  list.forEach(function (w) {
+    const g = bookGroupOf(w);
+    if (g) {
+      // 合併詞條：顯示整組原文、各詞音標串接、使用者寫的那一個意思
+      const t = gText(g), note = gNote(g);
+      const parts = (g.words || []).map(function (x) {
+        const b = bestIPA(x), r = analyze(x);
+        return b ? (state.dialect === 'ga' ? b.ga : b.rp) : (state.dialect === 'ga' ? r.ipaGA : r.ipaRP);
+      }).filter(Boolean);
+      const ipa = parts.length ? '/' + parts.join(' ') + '/' : '';
+      html += '<div class="book-item rc-item"><button class="bi-main" data-w="' + esc(w) + '">'
+        + '<span class="ri-w">' + esc(t) + '</span>'
+        + (ipa ? '<span class="ri-p">' + esc(ipa) + '</span>' : '')
+        + (note ? '<span class="ri-g">' + esc(note) + '</span>' : '')
+        + '</button></div>';
+    } else {
+      const r = analyze(w);
+      const ipa = ipaOf(w, r);
+      const gl = glossOf(w);
+      html += '<div class="book-item rc-item"><button class="bi-main" data-w="' + esc(w) + '">'
+        + '<span class="ri-w">' + esc(w) + '</span>'
+        + (ipa ? '<span class="ri-p">/' + esc(ipa) + '/</span>' : '')
+        + (gl ? '<span class="ri-g">' + esc(gl) + '</span>' : '')
+        + '</button></div>';
+    }
+  });
   html += '</div>';
   box.innerHTML = html;
-  box.querySelectorAll('.rc-chip').forEach(c => c.onclick = () => showWord(c.dataset.w));
+  box.querySelectorAll('.bi-main').forEach(function (c) { c.onclick = function () { showWord(c.dataset.w); }; });
 }
 function renderBookCount() {}
 
