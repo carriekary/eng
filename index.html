@@ -17,7 +17,7 @@
   --ok:#059669;
   --r:14px;
   --w:1800px;   /* 內容最大寬度（想更窄就改這個數字） */
-  --hd:124px;   /* header 實際高度，由 JS 即時量測並寫回，避免遮住內容 */
+  --hd:0px;     /* 頂欄實際高度（桌面版頂欄隱藏 = 0；手機由 JS 即時量測寫回） */
   --hdgap:14px; /* 內容與 header 之間預留的間距 */
 }
 *{box-sizing:border-box}
@@ -39,28 +39,127 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 .muted{color:var(--muted)}
 .small{font-size:13px}
 
-/* ---------- Header ---------- */
+/* ---------- Layout：頂部導覽 + 主內容 ---------- */
 header{
-  background:linear-gradient(160deg,#4f46e5 0%,#6366f1 45%,#0ea5e9 100%);
-  color:#fff; padding:14px 0 13px; margin-bottom:22px;
-  position:sticky; top:0; z-index:300;
-  box-shadow:0 4px 16px rgba(31,41,80,.18);
+  position:sticky;top:0;z-index:400;
+  display:flex;align-items:center;gap:12px;
+  padding:9px 16px;
 }
-.hd-in{max-width:var(--w);margin:0 auto;padding:0 22px}
-.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
-.brand h1{font-size:22px;margin:0;letter-spacing:-.3px;font-weight:700}
-.brand .sub{opacity:.9;font-size:14px}
-.brand .en{opacity:.75;font-size:13px;letter-spacing:.5px}
-.tabs{display:flex;gap:4px;margin-top:11px;flex-wrap:wrap}
-.tab{
-  background:rgba(255,255,255,.14); border:0; color:#fff; cursor:pointer;
-  padding:8px 15px; border-radius:10px 10px 0 0; font-size:14px; font-weight:500;
-  font-family:inherit; transition:background .15s;
+.hd-brand{display:flex;align-items:center;gap:9px;flex:0 0 auto;cursor:pointer;border:0;background:transparent;font-family:inherit;padding:4px 8px;border-radius:12px;transition:.15s}
+.hd-brand:hover{background:rgba(255,255,255,.5)}
+.hd-brand.on{background:rgba(255,255,255,.55)}
+.hd-brand .mascot svg{width:40px;height:40px;animation:bob 3.2s ease-in-out infinite;filter:drop-shadow(0 5px 9px rgba(124,108,240,.28))}
+.hd-brand b{font-size:18px;color:#5b4fd6;font-family:var(--font-head)}
+.hd-brand span{font-size:11px;color:#6d5bbf;margin-left:6px;letter-spacing:.5px}
+.nav{display:flex;align-items:center;gap:6px;flex:1;justify-content:flex-end;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.nav::-webkit-scrollbar{display:none}
+.nav-item{display:flex;align-items:center;gap:7px;padding:9px 15px;border-radius:999px;
+  background:rgba(255,255,255,.6);color:#5b4fd6;border:1.5px solid rgba(124,108,240,.12);
+  font-size:14.5px;font-weight:600;font-family:inherit;cursor:pointer;text-align:left;
+  transition:.15s;white-space:nowrap;flex:0 0 auto}
+.nav-item .ni-ico{font-size:15px;width:18px;text-align:center}
+.nav-item:hover{background:#fff;transform:translateY(-1px);color:#6d28d9}
+.nav-item.on{background:#fff;color:#6d28d9;border-color:#fff;box-shadow:0 4px 14px rgba(124,108,240,.3)}
+.main{margin-left:0}
+
+/* ---------- 首頁 Dashboard ---------- */
+.home-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start}
+.home-main{display:flex;flex-direction:column;gap:18px;min-width:0}
+.hero{position:relative;overflow:hidden;border:1px solid #e4e2ff;border-radius:20px;
+  background:linear-gradient(120deg,#eef0ff,#f6efff 55%,#e7f5ff);padding:30px 32px 24px}
+.hero h2{margin:0 0 6px;font-size:29px;line-height:1.3;font-weight:800;letter-spacing:-.5px}
+.hero h2 em{font-style:normal;color:var(--pri)}
+.hero-sub{margin:0 0 18px;color:var(--muted);font-size:14.5px}
+.hero-mascot{position:absolute;right:26px;top:16px;width:150px;pointer-events:none}
+.hero-mascot svg{width:100%;height:auto}
+.hero-search{display:flex;gap:10px;max-width:660px}
+.hero-search input{flex:1;min-width:0;border:2px solid #d9d6ff;border-radius:99px;padding:13px 20px;
+  font-size:15.5px;font-family:inherit;outline:none;background:#fff;color:var(--ink);box-shadow:0 4px 14px rgba(99,102,241,.10)}
+.hero-search input:focus{border-color:var(--pri)}
+.btn-go{border:0;border-radius:99px;padding:12px 22px;cursor:pointer;font-family:inherit;font-weight:700;font-size:15px;
+  background:linear-gradient(90deg,#6366f1,#8b5cf6);color:#fff;box-shadow:0 6px 16px rgba(99,102,241,.35);transition:.15s;white-space:nowrap}
+.btn-go:hover{filter:brightness(1.06)}
+.btn-go.sm{padding:8px 16px;font-size:13.5px}
+.hero-hot{margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+
+.quick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.q-card{position:relative;border:1px solid var(--line);border-radius:16px;padding:16px 16px 14px;cursor:pointer;
+  font-family:inherit;text-align:left;display:flex;flex-direction:column;gap:4px;transition:.15s;min-height:130px}
+.q-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(31,41,80,.12)}
+.q-card .qc-ico{font-size:26px}
+.q-card b{font-size:16px;margin-top:2px}
+.q-card i{font-style:normal;font-size:12.5px;color:var(--muted);line-height:1.5}
+.q-card .qc-hot{position:absolute;top:12px;right:12px;background:#ef4444;color:#fff;font-size:10.5px;font-weight:800;
+  padding:2px 7px;border-radius:99px;letter-spacing:.5px}
+.qc-1{background:linear-gradient(160deg,#f3f0ff,#e9e4ff)}
+.qc-2{background:linear-gradient(160deg,#e8f4ff,#ddeeff)}
+.qc-3{background:linear-gradient(160deg,#e9fbf2,#dff5ea)}
+.qc-4{background:linear-gradient(160deg,#fff6e8,#ffefd6)}
+
+.home-row2{display:grid;grid-template-columns:1.15fr .95fr 1fr;gap:14px;align-items:start}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;min-width:0}
+.panel-h{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:14.5px;margin-bottom:10px}
+.panel-more{border:0;background:transparent;color:var(--pri);font-size:12.5px;cursor:pointer;font-family:inherit}
+.panel-more.on{color:var(--pri)}
+.promo-card{background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:14px;color:#fff;padding:16px;display:flex;flex-direction:column;gap:8px}
+.promo-card b{font-size:17px}
+.promo-card p{margin:0;font-size:12.5px;opacity:.92;line-height:1.6}
+.promo-card .btn-go{align-self:flex-start;background:#fff;color:var(--pri);box-shadow:none}
+.rc-list{display:flex;flex-direction:column}
+.rc-row{display:flex;justify-content:space-between;gap:10px;align-items:baseline;border:0;background:transparent;
+  padding:8px 4px;border-bottom:1px dashed var(--line);cursor:pointer;font-family:inherit;font-size:14px;text-align:left;width:100%}
+.rc-row:last-child{border-bottom:0}
+.rc-row b{color:var(--ink)}
+.rc-row span{color:var(--faint);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rc-row:hover b{color:var(--pri)}
+.stat-boxes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat-box{background:#f7f8ff;border:1px solid var(--line);border-radius:12px;padding:8px 6px;text-align:center}
+.stat-box span{display:block;font-size:11.5px;color:var(--muted)}
+.stat-box b{font-size:19px;color:var(--pri)}
+.chart{display:flex;gap:8px;align-items:flex-end;height:96px;padding:0 4px}
+.chart-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.chart-col i{display:block;width:100%;max-width:26px;background:linear-gradient(180deg,#818cf8,#6366f1);border-radius:6px 6px 3px 3px;min-height:3px}
+.chart-col span{font-size:10.5px;color:var(--faint)}
+.badges-row .badge-list{display:flex;gap:10px;flex-wrap:wrap}
+.badge-chip{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);
+  border-radius:99px;padding:8px 14px 8px 10px;font-size:13px;font-weight:600}
+.bc-ico{font-size:18px}
+.bc-lv{color:var(--pri);font-size:12px}
+
+.home-side{display:flex;flex-direction:column;gap:14px;position:sticky;top:calc(var(--hd) + var(--hdgap))}
+.widget{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.streak-pill{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(90deg,#fef3c7,#fde68a);
+  border-radius:99px;padding:10px 14px;font-weight:700;font-size:14.5px}
+.streak-pill b{color:#b45309;font-size:18px}
+.goal-big{font-size:14px;font-weight:700;margin-bottom:8px}
+.goal-bar{height:10px;border-radius:99px;background:#eef0ff;overflow:hidden}
+.goal-bar i{display:block;height:100%;background:linear-gradient(90deg,#6366f1,#a78bfa);border-radius:99px}
+.goal-pct{margin-top:6px;font-size:12px;color:var(--muted);text-align:right}
+.tsk{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.tsk:last-child{border-bottom:0}
+.tsk-ico{font-size:18px}
+.tsk-name{flex:1;font-size:13.5px;font-weight:600}
+.tsk.done .tsk-name{color:var(--ok);text-decoration:line-through}
+.tsk-prog{font-size:12px;color:var(--muted)}
+.tsk-bar{width:70px;height:6px;border-radius:99px;background:#eef0ff;overflow:hidden}
+.tsk-bar i{display:block;height:100%;background:linear-gradient(90deg,#34d399,#059669)}
+.tip-txt{margin:0;font-size:13px;line-height:1.7;color:var(--muted)}
+@media(max-width:1280px){
+  .home-grid{grid-template-columns:1fr}
+  .home-side{position:static;flex-direction:row;flex-wrap:wrap}
+  .home-side .widget{flex:1 1 240px}
+  .home-row2{grid-template-columns:1fr 1fr}
+  .home-row2 .panel:last-child{grid-column:span 2}
 }
-.tab:hover{background:rgba(255,255,255,.24)}
-.tab.on{background:var(--bg); color:var(--pri); font-weight:700}
-.badge{background:rgba(255,255,255,.28);border-radius:99px;padding:1px 7px;font-size:12px;margin-left:5px}
-.tab.on .badge{background:var(--pri-s);color:var(--pri)}
+@media(max-width:760px){
+  .home-row2{grid-template-columns:1fr}
+  .home-row2 .panel:last-child{grid-column:auto}
+  .hero{padding:22px 18px}
+  .hero-mascot{display:none}
+  .hero h2{font-size:22px}
+  .hero-search{flex-direction:column}
+  .wrap{padding:0 12px 60px}
+}
 
 /* ---------- Search ---------- */
 .search-box{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:0 1px 3px rgba(20,25,50,.07);border:1px solid var(--line)}
@@ -364,18 +463,31 @@ header{
 /* ---------- 生詞本 ---------- */
 .book-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;font-size:14px}
 .book-ops{display:flex;gap:7px;flex-wrap:wrap}
-.book-item{position:relative}
+/* 生詞本卡片：同一列的所有卡片拉成一樣高（以該列最高的卡片為標準）。
+   只改高度、不改字級；內容較少的卡片下方留白，例句固定貼在卡片底部。 */
+.book-item{position:relative;display:flex;flex-direction:column}
 .bi-main{
-  width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;
+  flex:1 1 auto;width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;
   background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 28px 9px 12px;
-  cursor:pointer;font-family:inherit;transition:.13s;box-sizing:border-box;height:96px;
+  cursor:pointer;font-family:inherit;transition:.13s;box-sizing:border-box;min-height:96px;
 }
 .bi-main:hover{border-color:var(--pri)}
-.book-item .ri-g{font-size:12px;color:var(--muted);line-height:1.45;margin-top:1px;
+.bi-main .ri-g{font-size:12px;color:var(--muted);line-height:1.45;margin-top:1px;
   display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+/* 生詞本例句（來源字幕）：英文行＋中文行，最多 2 行，比釋義更淡更小。
+   margin-top:auto 讓例句貼在卡片底部，配合整列等高時版面更整齊 */
+.bi-ex{display:flex;flex-direction:column;gap:0;margin-top:auto;padding-top:3px;width:100%}
+.bi-ex-l{font-size:10.5px;color:#94a3b8;line-height:1.3}
+.bi-ex-en{font-size:11.5px;color:#475569;line-height:1.4;font-family:Georgia,"Noto Serif TC",serif;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.bi-ex-zh{font-size:11px;color:#94a3b8;line-height:1.4;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}
 .bi-x{position:absolute;top:6px;right:6px;border:0;background:transparent;color:var(--faint);
   cursor:pointer;font-size:17px;line-height:1;padding:2px 5px;border-radius:5px;font-family:inherit}
 .bi-x:hover{color:#dc2626;background:#fef2f2}
+
+/* 多選合併：幾個詞組成「一個新單詞」，與普通單詞一樣大小排進同一個網格 */
+.book-item.merged{}
 
 /* ---------- 文件閱讀 ---------- */
 .drop{
@@ -393,6 +505,13 @@ header{
 .doc-tips ul{margin:0;padding-left:20px;font-size:13.5px;color:var(--muted);line-height:1.85}
 .dt-priv{margin-top:11px;font-size:13px;color:var(--muted);background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;padding:9px 12px}
 
+/* 貼上文字 面板 */
+.net-card{margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 18px;box-shadow:var(--sh-sm)}
+.net-presets{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.net-label{font-size:12px;color:var(--muted);margin-right:2px}
+#netPaste{display:none;margin-bottom:10px}
+#netPaste textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:9px;padding:10px;font-family:inherit;font-size:13px;resize:vertical;margin-bottom:8px;background:var(--bg)}
+
 .doc-bar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 .doc-meta{font-size:14.5px;min-width:0}
 .doc-meta b{word-break:break-all}
@@ -406,11 +525,30 @@ header{
 }
 #docFind:focus{border-color:var(--pri);background:#fff}
 
-.doc-wrap{display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:18px;align-items:start}
-.doc-pane{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px 26px}
+/* 左欄：單詞卡（黏在 header 下方）；右欄：文章 */
+.doc-wrap{display:grid;grid-template-columns:440px minmax(0,1fr);gap:18px;align-items:start}
+.doc-side{
+  position:sticky;top:calc(var(--hd) + var(--hdgap));
+  max-height:calc(100vh - var(--hd) - var(--hdgap) * 2);overflow:auto;
+  border-radius:var(--r);scrollbar-width:thin;
+}
+.doc-side::-webkit-scrollbar{width:8px}
+.doc-side::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:99px}
+.doc-side .card{margin-top:0;box-shadow:0 2px 10px rgba(20,25,50,.09)}
+.doc-side .wc-top{padding:16px 16px 12px}
+.doc-side .wc-word{font-size:31px}
+.doc-side .sec{padding:13px 16px}
+.doc-side .mp{min-width:60px;padding:5px 9px 6px}
+.doc-side .mp-t{font-size:16px}
+@media(max-width:900px){
+  .doc-wrap{grid-template-columns:1fr}
+  .doc-side{position:static;max-height:none}
+}
+.doc-pane{position:relative}
 .doc-text{
   font-family:Georgia,"Iowan Old Style","Times New Roman","Noto Serif TC",serif;
   line-height:2;letter-spacing:.1px;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px 26px;
 }
 .dk-block{position:relative;padding:3px 0}
 .dk-t{display:block}
@@ -449,24 +587,8 @@ header{
 .tk-ielts{background:#faf5ff;box-shadow:inset 0 -2px 0 #d8b4fe}
 .tk-awl{background:#f5f3ff;box-shadow:inset 0 -2px 0 #a78bfa}
 .tk-book{background:#fef9c3;box-shadow:inset 0 -2px 0 #facc15;font-weight:600}
-.tk-verb{background:#ecfdf5;box-shadow:inset 0 -2px 0 #6ee7b7}
 .tk.tk-on{background:var(--pri);color:#fff;box-shadow:none}
 .doc-text mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
-
-.doc-side{
-  /* 黏在 header 底下，而不是黏在視窗最頂端（不然卡片上半部會被 header 蓋住） */
-  position:sticky;top:calc(var(--hd) + var(--hdgap));
-  max-height:calc(100vh - var(--hd) - var(--hdgap) * 2);overflow:auto;
-  border-radius:var(--r);scrollbar-width:thin;
-}
-.doc-side::-webkit-scrollbar{width:8px}
-.doc-side::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:99px}
-.doc-side .card{margin-top:0;box-shadow:0 2px 10px rgba(20,25,50,.09)}
-.doc-side .wc-top{padding:16px 16px 12px}
-.doc-side .wc-word{font-size:31px}
-.doc-side .sec{padding:13px 16px}
-.doc-side .mp{min-width:60px;padding:5px 9px 6px}
-.doc-side .mp-t{font-size:16px}
 
 .hard-box{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;margin-bottom:14px}
 .hb-h{font-size:14px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
@@ -494,21 +616,13 @@ header{
 .page.on{display:block}
 footer{text-align:center;color:var(--faint);font-size:12.5px;margin-top:34px;line-height:1.8}
 @media(max-width:900px){
-  .doc-wrap{grid-template-columns:1fr}
-  .doc-side{position:static;max-height:none}
-}
-/* 小屏幕：6 個 tab 按鈕固定排成 2 行（每行 3 個），字完整顯示 */
-@media(max-width:760px){
-  .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
-  .tab{width:100%;padding:7px 2px;font-size:12.5px;text-align:center;white-space:normal;line-height:1.25}
+  .doc-text{padding:18px 16px}
 }
 @media(max-width:640px){
   .wc-word{font-size:34px}
-  .brand h1{font-size:21px}
   .wc-top{padding:16px}
   .sec{padding:15px 16px}
-  .tab{padding:6px 1px;font-size:12px}
-  .doc-pane{padding:16px 14px}
+  .doc-text{padding:16px 14px}
   .dk-block{padding-left:0}
 }
 
@@ -549,36 +663,17 @@ a{color:var(--pri)}
 }
 
 /* 字型：可愛圓體標題 */
-.brand h1,.wc-word,.pd-w,.rule-t,.cg-h,.dt-h,.hb-h,.phr-p,.drop-t,
-.res-mode b,.tab{font-family:var(--font-head)}
+.side-brand h1,.wc-word,.pd-w,.rule-t,.cg-h,.dt-h,.hb-h,.phr-p,.drop-t,
+.res-mode b,.nav-item,.hero h2{font-family:var(--font-head)}
 
-/* ---------- Header：奶油漸層 + 圓角 ---------- */
+/* ---------- Header 裝飾 ---------- */
 header{
   background:linear-gradient(135deg,#ffd9ec 0%,#d9c8ff 48%,#c7e9ff 100%);
-  border-radius:0 0 30px 30px;
-  box-shadow:0 10px 30px rgba(150,120,230,.18);
-  margin-bottom:26px;
+  box-shadow:0 4px 14px rgba(150,120,230,.18);
 }
-.brand{align-items:center}
-.brand-txt{display:flex;flex-direction:column;line-height:1.05}
-.brand h1{font-size:26px;color:#5b4fd6;margin:0}
-.brand .en{opacity:.72;color:#6d5bbf;font-size:13px}
-.brand .sub{color:#6b5fa6;font-weight:600}
-.mascot{width:54px;height:54px;flex:0 0 auto;display:inline-flex;
-  animation:bob 3.2s ease-in-out infinite;
+.mascot{width:44px;height:44px;flex:0 0 auto;display:inline-flex;
   filter:drop-shadow(0 5px 9px rgba(124,108,240,.28))}
 @keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-5px) rotate(2deg)}}
-
-/* ---------- Tabs：圓潤藥丸 ---------- */
-.tab{
-  background:rgba(255,255,255,.6);color:#5b4fd6;border-radius:999px;padding:9px 16px;
-  font-weight:700;border:1.5px solid rgba(255,255,255,.75);
-  box-shadow:0 3px 10px rgba(150,120,230,.12);transition:transform .15s,background .15s,box-shadow .15s;
-}
-.tab:hover{background:#fff;transform:translateY(-2px) rotate(-1.5deg)}
-.tab.on{background:#fff;color:#6d28d9;border-color:#fff;box-shadow:0 6px 18px rgba(124,108,240,.28)}
-.tab .badge{background:rgba(124,108,240,.18);color:#5b4fd6}
-.tab.on .badge{background:var(--pri-s);color:var(--pri)}
 
 /* ---------- Search ---------- */
 .search-box{border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--line);padding:18px}
@@ -626,21 +721,46 @@ header{
 .tk-ielts{background:#faf0ff;box-shadow:inset 0 -2px 0 #e3b6ff}
 .tk-awl{background:#f3f0ff;box-shadow:inset 0 -2px 0 #b79bff}
 .tk-book{background:#fff7cf;box-shadow:inset 0 -2px 0 #ffd84d}
-.tk-verb{background:#e9fbf4;box-shadow:inset 0 -2px 0 #6ee7b7}
 
 /* ---------- Toast ---------- */
 #toast{background:linear-gradient(135deg,#8b7cf6,#a78bfa);box-shadow:0 8px 24px rgba(124,108,240,.4);font-weight:600}
 
+/* 拖曳連選：鬆手後浮出的「提取單字」按鈕 */
+.sel-drag-btn{position:fixed;z-index:9000;display:none;background:var(--pri);color:#fff;border:0;border-radius:999px;
+  padding:8px 15px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 8px 22px rgba(40,30,90,.28)}
+.sel-drag-btn.show{display:block}
+.sel-drag-btn:hover{filter:brightness(1.07)}
+.modal-ov{position:fixed;inset:0;background:rgba(30,27,75,.45);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px}
+.modal-card{position:relative;background:var(--card);border-radius:18px;max-width:440px;width:100%;max-height:86vh;overflow:auto;padding:22px 22px 18px;box-shadow:0 22px 60px rgba(40,30,90,.3)}
+.modal-x{position:absolute;top:8px;right:12px;border:none;background:none;font-size:24px;color:var(--muted);cursor:pointer;line-height:1}
+.modal-x:hover{color:#312e81}
+.modal-h{font-size:18px;font-weight:700;color:#2d2a55;padding-right:24px}
+.modal-sub{font-size:12.5px;color:var(--muted);margin:6px 0 14px}
+.nn-list{display:flex;flex-direction:column;gap:10px}
+.nn-row{display:flex;flex-direction:column;gap:3px}
+.nn-w{font-weight:600;font-size:14px;color:#2d2a55}
+.nn-in{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13px;color:#312e81}
+.nn-in:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px rgba(124,108,240,.15)}
+.nn-field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.nn-label{font-size:12px;font-weight:600;color:var(--muted)}
+.nn-word{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:15px;font-weight:600;color:#312e81;box-sizing:border-box}
+.nn-word:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px rgba(124,108,240,.15)}
+.nn-mean{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13px;color:#312e81;box-sizing:border-box}
+.nn-mean:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px rgba(124,108,240,.15)}
+.nn-parts{font-size:12px;color:var(--muted);margin:-4px 0 14px}
+.nn-parts b{color:#5b4bbd}
+.modal-ops{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+/* 合併詞條：查詞卡頂部把組成單詞分開成 chip（不黏在一起） */
+.wc-word{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px}
+.wc-w-chip{display:inline-block;background:#eef0ff;border:1px solid #d9d4ff;color:#2d2a55;
+  font-weight:700;font-size:26px;line-height:1.25;padding:1px 9px;border-radius:9px;cursor:pointer;
+  transition:.12s}
+.wc-w-chip:hover{background:#e0e3ff;border-color:#b9b1ff}
+.wc-w-sep{color:var(--faint);font-size:24px}
+
 /* ---------- 輕微入場動效 ---------- */
 .page.on{animation:fade .35s ease}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-
-/* ---------- 手機微調 ---------- */
-@media(max-width:640px){
-  .brand h1{font-size:22px}
-  .mascot{width:44px;height:44px}
-  .brand .sub{font-size:12.5px}
-}
 </style>
 </head>
 <body>
@@ -648,44 +768,107 @@ header{
 <div class="bg-deco"></div>
 
 <header>
-  <div class="hd-in">
-    <div class="brand">
-      <span class="mascot" aria-hidden="true">
-        <svg viewBox="0 0 100 100" width="54" height="54">
-          <circle cx="50" cy="52" r="38" fill="#a78bfa"/>
-          <circle cx="34" cy="61" r="6" fill="#ff8fab" opacity=".7"/>
-          <circle cx="66" cy="61" r="6" fill="#ff8fab" opacity=".7"/>
-          <circle cx="38" cy="46" r="5.5" fill="#3b3550"/>
-          <circle cx="62" cy="46" r="5.5" fill="#3b3550"/>
-          <circle cx="40" cy="44" r="1.8" fill="#fff"/>
-          <circle cx="64" cy="44" r="1.8" fill="#fff"/>
-          <path d="M40 62 Q50 72 60 62" stroke="#3b3550" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-          <path d="M22 50 A28 28 0 0 1 78 50" stroke="#5b4fd6" stroke-width="5" fill="none" stroke-linecap="round"/>
-          <rect x="15" y="46" width="11" height="18" rx="5" fill="#5b4fd6"/>
-          <rect x="74" y="46" width="11" height="18" rx="5" fill="#5b4fd6"/>
-          <path d="M86 44 q6 8 0 16" stroke="#34c98a" stroke-width="3" fill="none" stroke-linecap="round"/>
-        </svg>
-      </span>
-      <div class="brand-txt">
-        <h1>小野字典</h1>
-        <span class="en">Spell &amp; Sound</span>
-      </div>
-    </div>
-    <div class="tabs">
-      <button class="tab on" data-t="search">🔍 查詞</button>
-      <button class="tab" data-t="phr">💬 片語成語</button>
-      <button class="tab" data-t="ielts">🎓 雅思詞彙</button>
-      <button class="tab" data-t="doc">📖 文件閱讀</button>
-      <button class="tab" data-t="rules">🧩 發音規則</button>
-      <button class="tab" data-t="book">⭐ 生詞本</button>
-    </div>
-  </div>
+  <button class="hd-brand on" id="brandHome" aria-label="回到首頁">
+    <span class="mascot" aria-hidden="true">
+      <svg viewBox="0 0 100 100" width="40" height="40">
+        <circle cx="50" cy="52" r="38" fill="#a78bfa"/>
+        <circle cx="34" cy="61" r="6" fill="#ff8fab" opacity=".7"/>
+        <circle cx="66" cy="61" r="6" fill="#ff8fab" opacity=".7"/>
+        <circle cx="38" cy="46" r="5.5" fill="#3b3550"/>
+        <circle cx="62" cy="46" r="5.5" fill="#3b3550"/>
+        <circle cx="40" cy="44" r="1.8" fill="#fff"/>
+        <circle cx="64" cy="44" r="1.8" fill="#fff"/>
+        <path d="M40 62 Q50 72 60 62" stroke="#3b3550" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M22 50 A28 28 0 0 1 78 50" stroke="#5b4fd6" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <rect x="15" y="46" width="11" height="18" rx="5" fill="#5b4fd6"/>
+        <rect x="74" y="46" width="11" height="18" rx="5" fill="#5b4fd6"/>
+        <path d="M86 44 q6 8 0 16" stroke="#34c98a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      </svg>
+    </span>
+    <span><b>小野字典</b><span>Spell &amp; Sound</span></span>
+  </button>
+  <nav class="nav">
+    <button class="nav-item" data-t="search"><span class="ni-ico">🔍</span>查詞與表達</button>
+    <button class="nav-item" data-t="phr"><span class="ni-ico">💬</span>片語成語</button>
+    <button class="nav-item" data-t="ielts"><span class="ni-ico">🎓</span>雅思詞彙</button>
+    <button class="nav-item" data-t="doc"><span class="ni-ico">📖</span>文件閱讀</button>
+    <button class="nav-item" data-t="rules"><span class="ni-ico">🧩</span>發音規則</button>
+    <button class="nav-item" data-t="book"><span class="ni-ico">⭐</span>生詞本</button>
+  </nav>
 </header>
 
-<div class="wrap">
+<div class="wrap main">
+
+  <!-- ========== 首頁 Dashboard ========== -->
+  <section class="page on" data-p="home">
+    <div class="home-grid">
+      <div class="home-main">
+        <div class="hero">
+          <div class="hero-mascot" aria-hidden="true">
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="52" r="38" fill="#a78bfa"/>
+              <circle cx="34" cy="61" r="6" fill="#ff8fab" opacity=".7"/>
+              <circle cx="66" cy="61" r="6" fill="#ff8fab" opacity=".7"/>
+              <circle cx="38" cy="46" r="5.5" fill="#3b3550"/>
+              <circle cx="62" cy="46" r="5.5" fill="#3b3550"/>
+              <circle cx="40" cy="44" r="1.8" fill="#fff"/>
+              <circle cx="64" cy="44" r="1.8" fill="#fff"/>
+              <path d="M40 62 Q50 72 60 62" stroke="#3b3550" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              <path d="M22 50 A28 28 0 0 1 78 50" stroke="#5b4fd6" stroke-width="5" fill="none" stroke-linecap="round"/>
+              <rect x="15" y="46" width="11" height="18" rx="5" fill="#5b4fd6"/>
+              <rect x="74" y="46" width="11" height="18" rx="5" fill="#5b4fd6"/>
+              <path d="M86 44 q6 8 0 16" stroke="#34c98a" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h2>探索單詞的世界<br>讓英語成為你的<em>超能力</em>！</h2>
+          <p class="hero-sub">離線音標 · 音節切分 · 詞根分析 · 劍橋真人發音</p>
+          <div class="hero-search">
+            <input id="hq" type="text" placeholder="輸入英文單詞、詞組或短語，例如：sustainable" autocomplete="off" spellcheck="false">
+            <button class="btn-go" id="btnHomeGo">開始查詢 →</button>
+          </div>
+          <div class="hero-hot"><span>熱門：</span><span id="homeHot"></span></div>
+        </div>
+
+        <div class="quick-grid">
+          <button class="q-card qc-1" data-t="search"><span class="qc-hot">HOT</span><span class="qc-ico">📖</span><b>查詞與表達</b><i>單詞查詢、片語成語、詞義辨析、例句</i></button>
+          <button class="q-card qc-2" data-t="ielts"><span class="qc-ico">🎓</span><b>雅思詞彙</b><i>核心詞彙、主題詞彙、學術詞表、學習計劃</i></button>
+          <button class="q-card qc-3" data-t="doc"><span class="qc-ico">🎧</span><b>發音與閱讀</b><i>文章閱讀、聽音辨詞、字幕雙語、生詞標記</i></button>
+          <button class="q-card qc-4" data-t="book"><span class="qc-ico">🧡</span><b>生詞本複習</b><i>生詞收藏、自訂意思、例句、複習記錄</i></button>
+        </div>
+
+        <div class="home-row2">
+          <div class="panel">
+            <div class="panel-h">🕘 最近查詢<button class="panel-more" data-t="search">查看全部 ›</button></div>
+            <div id="homeRecent"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-h">★ 推薦學習</div>
+            <div class="promo-card">
+              <b>雅思高頻詞彙</b>
+              <p>掌握學術核心詞表，配合主題分類與學習計劃，助你輕鬆衝下目標分數。</p>
+              <button class="btn-go sm" data-t="ielts">開始學習</button>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-h">📊 學習數據</div>
+            <div id="homeStats"></div>
+          </div>
+        </div>
+
+        <div class="badges-row" id="homeBadges"></div>
+      </div>
+
+      <aside class="home-side">
+        <div class="widget" id="homeStreak"></div>
+        <div class="widget" id="homeGoal"></div>
+        <div class="widget"><div class="panel-h">✅ 今日任務</div><div id="homeTasks"></div></div>
+        <div class="widget" id="homeTip"></div>
+      </aside>
+    </div>
+  </section>
 
   <!-- ========== 查詞 ========== -->
-  <section class="page on" data-p="search">
+  <section class="page" data-p="search">
     <div class="split">
       <div class="split-list">
         <div class="search-box">
@@ -4038,7 +4221,10 @@ const LS = {
   ipa: 'spelldict.ipa',
   gloss: 'spelldict.gloss',
   audio: 'spelldict.audio',
-  phrBook: 'spelldict.phrbook'
+  phrBook: 'spelldict.phrbook',
+  notes: 'spelldict.notes',
+  bookGroups: 'spelldict.bookgroups',
+  bookEx: 'spelldict.bookex'
 };
 
 const state = {
@@ -4059,7 +4245,21 @@ const state = {
   // 線上查到的中文釋義快取（離線詞表沒收錄的詞）
   glossCache: JSON.parse(localStorage.getItem(LS.gloss) || '{}'),
   // 發音來源：'cam' 劍橋優先（連網時）、'sys' 只用系統語音
-  audio: localStorage.getItem(LS.audio) || 'cam'
+  audio: localStorage.getItem(LS.audio) || 'cam',
+  // 生詞本自訂釋義：word -> 使用者自己寫的中文意思
+  notes: JSON.parse(localStorage.getItem(LS.notes) || '{}'),
+  // 多選合併：把幾個詞組成「一個新單詞」收在同一張卡片。每組 { words:[...], text:'新單詞', note:'一個意思', ex:例句 }
+  bookGroups: JSON.parse(localStorage.getItem(LS.bookGroups) || '[]'),
+  // 生詞本例句：詞（或合併詞）-> 來源字幕句 {en, zh} 或字串。由文件閱讀加詞時記錄
+  bookEx: JSON.parse(localStorage.getItem(LS.bookEx) || '{}'),
+  // 首頁 dashboard 統計：累計次數 { l:查詢, s:收藏, r:閱讀 }
+  stats: JSON.parse(localStorage.getItem(LS.stats) || '{"l":0,"s":0,"r":0}'),
+  // 每日統計：'YYYY-MM-DD' -> { l, s, r }（今日任務、近 7 天圖表用）
+  daily: JSON.parse(localStorage.getItem(LS.daily) || '{}'),
+  // 連續學習天數 { last:'YYYY-MM-DD', days:n }
+  streak: JSON.parse(localStorage.getItem(LS.streak) || '{"last":"","days":0}'),
+  // 學習目標：收藏單詞數
+  goal: parseInt(localStorage.getItem(LS.goal) || '100', 10) || 100
 };
 
 /* ============================================================
@@ -4074,7 +4274,8 @@ function syncHeaderHeight() {
   const h = document.querySelector('header');
   if (!h) return;
   const px = Math.round(h.getBoundingClientRect().height);
-  if (px > 0) document.documentElement.style.setProperty('--hd', px + 'px');
+  // 桌面版 header 隱藏時 px=0，也要寫回 0，讓 sticky/scroll 預留空間歸零
+  document.documentElement.style.setProperty('--hd', px + 'px');
 }
 function headerH() {
   const h = document.querySelector('header');
@@ -4117,6 +4318,52 @@ const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 function saveBook() { localStorage.setItem(LS.book, JSON.stringify([...state.book])); }
+function saveNotes() { localStorage.setItem(LS.notes, JSON.stringify(state.notes || {})); }
+function saveBookGroups() { localStorage.setItem(LS.bookGroups, JSON.stringify(state.bookGroups || [])); }
+function saveBookEx() { localStorage.setItem(LS.bookEx, JSON.stringify(state.bookEx || {})); }
+
+/* 所有已在「合併卡」裡的新單詞（用來在生詞本區分：合併詞 vs 單獨詞） */
+/* 多選合併後，一個群組 = 一個新單詞（text），只有一個意思 */
+function gText(g) { return (g.text && g.text.trim()) || (g.words || []).join(' '); }
+function gNote(g) { return g.note != null ? g.note : ''; }
+/* 由合併詞條文字（如 "break up"）找出對應的 bookGroups 項目。
+   注意：查詞頁 showWord/showPaneWord 會把單詞做正規化（去空格、只留字母），
+   所以 "break up" 進來會變成 "breakup"，要比對時兩邊都要做同樣的正規化，
+   否則會找不到群組、把組合詞當成單一字串「粘合」顯示。 */
+function normW(t) { return String(t).toLowerCase().replace(/[^a-z]/g, ''); }
+function bookGroupOf(t) {
+  const gs = state.bookGroups || [];
+  const nt = normW(t);
+  for (let i = 0; i < gs.length; i++) {
+    const g = gs[i];
+    if (gText(g) === t) return g;
+    if (nt && normW(gText(g)) === nt) return g;
+  }
+  return null;
+}
+function groupedWords() {
+  const s = new Set();
+  (state.bookGroups || []).forEach(function (g) { s.add(gText(g)); });
+  return s;
+}
+
+/* 移除一整組生詞：組內詞若沒出現在其他組，才從生詞本 Set 移除 */
+function removeGroup(idx) {
+  const g = state.bookGroups[idx];
+  if (!g) return;
+  state.bookGroups.splice(idx, 1);
+  const t = gText(g);
+  state.book.delete(t);
+  delete state.bookEx[t];
+  saveBookEx();
+  // 兼容舊格式：早期版本曾把組內個別詞也加進生詞本
+  const still = groupedWords();
+  (g.words || []).forEach(function (w) { if (!still.has(w)) state.book.delete(w); });
+  saveBookGroups(); saveBook();
+  renderBook(); renderBookCount();
+  if (typeof remarkDoc === 'function' && state.tab === 'doc') remarkDoc();
+  toast('已移除該張生詞卡片');
+}
 function saveHist() { localStorage.setItem(LS.hist, JSON.stringify(state.history.slice(0, 60))); }
 function saveIpaCache() {
   const keys = Object.keys(state.ipaCache);
@@ -4280,6 +4527,8 @@ const _glossCache = Object.create(null);
 function glossOf(w) {
   w = String(w || '').toLowerCase().replace(/[^a-z]/g, '');
   if (!w) return '';
+  // 生詞本裡使用者自己寫的意思最優先（隨時可改，不進快取）
+  if (state.notes && state.notes[w]) return state.notes[w];
   if (w in _glossCache) return _glossCache[w];
   let g = '';
   const ie = IELTS_MAP[w];
@@ -4423,22 +4672,50 @@ function morphHTML(w) {
 /* ============================================================
    單詞詳細頁
    ============================================================ */
-function buildWordCard(w) {
+/* 把例句裡的目標詞加粗（大小寫不敏感，安全轉義後再標） */
+function exHL(text, w) {
+  const e = esc(text);
+  if (!w) return e;
+  const re = new RegExp('(' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+  return e.replace(re, '<b class="ex-w">$1</b>');
+}
+
+function buildWordCard(w, example) {
   state.current = w;
   state.api = null;
   state.apiW = '';
   const r = analyze(w);
   // 音標：字典優先（最準確），沒有字典音標才用引擎推測
   const bi = bestIPA(w);
-  const ipaRP = '/' + (bi ? bi.rp : r.ipaRP) + '/';
-  const ipaGA = '/' + (bi ? bi.ga : r.ipaGA) + '/';
-  const ipaSrc = bi ? bi.src : '引擎推測';
+  let ipaRP = '/' + (bi ? bi.rp : r.ipaRP) + '/';
+  let ipaGA = '/' + (bi ? bi.ga : r.ipaGA) + '/';
+  let ipaSrc = bi ? bi.src : '引擎推測';
+
+  // 多選合併的詞條：頂部「單詞」不把組成詞黏在一起，改成分開的 chip；
+  // 音標也改為各組成詞的音標以空格串接，而非把整串當一個詞去查。
+  const grp = bookGroupOf(w);
+  let wTop;
+  if (grp && (grp.words || []).length) {
+    wTop = (grp.words).map(function (pw) {
+      return '<span class="wc-w-chip" data-w="' + esc(pw) + '">' + esc(pw) + '</span>';
+    }).join('<span class="wc-w-sep"> </span>');
+    const joinIPA = function (dial) {
+      const parts = (grp.words).map(function (pw) {
+        const pb = bestIPA(pw); const pr = analyze(pw);
+        return pb ? (dial === 'ga' ? pb.ga : pb.rp) : (dial === 'ga' ? pr.ipaGA : pr.ipaRP);
+      }).filter(Boolean);
+      return parts.length ? '/' + parts.join(' ') + '/' : '/••••/';
+    };
+    ipaRP = joinIPA('rp'); ipaGA = joinIPA('ga'); ipaSrc = '各詞音標';
+  } else {
+    wTop = esc(w);
+  }
 
   let html = '';
   html += `<section class="card word-card">
     <div class="wc-top">
       <div class="wc-left">
-        <div class="wc-word">${esc(w)}</div>
+        <div class="wc-word">${wTop}</div>
         <div class="wc-ipa">
           <button class="ipa-btn${state.dialect === 'rp' ? ' on' : ''}" data-dia="rp" title="英式發音（RP）">
             <span class="ipa-tag">英</span><span class="ipa-val">${esc(ipaRP)}</span>
@@ -4473,6 +4750,8 @@ function buildWordCard(w) {
     <div class="gloss-line">${g ? esc(g) : '<span class="muted small">（暫無中文釋義，可點下方「Cambridge 劍橋」看中文解釋）</span>'}</div>
     ${extra}
   </div>`;
+
+  // 例句（本文）：已移到生詞本卡片顯示，查詞卡不再重複放。
 
   // 音節：有字典音標時，音標與重音對齊字典（與上方一致）；否則用引擎推測
   const syl = (bi ? dictSyllables(bi, r) : null) ||
@@ -4528,13 +4807,15 @@ function bindWordCard(w, root) {
     go(w);
   });
   const sp = $('[data-act="speak"]', root); if (sp) sp.onclick = () => speakWord(w);
-  const bk = $('[data-act="book"]', root); if (bk) bk.onclick = () => toggleBook(w);
+  const bk = $('[data-act="book"]', root); if (bk) bk.onclick = () => toggleBook(w, inDoc ? DOC.curEx : null);
   // 詞根分析裡的例詞／同根詞：點了就查那個詞
   $$('[data-goto]', root).forEach(b => b.onclick = () => {
     const t = b.dataset.goto;
     if (!t) return;
     go(t);
   });
+  // 合併詞條頂部的「組成單詞」chip：點了就單獨查那個詞（不黏在一起）
+  $$('.wc-w-chip', root).forEach(p => p.onclick = () => { if (p.dataset.w) go(p.dataset.w); });
 }
 
 /* 把單詞卡渲染到指定面板（左邊點、右邊看） */
@@ -4555,6 +4836,7 @@ function showPaneWord(paneId, raw) {
 
 /* 記錄查詢歷史（查詞頁與閱讀頁共用） */
 function pushHistory(w) {
+  trackStat('l', 1);
   state.history = [w, ...state.history.filter(x => x !== w)].slice(0, 60);
   saveHist();
 }
@@ -4563,7 +4845,8 @@ function showWord(raw) {
   const w = String(raw).toLowerCase().replace(/[^a-z]/g, '');
   if (!w) return;
   pushHistory(w);
-  const q = $('#q'); if (q) q.value = w;
+  const g = bookGroupOf(w);
+  const q = $('#q'); if (q) q.value = g ? gText(g) : w;
   const root = $('#detail');
   if (!root) return;
   root.innerHTML = buildWordCard(w);
@@ -4973,10 +5256,19 @@ async function loadApi(w, root) {
 }
 
 /* ---------------- 生詞本 ---------------- */
-function toggleBook(w) {
+function toggleBook(w, ex) {
   w = String(w).toLowerCase().replace(/[^a-z]/g, '');
-  if (state.book.has(w)) { state.book.delete(w); toast('已從生詞本移除'); }
-  else { state.book.add(w); toast('已收進生詞本'); }
+  if (state.book.has(w)) {
+    state.book.delete(w);
+    delete state.bookEx[w];
+    saveBookEx();
+    toast('已從生詞本移除');
+  } else {
+    state.book.add(w);
+    if (ex) { state.bookEx[w] = ex; saveBookEx(); }
+    trackStat('s', 1);
+    toast('已收進生詞本');
+  }
   saveBook();
   renderBookCount();
   const saved = state.book.has(w);
@@ -5170,43 +5462,87 @@ function exportIeltsCSV(list) {
   toast('已匯出雅思詞彙 CSV');
 }
 
+/* 生詞本卡片裡的「例句（來源字幕）」：雙語字幕含英文行＋中文行 */
+function bookExHTML(key) {
+  const ex = state.bookEx && state.bookEx[key];
+  if (!ex) return '';
+  let en = '', zh = '';
+  if (typeof ex === 'object' && ex.en !== undefined) { en = ex.en || ''; zh = ex.zh || ''; }
+  else { en = ex || ''; }
+  if (!en && !zh) return '';
+  let h = '<span class="bi-ex">'
+    + '<span class="bi-ex-l">📝 例句</span>'
+    + '<span class="bi-ex-en">' + esc(en) + '</span>';
+  if (zh) h += '<span class="bi-ex-zh">' + esc(zh) + '</span>';
+  h += '</span>';
+  return h;
+}
+
 function renderBook() {
-  const list = [...state.book];
+  const grouped = groupedWords();
+  const individuals = [...state.book].filter(function (w) { return !grouped.has(w); });
+  const nG = (state.bookGroups || []).length;
   let h = `<div class="book-bar">
-    <span>共 <b>${list.length}</b> 個生詞</span>
+    <span>共 <b>${state.book.size}</b> 個生詞${nG ? ' · ' + nG + ' 張合併卡' : ''}</span>
     <span class="book-ops">
       <button class="btn btn-sm" id="btnQuiz">${state.quiz ? '顯示音標' : '遮住音標自測'}</button>
       <button class="btn btn-sm" id="btnExport">匯出 CSV</button>
       <button class="btn btn-sm btn-danger" id="btnClear">清空</button>
     </span></div>`;
-  if (!list.length) {
-    h += '<div class="empty">還沒有收藏任何單詞。查詞時按「☆ 收進生詞本」就會出現在這裡。</div>';
+  if (!state.book.size) {
+    h += '<div class="empty">還沒有收藏任何單詞。查詞時按「☆ 收進生詞本」就會出現在這裡；在「📖 文件閱讀」用滑鼠拖過一段文字（拖曳連選），鬆手後按「📎 提取單字」可把幾個詞合併成一個新單詞（只寫一個意思），收進生詞本，查詞卡會把組成單詞分開顯示。</div>';
   } else {
-    h += '<div class="res-grid">';
-    list.forEach(w => {
+    // 多選合併：幾個詞組成「一個新單詞」，收在同一張生詞卡片（只有一個意思）。
+    // 與普通單詞一樣排進 .res-grid 網格裡，大小相同（不橫跨、不獨佔一行）。
+    const merged = (state.bookGroups || []).map(function (g, idx) {
+      const t = gText(g);
+      const note = gNote(g);
+      let ipa = '••••';
+      if (!state.quiz) {
+        const parts = (g.words || []).map(function (w) {
+          const b = bestIPA(w); const r = analyze(w);
+          const raw = b ? (state.dialect === 'ga' ? b.ga : b.rp) : (state.dialect === 'ga' ? r.ipaGA : r.ipaRP);
+          return raw || '';
+        }).filter(Boolean);
+        if (parts.length) ipa = '/' + esc(parts.join(' ')) + '/';
+      }
+      return '<div class="book-item merged">'
+        + '<button class="bi-main" data-w="' + esc(t) + '">'
+        + '<span class="ri-w">' + esc(t) + '</span>'
+        + (state.quiz || ipa !== '••••' ? '<span class="ri-p">' + ipa + '</span>' : '')
+        + (note ? '<span class="ri-g">' + esc(note) + '</span>' : '')
+        + bookExHTML(t)
+        + '</button>'
+        + '<button class="bi-x" data-group="' + idx + '" title="移除整張卡片">×</button>'
+        + '</div>';
+    });
+    // 單獨收藏的詞
+    const indiv = individuals.map(function (w) {
       const r = analyze(w);
       const b = bestIPA(w);
       const g = glossOf(w);
       const ipa = state.quiz ? '••••' : '/' + esc(b ? (state.dialect === 'ga' ? b.ga : b.rp) : (state.dialect === 'ga' ? r.ipaGA : r.ipaRP)) + '/';
-      h += `<div class="book-item">
+      return `<div class="book-item">
         <button class="bi-main" data-w="${esc(w)}">
           <span class="ri-w">${esc(w)}</span>
           <span class="ri-p">${ipa}</span>
           ${g ? `<span class="ri-g">${esc(g)}</span>` : ''}
+          ${bookExHTML(w)}
         </button>
         <button class="bi-x" data-del="${esc(w)}" title="移除">×</button>
       </div>`;
     });
-    h += '</div>';
+    h += '<div class="res-grid">' + merged.concat(indiv).join('') + '</div>';
   }
   $('#book').innerHTML = h;
   $$('#book .bi-main').forEach(b => b.onclick = () => { switchTab('search'); showWord(b.dataset.w); });
-  $$('#book .bi-x').forEach(b => b.onclick = () => toggleBook(b.dataset.del));
+  $$('#book .bi-x[data-del]').forEach(b => b.onclick = () => toggleBook(b.dataset.del));
+  $$('#book .bi-x[data-group]').forEach(b => b.onclick = () => removeGroup(+b.dataset.group));
   const q = $('#btnQuiz'); if (q) q.onclick = () => { state.quiz = !state.quiz; renderBook(); };
   const ex = $('#btnExport'); if (ex) ex.onclick = exportCSV;
   const cl = $('#btnClear'); if (cl) cl.onclick = () => {
-    if (!list.length) return;
-    if (confirm('確定清空生詞本？此動作無法復原。')) { state.book.clear(); saveBook(); renderBook(); renderBookCount(); }
+    if (!state.book.size && !nG) return;
+    if (confirm('確定清空生詞本？此動作無法復原。')) { state.book.clear(); state.bookGroups = []; state.bookEx = {}; saveBook(); saveBookGroups(); saveBookEx(); renderBook(); renderBookCount(); }
   };
 }
 function exportCSV() {
@@ -5374,16 +5710,178 @@ function phrHitsHTML(q, limit) {
     <div class="phr-grid">${list.map(phrItemHTML).join('')}</div>`;
 }
 
+/* ============================================================
+   首頁 Dashboard：學習統計追蹤 + widget 渲染
+   ============================================================ */
+function todayKey(d) {
+  d = d || new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+/* 記一筆學習行為：kind = 'l' 查詢 / 's' 收藏 / 'r' 閱讀 */
+function trackStat(kind, n) {
+  n = n || 1;
+  try {
+    const t = todayKey();
+    state.stats[kind] = (state.stats[kind] || 0) + n;
+    const d = state.daily[t] || (state.daily[t] = { l: 0, s: 0, r: 0 });
+    d[kind] = (d[kind] || 0) + n;
+    // 只保留最近 30 天的每日資料
+    const keys = Object.keys(state.daily).sort();
+    while (keys.length > 30) { delete state.daily[keys.shift()]; }
+    // 連續學習：今天沒記過就 +1（昨天有記 = 接續，否則重新開始）
+    if (state.streak.last !== t) {
+      const y = new Date(); y.setDate(y.getDate() - 1);
+      state.streak.days = (state.streak.last === todayKey(y)) ? (state.streak.days || 0) + 1 : 1;
+      state.streak.last = t;
+    }
+    localStorage.setItem(LS.stats, JSON.stringify(state.stats));
+    localStorage.setItem(LS.daily, JSON.stringify(state.daily));
+    localStorage.setItem(LS.streak, JSON.stringify(state.streak));
+  } catch (e) { }
+}
+
+const HOT_WORDS = ['sustainable', 'academic', 'perspective', 'challenge', 'innovation', 'accomplish', 'climate'];
+const STUDY_TIPS = [
+  '「Small steps make big progress.」每天查幾個詞，一個月後回頭看會嚇一跳。',
+  '把新查的詞收進生詞本，隔天再複習一次，記憶會牢固一倍。',
+  '看字幕學英文：先遮住中文字猜意思，再對照答案。',
+  '朗讀時注意音節重音，重音對了整個詞就會聽起來自然。',
+  '外來語不要死背：認出詞根（如 pre-, -tion）就能猜出意思。',
+  '每天閱讀一篇短文，生詞標記會自動幫你收集新單詞。',
+  '片語要整組記：make up、take up、give up 各有不同意思。'
+];
+
+function renderHome() {
+  renderHomeHot(); renderHomeRecent(); renderHomeStats();
+  renderHomeStreak(); renderHomeGoal(); renderHomeTasks(); renderHomeBadges(); renderHomeTip();
+}
+function renderHomeHot() {
+  const el = $('#homeHot'); if (!el) return;
+  el.innerHTML = HOT_WORDS.map(w => '<button class="chip" data-hw="' + w + '">' + w + '</button>').join('');
+  $$('#homeHot .chip').forEach(c => c.onclick = () => homeLookup(c.dataset.hw));
+}
+function homeLookup(w) {
+  w = String(w || '').toLowerCase().replace(/[^a-z ]/g, '').trim();
+  if (!w) return;
+  switchTab('search');
+  const q = $('#q'); if (q) q.value = w;
+  const hit = runSearch(w, state.mode, 1);
+  showWord(hit.length ? hit[0] : w);
+}
+function renderHomeRecent() {
+  const el = $('#homeRecent'); if (!el) return;
+  const list = (state.history || []).slice(0, 6);
+  if (!list.length) { el.innerHTML = '<div class="muted small">還沒有查過單詞，在上面搜尋一下試試！</div>'; return; }
+  el.innerHTML = '<div class="rc-list">' + list.map(w => {
+    const g = glossOf(w);
+    return '<button class="rc-row" data-w="' + esc(w) + '"><b>' + esc(w) + '</b>'
+      + (g ? '<span>' + esc(g.slice(0, 26)) + '</span>' : '') + '</button>';
+  }).join('') + '</div>';
+  $$('#homeRecent .rc-row').forEach(b => b.onclick = () => { switchTab('search'); showWord(b.dataset.w); });
+}
+function renderHomeStats() {
+  const el = $('#homeStats'); if (!el) return;
+  el.innerHTML = '<div class="stat-boxes">'
+    + '<div class="stat-box"><span>已查單詞</span><b>' + (state.stats.l || 0) + '</b></div>'
+    + '<div class="stat-box"><span>收藏生詞</span><b>' + state.book.size + '</b></div>'
+    + '<div class="stat-box"><span>連續學習</span><b>' + (state.streak.days || 0) + ' 天</b></div>'
+    + '</div>';
+  // 近 7 天查詢次數柱狀圖
+  const vals = [], labs = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    vals.push((state.daily[todayKey(d)] && state.daily[todayKey(d)].l) || 0);
+    labs.push('日一二三四五六'[d.getDay()]);
+  }
+  const max = Math.max(1, Math.max.apply(null, vals));
+  el.insertAdjacentHTML('beforeend', '<div class="chart">' + vals.map((v, i) =>
+    '<div class="chart-col"><i style="height:' + Math.round(v / max * 62) + 'px" title="' + v + ' 次"></i><span>' + labs[i] + '</span></div>'
+  ).join('') + '</div>');
+}
+function renderHomeStreak() {
+  const el = $('#homeStreak'); if (!el) return;
+  el.innerHTML = '<div class="streak-pill">🔥 連續學習 <b>' + (state.streak.days || 0) + '</b> 天</div>';
+}
+function renderHomeGoal() {
+  const el = $('#homeGoal'); if (!el) return;
+  const n = state.book.size, goal = state.goal || 100;
+  const pct = Math.min(100, Math.round(n / goal * 100));
+  el.innerHTML = '<div class="panel-h">我的學習目標<button class="panel-more" id="goalEdit">編輯</button></div>'
+    + '<div class="goal-big">⭐ 收藏單詞 ' + n + ' / ' + goal + '</div>'
+    + '<div class="goal-bar"><i style="width:' + pct + '%"></i></div>'
+    + '<div class="goal-pct">' + pct + '%</div>';
+  const b = $('#goalEdit');
+  if (b) b.onclick = () => {
+    const v = prompt('設定收藏單詞目標數：', state.goal);
+    if (v) { const g = parseInt(v, 10); if (g > 0) { state.goal = g; localStorage.setItem(LS.goal, g); renderHomeGoal(); } }
+  };
+}
+function renderHomeTasks() {
+  const el = $('#homeTasks'); if (!el) return;
+  const t = state.daily[todayKey()] || { l: 0, s: 0, r: 0 };
+  const tasks = [
+    { ico: '📖', name: '查詞 10 個新單詞', cur: t.l || 0, max: 10 },
+    { ico: '⭐', name: '收藏 3 個生詞', cur: t.s || 0, max: 3 },
+    { ico: '📚', name: '閱讀一篇文章', cur: t.r || 0, max: 1 }
+  ];
+  el.innerHTML = tasks.map(x => {
+    const done = x.cur >= x.max, pct = Math.min(100, Math.round(x.cur / x.max * 100));
+    return '<div class="tsk' + (done ? ' done' : '') + '"><span class="tsk-ico">' + x.ico + '</span>'
+      + '<span class="tsk-name">' + x.name + '</span>'
+      + '<span class="tsk-prog">' + Math.min(x.cur, x.max) + '/' + x.max + '</span>'
+      + '<span class="tsk-bar"><i style="width:' + pct + '%"></i></span></div>';
+  }).join('');
+}
+function renderHomeBadges() {
+  const el = $('#homeBadges'); if (!el) return;
+  const lv = (v, step) => Math.min(5, 1 + Math.floor((v || 0) / step));
+  const badges = [
+    { ico: '🏅', name: '單詞大師', lv: lv(state.stats.l, 50), tip: '累積查詞 ' + (state.stats.l || 0) + ' 次' },
+    { ico: '⭐', name: '收藏家', lv: lv(state.book.size, 20), tip: '收藏 ' + state.book.size + ' 個詞' },
+    { ico: '📚', name: '閱讀達人', lv: lv(state.stats.r, 3), tip: '讀了 ' + (state.stats.r || 0) + ' 篇文章' },
+    { ico: '🔥', name: '毅力之星', lv: lv(state.streak.days, 3), tip: '連續學習 ' + (state.streak.days || 0) + ' 天' }
+  ];
+  el.innerHTML = '<div class="badge-list">' + badges.map(b =>
+    '<div class="badge-chip" title="' + esc(b.tip) + '"><span class="bc-ico">' + b.ico + '</span>'
+    + '<span class="bc-name">' + b.name + '</span><span class="bc-lv">Lv.' + b.lv + '</span></div>'
+  ).join('') + '</div>';
+}
+function renderHomeTip() {
+  const el = $('#homeTip'); if (!el) return;
+  el.innerHTML = '<div class="panel-h">💡 學習小貼士</div><p class="tip-txt">' + STUDY_TIPS[Math.floor(Date.now() / 864e5) % STUDY_TIPS.length] + '</p>';
+}
+function closeSidebar() {
+  const s = $('#sidebar'); if (s) s.classList.remove('open');
+  const bd = $('#sideBackdrop'); if (bd) bd.classList.remove('show');
+}
+
 /* ---------------- 分頁切換 ---------------- */
 function switchTab(t) {
+  /* 離開文件閱讀前，先把讀到的位置記下來（視窗＋左欄單詞卡） */
+  if (state.tab === 'doc' && t !== 'doc' && typeof saveDocScroll === 'function') saveDocScroll();
   state.tab = t;
-  $$('.tab').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  $$('[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t));
   $$('.page').forEach(p => p.classList.toggle('on', p.dataset.p === t));
+  const bh = $('#brandHome'); if (bh) bh.classList.toggle('on', t === 'home');
+  if (t === 'home') renderHome();
   if (t === 'ielts' && !$('#ielts').innerHTML) renderIelts();
   if (t === 'phr' && !$('#phr').innerHTML) renderPhrases();
   if (t === 'rules' && !$('#rules').innerHTML) renderRules('全部');
   if (t === 'book') renderBook();
-  if (t === 'doc' && typeof renderDoc === 'function') renderDoc();
+  if (t === 'doc') {
+    /* 已經畫過內容（正在讀的文件／選擇檔案首頁）→ 不整份重繪，
+       直接還原上次的閱讀位置，不要回到頁頂。
+       因為不再重繪，生詞底色要在這裡主動同步一次（別處收藏的詞才會標亮）。 */
+    const dEl = $('#doc');
+    if (dEl && dEl.innerHTML.trim()) {
+      closeSidebar();
+      if (typeof remarkDoc === 'function') remarkDoc();
+      if (typeof restoreDocScroll === 'function') restoreDocScroll();
+      return;
+    }
+    if (typeof renderDoc === 'function') renderDoc();
+  }
+  closeSidebar();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -5436,7 +5934,21 @@ function init() {
     if (v) renderResults(runSearch(v, state.mode, 200), v, state.mode);
   });
 
-  $$('.tab').forEach(b => b.onclick = () => switchTab(b.dataset.t));
+  $$('[data-t]').forEach(b => b.onclick = () => switchTab(b.dataset.t));
+
+  // 頂部品牌（小野字典 Logo）→ 回到首頁
+  const bh = $('#brandHome');
+  if (bh) bh.onclick = () => switchTab('home');
+
+  // 首頁搜尋框
+  const hq = $('#hq');
+  if (hq) {
+    hq.addEventListener('keydown', e => { if (e.key === 'Enter') homeLookup(hq.value); });
+    const bg = $('#btnHomeGo');
+    if (bg) bg.onclick = () => homeLookup(hq.value);
+  }
+
+  renderHome();
 
   document.addEventListener('click', e => {
     const ri = e.target.closest('.res-item');
@@ -5476,8 +5988,16 @@ const DOC = {
   hard: [], showHard: false, find: '',
   bil: true,          // 雙語字幕：英文與中文分行顯示
   biCount: 0,         // 這份檔案裡有幾個雙語段落
-  ready: false, cur: ''
+  ready: false, cur: '',
+  _occ: 0             // 渲染時發給每個 .tk 的唯一序號，用來只高亮被點的那一個出現處
 };
+
+/* 回到首頁並自動展開「貼上文字」方塊、聚焦輸入框 */
+function openPaste() {
+  renderDocHome();
+  const box = $('#netPaste'); if (box) box.style.display = 'block';
+  const ta = $('#netText'); if (ta) ta.focus();
+}
 
 /* ============================================================
    一、文字解碼
@@ -5906,29 +6426,9 @@ function wordKey(w) {
 }
 /* 「本文的生詞列表」仍然是 buildVocab() 獨立統計，與這裡的底色無關 */
 
-/* 判斷一個詞是否英文動詞：看中文釋義裡有沒有 v. / vt. / vi. / aux. 的詞性段
-/* 文中「雅思詞彙」判定：
-   綠底標示本文中屬於雅思詞彙表的英文詞（含 -s / -ed / -ing / 複數等衍生，
-   還原回原形後再查 IELTS_MAP，提升涵蓋率） */
-const _ieltsCache = Object.create(null);
-function isIeltsWord(k) {
-  if (!k) return false;
-  if (k in _ieltsCache) return _ieltsCache[k];
-  let v = !!IELTS_MAP[k];
-  if (!v) {
-    const forms = glossStems(k);
-    for (let i = 0; i < forms.length; i++) {
-      if (IELTS_MAP[forms[i]]) { v = true; break; }
-    }
-  }
-  _ieltsCache[k] = v;
-  return v;
-}
-
 function wordKind(k) {
   if (!k) return '';
   if (state.book.has(k)) return 'tk-book';
-  if (isIeltsWord(k)) return 'tk-verb';
   return '';
 }
 
@@ -5969,22 +6469,32 @@ function openFile(file) {
   }
 
   return work.then(function (res) {
-    DOC.kind = res.kind;
-    DOC.blocks = res.blocks.filter(function (b) { return b && b.s; });
-    if (!DOC.blocks.length) throw new Error('這份檔案裡沒有抓到任何文字。');
-    DOC.blocks.forEach(function (b) { b.n = countWords(b.s); });
-    DOC.words = DOC.blocks.reduce(function (a, b) { return a + b.n; }, 0);
-    DOC.biCount = DOC.blocks.filter(function (b) { return b.parts && b.parts.length > 1; }).length;
-    buildPages();
-    buildVocab();
-    DOC.ready = true;
-    renderDoc();
-    const side = $('#docDetail');
-    if (side) side.innerHTML = sideHintHTML();
-    toast('已載入：' + name);
+    loadBlocks(name, res.kind, res.blocks);
   }).catch(function (err) {
     renderDocError(name, (err && err.message) || String(err));
   });
+}
+
+/* 把「一段段文字」統一餵進閱讀器管線（檔案 / 貼上都走這裡） */
+function loadBlocks(name, kind, blocks) {
+  DOC.name = name; DOC.page = 0; DOC.find = ''; DOC.showHard = false;
+  DOC.ready = false; DOC.cur = '';
+  DOC.kind = kind;
+  DOC.blocks = (blocks || []).filter(function (b) { return b && b.s; });
+  if (!DOC.blocks.length) throw new Error('這份內容裡沒有抓到任何文字。');
+  DOC.blocks.forEach(function (b) { b.n = countWords(b.s); });
+  DOC.words = DOC.blocks.reduce(function (a, b) { return a + b.n; }, 0);
+  DOC.biCount = DOC.blocks.filter(function (b) { return b.parts && b.parts.length > 1; }).length;
+  if (typeof trackStat === 'function') trackStat('r', 1);
+  buildPages();
+  buildVocab();
+  DOC.ready = true;
+  renderDoc();
+  // 新文件從頭開始讀，清掉上一份記住的捲動位置
+  docScroll.saved = false;
+  const side = $('#docDetail');
+  if (side) side.innerHTML = sideHintHTML();
+  toast('已載入：' + name);
 }
 
 /* 不分頁：整份文件一次渲染，用滑鼠自然往下捲到底（不再把文件切成好幾頁） */
@@ -6038,7 +6548,8 @@ function tokenHTML(t) {
     if (i % 2 === 1) {
       const k = wordKey(seg);
       const kind = DOC.mark ? wordKind(k) : (state.book.has(k) ? 'tk-book' : '');
-      h += '<span class="tk' + (kind ? ' ' + kind : '') + '" data-w="' + esc(k) + '">' + hl(seg) + '</span>';
+      DOC._occ++;
+      h += '<span class="tk' + (kind ? ' ' + kind : '') + '" data-w="' + esc(k) + '" data-occ="' + DOC._occ + '">' + hl(seg) + '</span>';
     } else {
       h += hl(seg);
     }
@@ -6069,9 +6580,8 @@ function blockHTML(b, gi) {
 
 function sideHintHTML() {
   return '<div class="card"><div class="sec"><div class="sec-h">📖 點單詞查發音</div>'
-    + '<div class="muted small">在左邊內文中<b>點任何一個英文字</b>，這裡就會顯示它的音標、音節切分與詞根分析。'
+    + '<div class="muted small">在右側內文中<b>點任何一個英文字</b>，這裡就會顯示它的音標、音節切分與詞根分析。'
     + '<br><br><b>底色意思：</b><br>'
-    + '<span class="tk tk-verb" style="cursor:default">綠底</span> 雅思詞彙（含衍生變化）　'
     + '<span class="tk tk-book" style="cursor:default">黃底</span> 已收進生詞本'
     + '</div></div></div>';
 }
@@ -6084,6 +6594,14 @@ function renderDocHome() {
     + '<div class="drop-s">支援 <b>PDF</b> · <b>Word（.docx）</b> · <b>字幕（.srt / .ass / .ssa）</b> · <b>純文字（.txt / .md）</b></div>'
     + '<button class="btn btn-speak" id="btnPick">📂 選擇檔案</button>'
     + '<input type="file" id="fileInput" class="vis-hide" accept=".pdf,.docx,.srt,.ass,.ssa,.txt,.md,.text">'
+    + '</div>'
+    + '<div class="net-card">'
+    + '<div class="dt-h">📝 貼上文字（不經網路）</div>'
+    + '<div class="net-presets">'
+    + '<button class="btn btn-sm" id="btnPaste">📋 貼上文字</button>'
+    + '</div>'
+    + '<div id="netPaste" style="display:none"><textarea id="netText" placeholder="把文章或逐字稿貼在這裡，最穩定、不經第三方…"></textarea>'
+    + '<button class="btn btn-speak" id="btnPasteGo">載入閱讀</button></div>'
     + '</div>'
     + '<div class="doc-tips">'
     + '<div class="dt-h">適合這樣用</div>'
@@ -6098,6 +6616,14 @@ function renderDocHome() {
     + '<div class="dt-priv">🔒 檔案只在你的瀏覽器裡解析，<b>不會上傳到任何伺服器</b>，關掉網頁就消失。</div>'
     + '</div>';
   bindPicker();
+  bindNet();
+}
+
+function bindNet() {
+  const p = $('#btnPaste'); if (p) p.onclick = function () {
+    const box = $('#netPaste'); if (box) box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  };
+  const pg = $('#btnPasteGo'); if (pg) pg.onclick = function () { loadPaste($('#netText').value); };
 }
 
 function renderDocBusy(name, msg) {
@@ -6113,20 +6639,78 @@ function renderDocError(name, msg) {
   $('#doc').innerHTML = '<div class="card"><div class="sec">'
     + '<div class="sec-h">⚠️ 無法開啟「' + esc(name) + '」</div>'
     + '<div class="note-box" style="white-space:pre-wrap">' + esc(msg) + '</div>'
-    + '<div style="margin-top:14px"><button class="btn" id="btnRetry">← 重新選擇檔案</button></div>'
+    + '<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">'
+    + '<button class="btn" id="btnRetry">← 重新選擇檔案</button>'
+    + '<button class="btn btn-speak" id="btnToPaste">📋 貼上文字</button>'
+    + '</div>'
     + '</div></div>';
   const b = $('#btnRetry');
   if (b) b.onclick = renderDocHome;
+  const bp = $('#btnToPaste');
+  if (bp) bp.onclick = openPaste;
 }
 
-function renderDoc() {
+/* ============================================================
+   捲動位置記憶：切到別的功能再回來時，停在剛剛讀到的地方
+   ============================================================ */
+const docScroll = { y: 0, side: 0, saved: false };
+
+/* 把視窗與左欄單詞卡捲到指定位置。
+   重繪／切頁後高度可能還沒穩定，短時間內補幾次；
+   但使用者一有手動捲動（滾輪／觸控滑動／方向鍵）就停止補正，不跟使用者搶。 */
+let restoreGen = 0;
+function restoreScrollTo(y, side) {
+  const gen = ++restoreGen;
+  const apply = function () {
+    if (gen !== restoreGen) return;
+    try { window.scrollTo(0, y); } catch (e) { }
+    const p = $('#docDetail');
+    if (p) p.scrollTop = side;
+  };
+  apply();
+  setTimeout(apply, 60);
+  setTimeout(apply, 200);
+  const cancel = function () { restoreGen++; };
+  window.addEventListener('wheel', cancel, { passive: true });
+  window.addEventListener('touchmove', cancel, { passive: true });
+  window.addEventListener('keydown', cancel, { passive: true });
+  setTimeout(function () {
+    window.removeEventListener('wheel', cancel);
+    window.removeEventListener('touchmove', cancel);
+    window.removeEventListener('keydown', cancel);
+  }, 400);
+}
+
+/* 離開文件閱讀前呼叫：記住讀到哪裡（視窗位置＋左欄單詞卡捲動） */
+function saveDocScroll() {
+  const p = $('#docDetail');
+  docScroll.side = p ? p.scrollTop : 0;
+  docScroll.y = window.scrollY || window.pageYOffset || 0;
+  docScroll.saved = true;
+}
+
+/* 回到文件閱讀時呼叫：還原上次的位置，不回到頁頂 */
+function restoreDocScroll() {
+  if (!docScroll.saved) return;
+  restoreScrollTo(docScroll.y, docScroll.side);
+}
+
+function renderDoc(keep) {
   const root = $('#doc');
   if (!root) return;
   if (!DOC.ready) { renderDocHome(); return; }
 
+  /* 內部操作（改字級／標色／生詞表／清除搜尋）會整份重繪，
+     先把目前讀到的位置記下來，重繪後還原，避免跳回文件頂部 */
+  const had = !!keep && !!$('.doc-text', root);
+  const keepY = had ? (window.scrollY || window.pageYOffset || 0) : 0;
+  const keepSide = (function () {
+    const p = $('#docDetail', root);
+    return (had && p) ? p.scrollTop : 0;
+  })();
+
   const pg = DOC.pages[DOC.page] || { start: 0, end: DOC.blocks.length };
   const nBook = DOC.hard.filter(function (x) { return state.book.has(x.w); }).length;
-  const nIelts = DOC.hard.filter(function (x) { return !!IELTS_MAP[x.w]; }).length;
 
   let h = '';
   /* ---- 工具列 ---- */
@@ -6134,7 +6718,7 @@ function renderDoc() {
     + '<div class="doc-meta"><b>' + esc(DOC.name) + '</b>'
     + '<span class="dk">' + esc(DOC.kind) + '</span>'
     + '<span class="muted small">' + DOC.words.toLocaleString() + ' 詞 · '
-    + DOC.blocks.length.toLocaleString() + ' 段 · 生詞 ' + DOC.hard.length + ' · 其中雅思詞 ' + nIelts + '</span></div>'
+    + DOC.blocks.length.toLocaleString() + ' 段 · 生詞 ' + DOC.hard.length + '</span></div>'
     + '<div class="doc-ops">'
     + '<button class="btn btn-sm" data-op="font-">A−</button>'
     + '<button class="btn btn-sm" data-op="font+">A＋</button>'
@@ -6170,15 +6754,18 @@ function renderDoc() {
     h += '</div>';
   }
 
-  /* ---- 內文 ---- */
+  /* ---- 內文：左欄＝單詞卡，右欄＝文章 ---- */
+  DOC._occ = 0;
   const isSub = DOC.kind.indexOf('字幕') >= 0;
-  h += '<div class="doc-wrap"><div class="doc-pane"><div class="doc-text' + (isSub ? ' is-sub' : '') + '" style="font-size:' + DOC.fontSize + 'px">';
+  h += '<div class="doc-wrap">'
+    + '<div class="doc-side" id="docDetail">' + (($('#docDetail') && $('#docDetail').innerHTML) ? $('#docDetail').innerHTML : sideHintHTML()) + '</div>'
+    + '<div class="doc-pane">'
+    + '<div class="doc-text' + (isSub ? ' is-sub' : '') + '" style="font-size:' + DOC.fontSize + 'px">';
   for (let i = pg.start; i < pg.end; i++) h += blockHTML(DOC.blocks[i], i);
   h += '</div>';
   /* 不分頁：整份文件一次顯示，直接往下捲到底 */
   h += '<div class="doc-end">—— 已到文件結尾 · 共 ' + DOC.blocks.length.toLocaleString() + ' 段 ——</div>';
-  h += '</div><div class="doc-side" id="docDetail">' + (($('#docDetail') && $('#docDetail').innerHTML) ? $('#docDetail').innerHTML : sideHintHTML()) + '</div>';
-  h += '</div>';
+  h += '</div></div>';
 
   root.innerHTML = h;
 
@@ -6187,6 +6774,10 @@ function renderDoc() {
   if (side && DOC.cur && $('.word-card', side)) bindWordCard(DOC.cur, side);
 
   bindDoc();
+  // 開檔／重新渲染後同步生詞底色（含組合詞整組連續標亮）
+  remarkDoc();
+  // 內部重繪後回到原本的閱讀位置（改字級／標色等不會跳回頂部）
+  if (had) restoreScrollTo(keepY, keepSide);
 }
 
 function bindPicker() {
@@ -6231,12 +6822,12 @@ function bindDoc() {
         saveBook(); renderBookCount();
         toast('已把 ' + DOC.hard.length + ' 個生詞加入生詞本');
       }
-      renderDoc();
+      renderDoc(true);
     };
   });
 
   const cf = $('[data-op="clearfind"]', root);
-  if (cf) cf.onclick = function () { DOC.find = ''; renderDoc(); };
+  if (cf) cf.onclick = function () { DOC.find = ''; renderDoc(true); };
 
   const fi = $('#docFind', root);
   if (fi) {
@@ -6246,7 +6837,7 @@ function bindDoc() {
       t = setTimeout(function () {
         DOC.find = fi.value.trim();
         DOC.page = 0;
-        renderDoc();
+        renderDoc(true);
         const el = $('#docFind');
         if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
       }, 260);
@@ -6255,7 +6846,10 @@ function bindDoc() {
 
   const text = $('.doc-text', root);
   if (text) {
+    let dragJust = false;
+
     text.onclick = function (e) {
+      if (dragJust) { dragJust = false; return; }   // 剛完成拖曳連選，這次 click 不處理點字
       const sp = e.target.closest('[data-speak]');
       if (sp) {
         const b = DOC.blocks[+sp.dataset.speak];
@@ -6268,8 +6862,41 @@ function bindDoc() {
         return;
       }
       const tk = e.target.closest('.tk');
-      if (tk) showDocWord(tk.dataset.w, tk);
+      if (tk) showDocWord(tk.dataset.grp || tk.dataset.w, tk);
     };
+
+    /* ---- 拖曳連選：拖過一段文字，鬆手後浮出「提取單字」按鈕 ---- */
+    const dragBtn = ensureDragBtn();
+    text.addEventListener('mouseup', function () {
+      setTimeout(function () {
+        const sel = window.getSelection();
+        if (!sel || sel.isCollapsed || !sel.rangeCount) { hideDragBtn(); return; }
+        const range = sel.getRangeAt(0);
+        if (range.collapsed) { hideDragBtn(); return; }
+        const tks = $$('.tk', text).filter(function (tk) {
+          try { return range.intersectsNode(tk); } catch (e) { return false; }
+        });
+        const seen = {}, words = [];
+        tks.forEach(function (tk) {
+          const w = tk.dataset.w;
+          if (w && !seen[w]) { seen[w] = 1; words.push(w); }
+        });
+        if (words.length < 2) { hideDragBtn(); return; }  // 只點/選一個字不算連選
+        dragJust = true;
+        setTimeout(function () { dragJust = false; }, 600);  // 安全網：若沒有 click 跟著觸發也重置
+        showDragBtn(range, words);
+      }, 0);
+    });
+    dragBtn.onclick = function () {
+      dragJust = false;
+      const words = dragBtn._words || [];
+      hideDragBtn();
+      const sel = window.getSelection();
+      if (sel) sel.removeAllRanges();
+      if (words.length) openWordNoteModal(words);
+    };
+    const pane = $('.doc-pane', root);
+    if (pane) pane.addEventListener('scroll', hideDragBtn, { passive: true });
   }
 
   const hg = $('.hard-grid', root);
@@ -6277,23 +6904,53 @@ function bindDoc() {
     hg.onclick = function (e) {
       const hw = e.target.closest('.hw');
       if (!hw) return;
-      if (e.shiftKey) { toggleBook(hw.dataset.w); renderDoc(); return; }
+      if (e.shiftKey) { toggleBook(hw.dataset.w); renderDoc(true); return; }
       showDocWord(hw.dataset.w);
     };
   }
+
 }
 
 function resetDoc() {
   DOC.name = ''; DOC.kind = ''; DOC.blocks = []; DOC.pages = [];
   DOC.page = 0; DOC.words = 0; DOC.hard = []; DOC.find = ''; DOC.biCount = 0;
   DOC.showHard = false; DOC.ready = false; DOC.cur = '';
+  docScroll.saved = false;
   const side = $('#docDetail'); if (side) side.innerHTML = '';
   renderDocHome();
+}
+
+/* 貼上文字：最穩定、不依賴任何第三方 */
+function loadPaste(text) {
+  text = (text || '').trim();
+  if (!text) { toast('請先貼上文字'); return; }
+  loadBlocks('貼上的文字', '純文字', parsePlain(text));
 }
 
 /* 點內文單詞 → 在右側面板顯示完整單詞卡
    srcEl：實際被點到的那個字（可省略）。畫面完全不捲動，
    只有當「點的那個字」剛好被 header 遮住時才微調，避免跳到文件其他位置的相同單詞。 */
+/* 取某個 .tk 所在段落（字幕句）的文字，作為單詞卡的例句。
+   雙語字幕會同時回傳英文行與中文行（{en, zh}）；單語則回傳純文字字串。 */
+function docExampleOf(el) {
+  if (!el) return '';
+  const blk = el.closest('.dk-block');
+  if (!blk) return '';
+  const en = blk.querySelector('.dk-en');
+  const zh = blk.querySelector('.dk-zh');
+  if (en && zh) {
+    const e = (en.textContent || '').replace(/\s+/g, ' ').trim()
+      .replace(/^\d{1,2}:\d{2}:\d{2}[,\.]\d{1,3}\s*/, '').trim();
+    const z = (zh.textContent || '').replace(/\s+/g, ' ').trim();
+    return { en: e, zh: z };
+  }
+  const node = en || blk;
+  let s = (node.textContent || '').replace(/\s+/g, ' ').trim();
+  // 去掉開頭的時間碼（如 00:01:23,450）
+  s = s.replace(/^\d{1,2}:\d{2}:\d{2}[,\.]\d{1,3}\s*/, '').trim();
+  return s;
+}
+
 function showDocWord(raw, srcEl) {
   const w = wordKey(raw);
   if (!w) return;
@@ -6301,13 +6958,24 @@ function showDocWord(raw, srcEl) {
   pushHistory(w);
   const root = $('#docDetail');
   if (!root) return;
-  root.innerHTML = buildWordCard(w);
+  // 例句來源：點到的那個字所在段落；若沒傳來源（如從生詞表點）就用本文第一個同詞
+  let src = srcEl;
+  if (!src) { const text = $('.doc-text'); if (text) src = $('.tk[data-w="' + w + '"]', text); }
+  const ex = docExampleOf(src);
+  DOC.curEx = ex;
+  root.innerHTML = buildWordCard(w, ex);
   bindWordCard(w, root);
   loadApi(w, root);
   const text = $('.doc-text');
   if (text) {
     $$('.tk.tk-on', text).forEach(function (x) { x.classList.remove('tk-on'); });
-    $$('.tk[data-w="' + w + '"]', text).forEach(function (x) { x.classList.add('tk-on'); });
+    const grp = (srcEl && srcEl.dataset) ? srcEl.dataset.grp : '';
+    if (grp) {
+      // 組合詞：整組連續的 token 都標為「當前查詢」
+      $$('.tk[data-grp="' + grp.replace(/"/g, '\\"') + '"]', text).forEach(function (x) { x.classList.add('tk-on'); });
+    } else {
+      $$('.tk[data-w="' + w + '"]', text).forEach(function (x) { x.classList.add('tk-on'); });
+    }
   }
   root.scrollTop = 0;
   // 不主動捲動頁面；只有「被點到的那一個字」被 header 擋住時才往下讓它露出
@@ -6320,12 +6988,176 @@ function showDocWord(raw, srcEl) {
 function remarkDoc() {
   const text = $('.doc-text');
   if (!text) return;
-  $$('.tk', text).forEach(function (el) {
+  // 生詞表「單字」條目（不含空格，如 apple）才逐字標亮；
+  // 「組合詞」（含空格，如 the sky）不再逐字標，必須整組（2+ 單字）依序連續出現才標。
+  // 例：生詞表有 "the sky"，文中只有 the 或只有 sky 都不標，要 the 緊接 sky 才標。
+  const singleBook = {};
+  state.book.forEach(function (w) { if (!/\s/.test(w)) singleBook[wordKey(w)] = 1; });
+  // 組合詞（組成單字 ≥ 2）清單，用來做「整組連續」比對
+  const phraseGroups = (state.bookGroups || []).filter(function (g) {
+    return (g.words || []).length >= 2;
+  });
+  const tks = $$('.tk', text);
+  // 1) 先清掉舊底色，處理「單字條目」＋「難詞標記」
+  tks.forEach(function (el) {
     const k = el.dataset.w;
     el.classList.remove('tk-book', 'tk-hard', 'tk-ielts', 'tk-awl', 'tk-verb');
-    const kind = DOC.mark ? wordKind(k) : (state.book.has(k) ? 'tk-book' : '');
+    delete el.dataset.grp;
+    const kind = DOC.mark ? wordKind(k) : (singleBook[k] ? 'tk-book' : '');
     if (kind) el.classList.add(kind);
   });
+  // 2) 再處理組合詞：整組（2+ 單字）依序連續出現才標亮，並標記 data-grp 供點擊查詢
+  phraseGroups.forEach(function (g) {
+    const ws = (g.words || []).map(wordKey);
+    const phrase = gText(g);
+    const n = ws.length;
+    if (n < 2) return;
+    for (let i = 0; i + n <= tks.length; ) {
+      let ok = true;
+      for (let j = 0; j < n; j++) {
+        if (tks[i + j].dataset.w !== ws[j]) { ok = false; break; }
+      }
+      if (ok) {
+        for (let j = 0; j < n; j++) {
+          tks[i + j].classList.add('tk-book');
+          tks[i + j].dataset.grp = phrase;
+        }
+        i += n;   // 跳過這組，避免與下一組重疊
+      } else {
+        i++;
+      }
+    }
+  });
+}
+
+/* ============================================================
+   拖曳連選：選取單詞 → 一次寫意思加入生詞本
+   ============================================================ */
+
+/* 拖曳連選用的浮動「提取單字」按鈕（全站共用一個，掛在 body 上） */
+function ensureDragBtn() {
+  let b = $('#selDragBtn');
+  if (!b) {
+    b = document.createElement('button');
+    b.id = 'selDragBtn';
+    b.className = 'sel-drag-btn';
+    b.type = 'button';
+    document.body.appendChild(b);
+    document.addEventListener('selectionchange', function () {
+      const s = window.getSelection();
+      if (!s || s.isCollapsed || !s.toString().trim()) hideDragBtn();
+    });
+    /* .doc-pane 本身沒有 overflow（文件是整頁捲動），原本只監聽 pane 的 scroll
+       永遠不會觸發；補上 window scroll，捲動時就讓浮動按鈕收起 */
+    if (!ensureDragBtn._winBound) {
+      ensureDragBtn._winBound = 1;
+      window.addEventListener('scroll', hideDragBtn, { passive: true });
+    }
+  }
+  return b;
+}
+function showDragBtn(range, words) {
+  const b = ensureDragBtn();
+  b._words = words;
+  b.textContent = '📎 提取 ' + words.length + ' 個單字';
+  b.classList.add('show');
+  const r = range.getBoundingClientRect();
+  const bw = b.offsetWidth, bh = b.offsetHeight;
+  let left = r.left;
+  let top = r.bottom + 6;
+  if (r.bottom + bh + 14 > window.innerHeight) top = r.top - bh - 6;  // 太貼底就浮在選取上方
+  left = Math.max(8, Math.min(left, window.innerWidth - bw - 8));
+  b.style.left = left + 'px';
+  b.style.top = top + 'px';
+}
+function hideDragBtn() {
+  const b = $('#selDragBtn');
+  if (b) b.classList.remove('show');
+}
+
+/* 彈出方框：把選到的詞合併成一個新單詞，只寫「一個」意思 */
+function openWordNoteModal(words) {
+  if (!words || !words.length) return;
+  closeWordNoteModal();
+  const ov = document.createElement('div');
+  ov.className = 'modal-ov';
+  ov.id = 'noteModal';
+  const combined = words.join(' ');
+  const parts = words.map(function (w) { return '<b>' + esc(w) + '</b>'; }).join(' · ');
+  ov.innerHTML =
+    '<div class="modal-card">'
+    + '<button class="modal-x" id="nnClose" title="關閉">×</button>'
+    + '<div class="modal-h">✏️ 把這 ' + words.length + ' 個詞合併成一個新單詞</div>'
+    + '<div class="modal-sub">下方會組成一個新詞條，你只需要寫「一個」意思（查詞卡會把組成單詞分開顯示，不會黏在一起）。</div>'
+    + '<div class="nn-field"><label class="nn-label">新單詞（可修改）</label>'
+    + '<input class="nn-word" id="nnWord" type="text" value="' + esc(combined) + '"></div>'
+    + '<div class="nn-field"><label class="nn-label">意思</label>'
+    + '<input class="nn-mean" id="nnMean" type="text" placeholder="寫下這個詞的意思…"></div>'
+    + '<div class="nn-parts">由：' + parts + '</div>'
+    + '<div class="modal-ops">'
+    + '<button class="btn" id="nnSkip">直接加入（不寫意思）</button>'
+    + '<button class="btn btn-speak" id="nnSave">儲存並加入生詞本</button>'
+    + '</div>'
+    + '</div>';
+  document.body.appendChild(ov);
+
+  const wordInput = $('#nnWord', ov);
+  const meanInput = $('#nnMean', ov);
+  // 預填已存在的自訂意思（以整組合詞為準；否則用第一個詞的釋義當提示）
+  if (state.notes && state.notes[combined]) meanInput.value = state.notes[combined];
+  else if (state.notes && state.notes[words[0]]) meanInput.value = state.notes[words[0]];
+  meanInput.focus();
+
+  ov.addEventListener('click', function (e) { if (e.target === ov) closeWordNoteModal(); });
+  const onKey = function (e) { if (e.key === 'Escape') closeWordNoteModal(); };
+  document.addEventListener('keydown', onKey);
+  ov._onKey = onKey;
+
+  $('#nnClose', ov).onclick = closeWordNoteModal;
+  const commit = function (withMean) {
+    const text = wordInput.value.trim() || combined;
+    const note = withMean ? meanInput.value.trim() : '';
+    doAddWords(words, text, note);
+    closeWordNoteModal();
+  };
+  $('#nnSkip', ov).onclick = function () { commit(false); };
+  $('#nnSave', ov).onclick = function () { commit(true); };
+}
+
+function closeWordNoteModal() {
+  const ov = $('#noteModal');
+  if (ov) {
+    if (ov._onKey) document.removeEventListener('keydown', ov._onKey);
+    ov.remove();
+  }
+}
+
+/* 多選的詞組成「一個新單詞」收進生詞本：只有一個意思，不分開成多個詞。
+   同時記錄來源字幕句作為例句（取第一個選到的詞所在字幕句當代表）。 */
+function doAddWords(words, text, note) {
+  if (!words || !words.length) return;
+  if (!state.bookGroups) state.bookGroups = [];
+  const t = (text || words.join(' ')).trim();
+  // 從本文抓每個詞的第一個出現處作為例句（雙語含英文＋中文行）
+  const exMap = {};
+  const textEl = $('.doc-text');
+  words.forEach(function (w) {
+    if (exMap[w]) return;
+    const el = textEl ? $('.tk[data-w="' + w + '"]', textEl) : null;
+    exMap[w] = docExampleOf(el);
+  });
+  const repEx = exMap[words[0]] || '';
+  state.bookGroups.push({ words: words.slice(), text: t, note: note || '', ex: repEx });
+  state.book.add(t);
+  if (note) state.notes[t] = note;
+  if (repEx) { state.bookEx[t] = repEx; saveBookEx(); }
+  if (typeof trackStat === 'function') trackStat('s', words.length);
+  saveBookGroups();
+  saveBook();
+  saveNotes();
+  toast('已合併成新單詞「' + t + '」收進生詞本' + (note ? '（含意思）' : '') + (repEx ? '（含例句）' : ''));
+  if (state.tab === 'book') renderBook();
+  if (typeof remarkDoc === 'function' && state.tab === 'doc') remarkDoc();
 }
 
 </script>
