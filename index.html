@@ -490,6 +490,57 @@ header{
   cursor:pointer;font-size:17px;line-height:1;padding:2px 5px;border-radius:5px;font-family:inherit}
 .bi-x:hover{color:#dc2626;background:#fef2f2}
 
+/* 生詞本排序切換（最新加入 / A–Z） */
+.sort-seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--card)}
+.sort-seg .btn{border:0;border-radius:0;box-shadow:none;background:transparent;padding:5px 11px}
+.sort-seg .btn.on{background:var(--pri);color:#fff}
+/* 生詞本分欄：左清單（其他單字）＋右詳情（選中單字） */
+/* 生詞本：左右分欄，與「🔍查詞與表達」的 .split 一致（左＝清單，右＝詳情白底面板） */
+.book-split{display:grid;grid-template-columns:minmax(0,1fr) 460px;gap:16px;align-items:stretch}
+.book-left{min-width:0}
+.book-left-head{font-size:12.5px;color:var(--muted);margin:1px 3px 9px;font-weight:600}
+.book-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:9px}
+.book-list .book-item .bi-main{min-height:0;padding:8px 26px 8px 11px}
+/* 右欄：白底面板（跟左邊等高），與搜尋頁 .split-side 一致 */
+.book-right{
+  display:flex;flex-direction:column;min-height:0;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+}
+.book-right::-webkit-scrollbar{width:8px}
+.book-right::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:99px}
+.book-right .word-card{
+  flex:1 0 auto;display:flex;flex-direction:column;min-height:0;
+  margin-top:0;box-shadow:none;border:0;background:transparent;border-radius:0;
+  position:sticky;top:calc(var(--hd) + var(--hdgap));
+  max-height:calc(100vh - var(--hd) - var(--hdgap) * 2);overflow:auto;scrollbar-width:thin;
+}
+.book-right-head{padding:10px 12px 0}
+.book-right-head .btn{cursor:pointer}
+.book-right .wc-top{padding:16px 16px 12px}
+.book-right .wc-word{font-size:31px}
+.book-right .sec{padding:13px 16px}
+.book-right .mp{min-width:60px;padding:5px 9px 6px}
+.book-right .mp-t{font-size:16px}
+.book-ex-box{margin-top:12px;padding:12px 14px}
+.book-ex-box .sec-h{font-size:13px;color:var(--muted);margin-bottom:4px;font-weight:600}
+/* 窄螢幕：堆疊，右欄變成普通卡片（跟搜尋頁一致） */
+@media(max-width:1100px){
+  /* 手機／小螢幕：生詞本在「已選中」分欄模式下改為真正的左右並排（左＝單字清單，右＝詳情）；
+     未選中（預設）時仍是普通網格，不分欄 */
+  .book-split{grid-template-columns:minmax(120px,38%) 1fr;gap:10px;align-items:start}
+  .book-left{max-height:calc(100vh - 190px);overflow:auto;-webkit-overflow-scrolling:touch}
+  .book-list{grid-template-columns:1fr;gap:7px}
+  .book-list .book-item .bi-main{padding:7px 24px 7px 10px}
+  .book-right{
+    display:block;background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    max-height:none;overflow:visible;
+  }
+  .book-right .word-card{
+    position:static;max-height:none;overflow:visible;
+    background:transparent;border:0;border-radius:0;box-shadow:none;margin-top:0;
+  }
+}
+
 /* 多選合併：幾個詞組成「一個新單詞」，與普通單詞一樣大小排進同一個網格 */
 .book-item.merged{}
 
@@ -4236,6 +4287,9 @@ const state = {
   mode: 'start',
   scope: 'all',
   book: new Set(JSON.parse(localStorage.getItem(LS.book) || '[]')),
+  // 生詞本分欄：目前選中（在右欄顯示詳情）的詞 key；以及排序方式
+  bookSel: '',            // '' 表示未選（不分欄，顯示全部網格；點擊單字才進入左右分欄）
+  bookSort: 'newest',     // 'newest' 最新加入（最新在上）/ 'az' 按 A–Z
   history: JSON.parse(localStorage.getItem(LS.hist) || '[]'),
   current: '',
   api: null,
@@ -5264,6 +5318,13 @@ async function loadApi(w, root) {
 /* ---------------- 生詞本 ---------------- */
 function toggleBook(w, ex) {
   w = String(w).toLowerCase().replace(/[^a-z]/g, '');
+  // 合併詞條（如 "break up"）的收藏是以「整組」形式存在 bookGroups，
+  // 直接從 book 刪 key 會留下孤兒 group，所以改走 removeGroup 整張移除
+  const g = bookGroupOf(w);
+  if (g) {
+    const gi = (state.bookGroups || []).indexOf(g);
+    if (gi >= 0) { removeGroup(gi); return; }
+  }
   if (state.book.has(w)) {
     state.book.delete(w);
     delete state.bookEx[w];
@@ -5484,66 +5545,115 @@ function bookExHTML(key) {
   return h;
 }
 
+/* 生詞本單張卡片（網格視圖與分欄左清單共用）。
+   compact=true 時不顯示例句（分欄左清單用，卡片較扁）；
+   compact=false 時顯示例句（網格視圖用，與舊版生詞卡一致）。 */
+function bookItemHTML(k, compact, grouped) {
+  const isG = grouped.has(k);
+  const g = isG ? bookGroupOf(k) : null;
+  const t = isG ? gText(g) : k;
+  const note = isG ? gNote(g) : glossOf(k);
+  let ipa = '••••';
+  if (!state.quiz) {
+    if (isG) {
+      const parts = (g.words || []).map(function (x) {
+        const b = bestIPA(x), r = analyze(x);
+        return b ? (state.dialect === 'ga' ? b.ga : b.rp) : (state.dialect === 'ga' ? r.ipaGA : r.ipaRP);
+      }).filter(Boolean);
+      if (parts.length) ipa = '/' + parts.join(' ') + '/';
+    } else {
+      const b = bestIPA(k), r = analyze(k);
+      ipa = '/' + (b ? (state.dialect === 'ga' ? b.ga : b.rp) : (state.dialect === 'ga' ? r.ipaGA : r.ipaRP)) + '/';
+    }
+  }
+  let h = '<div class="book-item' + (isG ? ' merged' : '') + '">'
+    + '<button class="bi-main" data-w="' + esc(t) + '">'
+    + '<span class="ri-w">' + esc(t) + '</span>'
+    + (state.quiz || ipa !== '••••' ? '<span class="ri-p">' + esc(ipa) + '</span>' : '')
+    + (note ? '<span class="ri-g">' + esc(note) + '</span>' : '')
+    + (compact ? '' : bookExHTML(k))
+    + '</button>';
+  if (isG) {
+    const gi = (state.bookGroups || []).indexOf(g);
+    h += '<button class="bi-x" data-group="' + gi + '" title="移除整張卡片">×</button>';
+  } else {
+    h += '<button class="bi-x" data-del="' + esc(k) + '" title="移除">×</button>';
+  }
+  h += '</div>';
+  return h;
+}
+
 function renderBook() {
   const grouped = groupedWords();
-  const individuals = [...state.book].filter(function (w) { return !grouped.has(w); });
   const nG = (state.bookGroups || []).length;
+
+  // 統一排序：所有 key（含合併詞 text）依 state.book 的插入順序
+  let keys = [...state.book];
+  if (state.bookSort === 'az') {
+    keys = keys.slice().sort(function (a, b) { return a.localeCompare(b); });
+  } else {
+    // 最新加入：最新在最上面（插入順序反轉）
+    keys = keys.slice().reverse();
+  }
+  // 選中項若已不在生詞本，視為未選（回到不分欄的網格視圖）
+  if (state.bookSel && !state.book.has(state.bookSel)) state.bookSel = '';
+
   let h = `<div class="book-bar">
     <span>共 <b>${state.book.size}</b> 個生詞${nG ? ' · ' + nG + ' 張合併卡' : ''}</span>
     <span class="book-ops">
+      <span class="sort-seg" role="group" aria-label="排序方式">
+        <button class="btn btn-sm ${state.bookSort === 'newest' ? 'on' : ''}" data-sort="newest">最新加入</button>
+        <button class="btn btn-sm ${state.bookSort === 'az' ? 'on' : ''}" data-sort="az">A–Z</button>
+      </span>
       <button class="btn btn-sm" id="btnQuiz">${state.quiz ? '顯示音標' : '遮住音標自測'}</button>
       <button class="btn btn-sm" id="btnExport">匯出 CSV</button>
       <button class="btn btn-sm btn-danger" id="btnClear">清空</button>
     </span></div>`;
+
   if (!state.book.size) {
     h += '<div class="empty">還沒有收藏任何單詞。查詞時按「☆ 收進生詞本」就會出現在這裡；在「📖 文件閱讀」用滑鼠拖過一段文字（拖曳連選），鬆手後按「📎 提取單字」可把幾個詞合併成一個新單詞（只寫一個意思），收進生詞本，查詞卡會把組成單詞分開顯示。</div>';
+  } else if (!state.bookSel) {
+    // 未選中（預設）：不分欄，顯示全部生詞的網格卡片；點一下單字才進入分欄
+    h += '<div class="res-grid">' + keys.map(function (k) { return bookItemHTML(k, false, grouped); }).join('') + '</div>';
   } else {
-    // 多選合併：幾個詞組成「一個新單詞」，收在同一張生詞卡片（只有一個意思）。
-    // 與普通單詞一樣排進 .res-grid 網格裡，大小相同（不橫跨、不獨佔一行）。
-    const merged = (state.bookGroups || []).map(function (g, idx) {
-      const t = gText(g);
-      const note = gNote(g);
-      let ipa = '••••';
-      if (!state.quiz) {
-        const parts = (g.words || []).map(function (w) {
-          const b = bestIPA(w); const r = analyze(w);
-          const raw = b ? (state.dialect === 'ga' ? b.ga : b.rp) : (state.dialect === 'ga' ? r.ipaGA : r.ipaRP);
-          return raw || '';
-        }).filter(Boolean);
-        if (parts.length) ipa = '/' + esc(parts.join(' ')) + '/';
-      }
-      return '<div class="book-item merged">'
-        + '<button class="bi-main" data-w="' + esc(t) + '">'
-        + '<span class="ri-w">' + esc(t) + '</span>'
-        + (state.quiz || ipa !== '••••' ? '<span class="ri-p">' + ipa + '</span>' : '')
-        + (note ? '<span class="ri-g">' + esc(note) + '</span>' : '')
-        + bookExHTML(t)
-        + '</button>'
-        + '<button class="bi-x" data-group="' + idx + '" title="移除整張卡片">×</button>'
-        + '</div>';
-    });
-    // 單獨收藏的詞
-    const indiv = individuals.map(function (w) {
-      const r = analyze(w);
-      const b = bestIPA(w);
-      const g = glossOf(w);
-      const ipa = state.quiz ? '••••' : '/' + esc(b ? (state.dialect === 'ga' ? b.ga : b.rp) : (state.dialect === 'ga' ? r.ipaGA : r.ipaRP)) + '/';
-      return `<div class="book-item">
-        <button class="bi-main" data-w="${esc(w)}">
-          <span class="ri-w">${esc(w)}</span>
-          <span class="ri-p">${ipa}</span>
-          ${g ? `<span class="ri-g">${esc(g)}</span>` : ''}
-          ${bookExHTML(w)}
-        </button>
-        <button class="bi-x" data-del="${esc(w)}" title="移除">×</button>
-      </div>`;
-    });
-    h += '<div class="res-grid">' + merged.concat(indiv).join('') + '</div>';
+    // 已選中：左右分欄（左＝其他單字，右＝選中單字詳情）
+    const others = keys.filter(function (k) { return k !== state.bookSel; });
+    h += '<div class="book-split">';
+    h += '<div class="book-left"><div class="book-left-head">其他單字 · ' + others.length + ' 個（點一下看右邊詳情）</div><div class="book-list">';
+    h += others.map(function (k) { return bookItemHTML(k, true, grouped); }).join('');
+    h += '</div></div>';
+    h += '<div class="book-right" id="bookRight"></div>';
+    h += '</div>';
   }
   $('#book').innerHTML = h;
-  $$('#book .bi-main').forEach(b => b.onclick = () => { switchTab('search'); showWord(b.dataset.w); });
+
+  // 右欄詳情（複用查詞卡 buildWordCard）＋「返回生詞列表」鈕
+  const right = $('#bookRight');
+  if (right && state.bookSel) {
+    right.innerHTML = '<div class="book-right-head"><button class="btn btn-sm" data-back>← 返回生詞列表</button></div>' + buildWordCard(state.bookSel);
+    bindWordCard(state.bookSel, right);
+    if (typeof loadApi === 'function') loadApi(state.bookSel, right);
+    // 生詞本「來源字幕例句」在查詞卡裡不顯示，這裡補回（與舊版生詞卡一致）
+    const ex = bookExHTML(state.bookSel);
+    if (ex) {
+      const box = document.createElement('div');
+      box.className = 'card book-ex-box';
+      box.innerHTML = '<div class="sec-h">📝 例句（來源字幕）</div>' + ex;
+      right.appendChild(box);
+    }
+  }
+
+  // 點擊生詞卡：進入分欄（右欄顯示該詞詳情）；從網格進入分欄時回到頂部看見右欄
+  $$('#book .bi-main').forEach(b => b.onclick = () => {
+    const wasSplit = !!state.bookSel;
+    state.bookSel = b.dataset.w;
+    renderBook();
+    if (!wasSplit) window.scrollTo(0, 0);
+  });
   $$('#book .bi-x[data-del]').forEach(b => b.onclick = () => toggleBook(b.dataset.del));
   $$('#book .bi-x[data-group]').forEach(b => b.onclick = () => removeGroup(+b.dataset.group));
+  $$('#book [data-sort]').forEach(b => b.onclick = () => { state.bookSort = b.dataset.sort; renderBook(); });
+  $$('#book [data-back]').forEach(b => b.onclick = () => { state.bookSel = ''; renderBook(); });
   const q = $('#btnQuiz'); if (q) q.onclick = () => { state.quiz = !state.quiz; renderBook(); };
   const ex = $('#btnExport'); if (ex) ex.onclick = exportCSV;
   const cl = $('#btnClear'); if (cl) cl.onclick = () => {
