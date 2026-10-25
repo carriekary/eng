@@ -4724,6 +4724,7 @@ function buildWordCard(w, example) {
         <div class="wc-btns">
           <button class="btn btn-speak" data-act="speak" data-w="${esc(w)}" title="朗讀（優先劍橋真人發音）">🔊 朗讀</button>
           <button class="btn ${state.book.has(w) ? 'btn-on' : ''}" data-act="book" data-w="${esc(w)}">${state.book.has(w) ? '★ 已收藏' : '☆ 收進生詞本'}</button>
+          <a class="btn" href="https://www.playphrase.me/#/search?q=${encodeURIComponent(grp ? gText(grp) : w)}&pos=4&language=en" target="_blank" rel="noopener" title="到 PlayPhrase 看含這個詞的電影／劇集片段">🎬 PlayPhrase</a>
         </div>
         <span class="aud-src" title="實際播放的發音來源"></span>
       </div>
@@ -5783,8 +5784,8 @@ function homeLookup(w) {
   if (!w) return;
   switchTab('search');
   const q = $('#q'); if (q) q.value = w;
-  const hit = runSearch(w, state.mode, 1);
-  showWord(hit.length ? hit[0] : w);
+  // 直接查輸入的詞（不再跳到第一個前綴匹配）
+  showWord(w);
 }
 function renderHomeRecent() {
   const el = $('#homeRecent'); if (!el) return;
@@ -5940,8 +5941,8 @@ function init() {
     if (e.key === 'Enter') {
       const v = q.value.trim().toLowerCase().replace(/[^a-z]/g, '');
       if (!v) return;
-      const hit = runSearch(v, state.mode, 1);
-      showWord(hit.length ? hit[0] : v);
+      // 直接查輸入的詞（不再跳到第一個前綴匹配；arm → arm，由引擎做形態／音標分析）
+      showWord(v);
     }
   });
 
