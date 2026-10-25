@@ -283,6 +283,16 @@ header{
 
 /* ---------- Word card ---------- */
 .card{background:var(--card);border-radius:var(--r);border:1px solid var(--line);box-shadow:0 1px 3px rgba(20,25,50,.06);margin-top:18px;overflow:hidden}
+/* 手機收起鈕：預設隱藏，只在文件閱讀的小螢幕才出現 */
+.word-card{position:relative}
+.wc-close{
+  position:absolute;top:8px;right:8px;z-index:4;
+  width:32px;height:32px;border:none;border-radius:50%;
+  background:rgba(15,23,42,.06);color:#475569;font-size:16px;line-height:1;
+  display:none;align-items:center;justify-content:center;cursor:pointer;
+}
+.wc-close:hover{background:rgba(15,23,42,.12)}
+@media(max-width:900px){.doc-side .wc-close{display:inline-flex}}
 .wc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:22px 22px 16px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
 .wc-word{font-size:44px;font-weight:700;letter-spacing:-1px;line-height:1.1}
 .wc-ipa{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}
@@ -4707,6 +4717,7 @@ function buildWordCard(w, example) {
 
   let html = '';
   html += `<section class="card word-card">
+    <button class="wc-close" data-act="close" title="收起並回到剛才的單詞（手機）" aria-label="收起">✕</button>
     <div class="wc-top">
       <div class="wc-left">
         <div class="wc-word">${wTop}</div>
@@ -6008,6 +6019,7 @@ const DOC = {
   bil: true,          // 雙語字幕：英文與中文分行顯示
   biCount: 0,         // 這份檔案裡有幾個雙語段落
   ready: false, cur: '',
+  curSrcEl: null,     // 當前查詞卡是從哪個 .tk 點出來的（手機收回時用來捲回原位）
   _occ: 0             // 渲染時發給每個 .tk 的唯一序號，用來只高亮被點的那一個出現處
 };
 
@@ -6997,10 +7009,31 @@ function showDocWord(raw, srcEl) {
     }
   }
   root.scrollTop = 0;
+  // 記住「是從哪個字點出來的」，手機收回時才能捲回原位
+  DOC.curSrcEl = srcEl || src || null;
   // 不主動捲動頁面；只有「被點到的那一個字」被 header 擋住時才往下讓它露出
   if (srcEl && text && srcEl.isConnected && typeof ensureVisible === 'function') ensureVisible(srcEl, 20);
   // 窄螢幕（單欄）時單詞卡在內文下方，捲過去才看得到
   if (window.innerWidth <= 900 && typeof scrollToEl === 'function') scrollToEl(root, 12);
+  // 手機：點卡片空白處或「✕」鈕 → 收回並回到剛點的單詞位置
+  if (root && !root._docCardBound) {
+    root._docCardBound = true;
+    root.addEventListener('click', function (e) {
+      if (e.target.closest('[data-act="close"]')) { closeDocWordCard(); return; }
+      if (!window.matchMedia('(max-width:900px)').matches) return; // 只在小螢幕生效
+      // 點到按鈕／連結／chip／輸入等互動元件不收回
+      if (e.target.closest('button, a, .wc-w-chip, input, select, .ipa-btn, .syl')) return;
+      closeDocWordCard();
+    });
+  }
+}
+
+/* 手機：收回查詞卡並捲回剛才點的那個單詞（不清除 .tk-on 高亮，方便一眼找到） */
+function closeDocWordCard() {
+  const src = DOC.curSrcEl;
+  const side = $('#docDetail');
+  if (side) side.innerHTML = sideHintHTML();
+  if (src && src.isConnected && typeof ensureVisible === 'function') ensureVisible(src, 20);
 }
 
 /* 生詞本增減後，同步內文底色 */
