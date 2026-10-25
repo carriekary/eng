@@ -883,7 +883,7 @@ header{
           <div class="modes">
             <span class="lbl">搜尋方式</span>
             <button class="mode-btn on" data-m="start">詞首</button>
-            <button class="mode-btn" data-m="contain">詞中（包含）</button>
+            <button class="mode-btn" data-m="contain">詞中</button>
             <button class="mode-btn" data-m="end">詞尾</button>
           </div>
           <div id="modeTip"></div>
@@ -4450,7 +4450,7 @@ function matchWord(w, q, mode) {
   switch (mode) {
     case 'start': return w.indexOf(q) === 0;
     case 'end': return w.length >= q.length && w.lastIndexOf(q) === w.length - q.length;
-    case 'contain': return w.indexOf(q) >= 0;
+    case 'contain': return w.indexOf(q) > 0;   // 詞中：只匹配單詞中間/詞尾，不含詞首（index 0）
     default: return w.indexOf(q) === 0;
   }
 }
@@ -4578,7 +4578,7 @@ function renderResults(list, q, mode) {
   box.innerHTML = html;
 }
 function modeLabel(m) {
-  return { start: '詞首', contain: '詞中（包含）', end: '詞尾' }[m] || m;
+  return { start: '詞首', contain: '詞中', end: '詞尾' }[m] || m;
 }
 
 /* ============================================================
@@ -7015,15 +7015,11 @@ function showDocWord(raw, srcEl) {
   if (srcEl && text && srcEl.isConnected && typeof ensureVisible === 'function') ensureVisible(srcEl, 20);
   // 窄螢幕（單欄）時單詞卡在內文下方，捲過去才看得到
   if (window.innerWidth <= 900 && typeof scrollToEl === 'function') scrollToEl(root, 12);
-  // 手機：點卡片空白處或「✕」鈕 → 收回並回到剛點的單詞位置
+  // 手機：只靠右上角「✕」鈕收回並回到剛點的單詞位置（不再支援點卡片空白處收起）
   if (root && !root._docCardBound) {
     root._docCardBound = true;
     root.addEventListener('click', function (e) {
-      if (e.target.closest('[data-act="close"]')) { closeDocWordCard(); return; }
-      if (!window.matchMedia('(max-width:900px)').matches) return; // 只在小螢幕生效
-      // 點到按鈕／連結／chip／輸入等互動元件不收回
-      if (e.target.closest('button, a, .wc-w-chip, input, select, .ipa-btn, .syl')) return;
-      closeDocWordCard();
+      if (e.target.closest('[data-act="close"]')) closeDocWordCard();
     });
   }
 }
