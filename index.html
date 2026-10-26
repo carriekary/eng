@@ -5821,7 +5821,6 @@ function renderBook() {
       </span>
       <button class="btn btn-sm" id="btnQuiz">${state.quiz ? '顯示音標' : '遮住音標自測'}</button>
       <button class="btn btn-sm" id="btnExport">匯出 CSV</button>
-      <button class="btn btn-sm btn-danger" id="btnClear">清空</button>
     </span></div>`;
 
   if (!state.book.size) {
@@ -5876,10 +5875,6 @@ function renderBook() {
   });
   const q = $('#btnQuiz'); if (q) q.onclick = () => { state.quiz = !state.quiz; renderBook(); };
   const ex = $('#btnExport'); if (ex) ex.onclick = exportCSV;
-  const cl = $('#btnClear'); if (cl) cl.onclick = () => {
-    if (!state.book.size && !nG) return;
-    if (confirm('確定清空生詞本？此動作無法復原。')) { state.book.clear(); state.bookGroups = []; state.bookEx = {}; saveBook(); saveBookGroups(); saveBookEx(); renderBook(); renderBookCount(); }
-  };
 }
 function exportCSV() {
   const rows = [['word', 'ipa_rp', 'ipa_ga', 'syllables']];
