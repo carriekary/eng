@@ -435,6 +435,13 @@ header{
 .dict-ipa-box .dk{font-size:13px;color:var(--muted);margin-right:8px}
 .dict-ipa-box .dv{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:15px;color:#0369a1}
 .gloss-line{font-size:14.5px;color:var(--ink);margin-top:2px}
+/* 單詞卡：原文例句（緊接釋義一齊顯示） */
+.wc-ex{margin-top:11px;padding:9px 12px;background:#f8fafc;border:1px solid var(--line);
+  border-left:3px solid #8b5cf6;border-radius:9px}
+.wc-ex-l{font-size:11px;color:#94a3b8;margin-bottom:4px;letter-spacing:.2px}
+.wc-ex-en{font-size:13px;color:#475569;line-height:1.55;font-family:Georgia,"Noto Serif TC",serif}
+.wc-ex-zh{font-size:12px;color:#94a3b8;line-height:1.5;margin-top:4px}
+.ex-w{color:var(--pri-d);font-weight:700}
 .topic-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
 .ttag{background:#f8fafc;border:1px solid var(--line);border-radius:99px;padding:1px 10px;font-size:12px;color:var(--muted)}
 
@@ -5068,6 +5075,46 @@ function exHL(text, w) {
   return e.replace(re, '<b class="ex-w">$1</b>');
 }
 
+/* 單詞卡要顯示嘅「原文例句」：
+   1) 優先用生詞本存落嚟嘅原文例句（state.bookEx）；
+   2) 冇就用當下傳入嗰句（文件閱讀點中嗰句）。
+   注意組合詞：bookEx 嘅 key 係含空格嘅原文（"break up"），
+   但呢度嘅 w 已被正規化剷咗空格（"breakup"），要經群組原文先查到。 */
+function wordExampleOf(w, example) {
+  const g = bookGroupOf(w);
+  if (g) {
+    const gt = gText(g);
+    if (state.bookEx && state.bookEx[gt]) return state.bookEx[gt];
+    if (g.ex) return g.ex;
+  }
+  if (state.bookEx && state.bookEx[w]) return state.bookEx[w];
+  return example || '';
+}
+
+/* 原文例句 HTML：英文行（目標詞加粗）＋中文行（雙語字幕先有） */
+function wordExHTML(w, example) {
+  const ex = wordExampleOf(w, example);
+  if (!ex) return '';
+  const en = (typeof ex === 'object') ? (ex.en || '') : String(ex);
+  const zh = (typeof ex === 'object') ? (ex.zh || '') : '';
+  if (!en && !zh) return '';
+  // 目標詞加粗：組合詞會逐個組成詞都標
+  const g = bookGroupOf(w);
+  const set = new Set(((g && g.words && g.words.length) ? g.words : [w]).map(x => String(x).toLowerCase()));
+  // 先切字母段再逐段轉義，避免轉義後嘅 &amp; 等被誤當單詞
+  const enHTML = String(en).split(/([A-Za-z]+)/).map(function (p) {
+    if (/^[A-Za-z]+$/.test(p)) {
+      return set.has(p.toLowerCase()) ? '<b class="ex-w">' + esc(p) + '</b>' : esc(p);
+    }
+    return esc(p);
+  }).join('');
+  return '<div class="wc-ex">'
+    + '<div class="wc-ex-l">📝 原文例句</div>'
+    + (en ? '<div class="wc-ex-en">' + enHTML + '</div>' : '')
+    + (zh ? '<div class="wc-ex-zh">' + esc(zh) + '</div>' : '')
+    + '</div>';
+}
+
 function buildWordCard(w, example) {
   state.current = w;
   state.api = null;
@@ -5136,12 +5183,12 @@ function buildWordCard(w, example) {
     if (awlBadge || comBadge || topics) extra = `<div class="topic-tags">${awlBadge}${comBadge}${topics}</div>`;
   }
   // 區塊固定輸出，離線查不到時留空，連網後由線上字典填入
+  // 原文例句（生詞本存嘅／當下本文嗰句）直接跟住釋義一齊顯示
   html += `<div class="sec gloss-sec" style="padding-top:14px;padding-bottom:14px;border-bottom:1px solid var(--line)">
     <div class="gloss-line">${g ? esc(g) : '<span class="muted small">（暫無中文釋義，可點下方「Cambridge 劍橋」看中文解釋）</span>'}</div>
     ${extra}
+    ${wordExHTML(w, example)}
   </div>`;
-
-  // 例句（本文）：已移到生詞本卡片顯示，查詞卡不再重複放。
 
   // 音節：有字典音標時，音標與重音對齊字典（與上方一致）；否則用引擎推測
   const syl = (bi ? dictSyllables(bi, r) : null) ||
@@ -7545,7 +7592,12 @@ function bindDoc() {
     hg.onclick = function (e) {
       const hw = e.target.closest('.hw');
       if (!hw) return;
-      if (e.shiftKey) { toggleBook(hw.dataset.w); renderDoc(true); return; }
+      if (e.shiftKey) {
+        // 快速收藏都要連原文例句一齊存（喺本文搵呢個詞第一次出現嗰句）
+        const hw2 = hw.dataset.w;
+        toggleBook(hw2, docExampleOf(docTokenOf(hw2)));
+        renderDoc(true); return;
+      }
       showDocWord(hw.dataset.w);
     };
   }
@@ -7589,8 +7641,45 @@ function docExampleOf(el) {
   let s = (node.textContent || '').replace(/\s+/g, ' ').trim();
   // 去掉開頭的時間碼（如 00:01:23,450）
   s = s.replace(/^\d{1,2}:\d{2}:\d{2}[,\.]\d{1,3}\s*/, '').trim();
+  // 單篇純文字塊入面會有喇叭鈕（🔊）同時間碼，一併清走
+  s = s.replace(/^🔊\s*/, '').trim();
+  // 純文字一「塊」可能係成段（幾句），例句只要目標詞嗰一句就夠
+  const tk = el ? (el.textContent || '').trim() : '';
+  return sentenceAround(s, tk);
+}
+
+/* 由一段文字入面，抽出含有 needle 嗰一句（搵唔到就回傳原本整段） */
+function sentenceAround(text, needle) {
+  const s = String(text || '').trim();
+  const n = String(needle || '').trim().toLowerCase();
+  if (!n) return s;
+  const parts = s.match(/[^.!?]+[.!?]*/g);
+  if (!parts || parts.length < 2) return s;
+  for (let i = 0; i < parts.length; i++) {
+    if (parts[i].toLowerCase().indexOf(n) >= 0) return parts[i].trim();
+  }
   return s;
 }
+
+/* 喺本文搵出含有某個詞嘅全部 token。
+   重要：片語 token（.tk-phr）係用 data-phr 而唔係 data-w（例如 "break up"
+   整組會出一個 data-phr="break up"），所以單靠 data-w 會搵唔到片語入面嘅字，
+   令「合併成新單詞」抓唔到原文例句。呢度兩邊都認。 */
+function docTokensOf(w) {
+  const textEl = $('.doc-text');
+  if (!textEl || !w) return [];
+  const out = [];
+  const all = textEl.querySelectorAll('.tk');
+  for (let i = 0; i < all.length; i++) {
+    const t = all[i];
+    const key = t.dataset ? (t.dataset.w || t.dataset.phr || '') : '';
+    if (!key) continue;
+    if (key === w || key.split(/\s+/).indexOf(w) >= 0) out.push(t);
+  }
+  return out;
+}
+/* 本文入面某個詞第一次出現嗰個 token */
+function docTokenOf(w) { return docTokensOf(w)[0] || null; }
 
 function showDocWord(raw, srcEl) {
   const w = wordKey(raw);
@@ -7601,7 +7690,7 @@ function showDocWord(raw, srcEl) {
   if (!root) return;
   // 例句來源：點到的那個字所在段落；若沒傳來源（如從生詞表點）就用本文第一個同詞
   let src = srcEl;
-  if (!src) { const text = $('.doc-text'); if (text) src = $('.tk[data-w="' + w + '"]', text); }
+  if (!src) src = docTokenOf(w);
   const ex = docExampleOf(src);
   DOC.curEx = ex;
   root.innerHTML = buildWordCard(w, ex);
@@ -7615,7 +7704,7 @@ function showDocWord(raw, srcEl) {
       // 組合詞：整組連續的 token 都標為「當前查詢」
       $$('.tk[data-grp="' + grp.replace(/"/g, '\\"') + '"]', text).forEach(function (x) { x.classList.add('tk-on'); });
     } else {
-      $$('.tk[data-w="' + w + '"]', text).forEach(function (x) { x.classList.add('tk-on'); });
+      docTokensOf(w).forEach(function (x) { x.classList.add('tk-on'); });
     }
   }
   root.scrollTop = 0;
@@ -7842,11 +7931,9 @@ function doAddWords(words, text, note) {
   const t = (text || words.join(' ')).trim();
   // 從本文抓每個詞的第一個出現處作為例句（雙語含英文＋中文行）
   const exMap = {};
-  const textEl = $('.doc-text');
   words.forEach(function (w) {
     if (exMap[w]) return;
-    const el = textEl ? $('.tk[data-w="' + w + '"]', textEl) : null;
-    exMap[w] = docExampleOf(el);
+    exMap[w] = docExampleOf(docTokenOf(w));
   });
   const repEx = exMap[words[0]] || '';
   state.bookGroups.push({ words: words.slice(), text: t, note: note || '', ex: repEx });
