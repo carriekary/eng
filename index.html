@@ -617,10 +617,11 @@ header{
   background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px 26px;
 }
 .dk-block{position:relative;padding:3px 0}
-.dk-t{display:block}
+/* 保留原文換行：貼上/純文字的單一段落內若含 \n，要照原樣分行，唔好被併成一整段 */
+.dk-t{display:block;white-space:pre-wrap;word-break:break-word}
 /* 雙語字幕：英文一行、中文一行 */
 .dk-bil{display:block}
-.dk-l{display:block}
+.dk-l{display:block;white-space:pre-wrap;word-break:break-word}
 .dk-l.dk-zh{color:#4b5563;font-size:.84em;line-height:1.75;margin-top:1px}
 .dk-l.dk-en{color:var(--ink)}
 .dk-bil .dk-l.dk-zh+.dk-l.dk-en{margin-top:2px}
@@ -4740,7 +4741,7 @@ function removeGroup(idx) {
   state.bookGroups.splice(idx, 1);
   const t = gText(g);
   state.book.delete(t);
-  delete state.bookEx[t];
+  // 保留 state.bookEx[t]：例句凍結，移除合併卡後再收亦唔會改寫
   saveBookEx();
   // 兼容舊格式：早期版本曾把組內個別詞也加進生詞本
   const still = groupedWords();
@@ -5708,12 +5709,14 @@ function toggleBook(w, ex) {
   }
   if (state.book.has(w)) {
     state.book.delete(w);
-    delete state.bookEx[w];
+    // 唔 delete state.bookEx[w]：例句一經捕獲就「凍結」，移除再收進同一詞亦唔會改寫，
+    // 避免用家喺另一份文件裡多撳一次星號，令「加入時嘅例句」被當前文件句子覆蓋。
     saveBookEx();
     toast('已從生詞本移除');
   } else {
     state.book.add(w);
-    if (ex) { state.bookEx[w] = ex; saveBookEx(); }
+    // 只喺未曾有例句時才寫入；已經有就保留「第一次加入嗰句」
+    if (ex && !(state.bookEx && state.bookEx[w])) { state.bookEx[w] = ex; saveBookEx(); }
     trackStat('s', 1);
     toast('已收進生詞本');
   }
@@ -7566,7 +7569,9 @@ function bindDoc() {
         });
         const seen = {}, words = [];
         tks.forEach(function (tk) {
-          const w = tk.dataset.w;
+          // 普通詞用 data-w；紫色片語只用 data-phr（如 "look after"），無 data-w
+          // → 以前漏走片語，現在同時收兩者，去重以 key 字串為準
+          const w = tk.dataset.w || tk.dataset.phr;
           if (w && !seen[w]) { seen[w] = 1; words.push(w); }
         });
         if (words.length < 2) { hideDragBtn(); return; }  // 只點/選一個字不算連選
@@ -7939,7 +7944,7 @@ function doAddWords(words, text, note) {
   state.bookGroups.push({ words: words.slice(), text: t, note: note || '', ex: repEx });
   state.book.add(t);
   if (note) state.notes[t] = note;
-  if (repEx) { state.bookEx[t] = repEx; saveBookEx(); }
+  if (repEx) { if (!(state.bookEx && state.bookEx[t])) { state.bookEx[t] = repEx; saveBookEx(); } }
   if (typeof trackStat === 'function') trackStat('s', words.length);
   saveBookGroups();
   saveBook();
