@@ -817,6 +817,13 @@ header{
 .nn-parts{font-size:12px;color:var(--muted);margin:-4px 0 14px}
 .nn-parts b{color:#5b4bbd}
 .modal-ops{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.btn-danger{background:#e23b3b;color:#fff;border-color:#e23b3b}
+.btn-danger:hover{background:#c92f2f;border-color:#c92f2f}
+/* 確認移除彈窗：大背景回復原樣（白卡）；只把「確認移除」4 字設成紫色 */
+#confirmModal .rm-badge{color:#7c3aed;font-weight:700}
+/* 確認移除鈕：紫底白字（配合網頁片語紫調；唔係全紫卡，只係鈕） */
+#confirmModal [data-yes]{background:#6d28d9;color:#fff;border-color:#6d28d9;font-weight:600}
+#confirmModal [data-yes]:hover{background:#5b21b6;border-color:#5b21b6}
 /* 合併詞條：查詞卡頂部把組成單詞分開成 chip（不黏在一起） */
 .wc-word{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px}
 .wc-w-chip{display:inline-block;background:#eef0ff;border:1px solid #d9d4ff;color:#2d2a55;
@@ -6029,7 +6036,7 @@ function bookItemHTML(k, compact, grouped) {
     + '<button class="bi-main" data-w="' + esc(t) + '">'
     + '<span class="ri-w">' + esc(t) + '</span>'
     + (state.quiz || ipa !== '••••' ? '<span class="ri-p">' + esc(ipa) + '</span>' : '')
-    + (note ? '<span class="ri-g">' + esc(note) + '</span>' : '')
+    + (note ? '<span class="ri-g">' + esc(state.quizMeaning ? '••••' : note) + '</span>' : '')
     + (compact ? '' : bookExHTML(k))
     + '</button>';
   if (isG) {
@@ -6040,6 +6047,29 @@ function bookItemHTML(k, compact, grouped) {
   }
   h += '</div>';
   return h;
+}
+
+/* 通用確認彈窗：title 標題、msg 說明、yesText 確認鈕文字、onYes 確認後回調。
+ * 點「取消」、點遮罩、按 Esc 都關閉且不執行 onYes。 */
+function confirmModal(title, msg, yesText, onYes) {
+  const ov = document.createElement('div');
+  ov.className = 'modal-ov';
+  ov.id = 'confirmModal';
+  ov.innerHTML = '<div class="modal-card">'
+    + '<div class="modal-h"><span class="rm-badge">' + esc(title) + '</span></div>'
+    + '<div class="modal-sub">' + esc(msg) + '</div>'
+    + '<div class="modal-ops">'
+    + '<button class="btn btn-sm" data-cancel>取消</button>'
+    + '<button class="btn btn-sm" data-yes>' + esc(yesText) + '</button>'
+    + '</div></div>';
+  document.body.appendChild(ov);
+  const close = function () { if (ov.parentNode) ov.parentNode.removeChild(ov); };
+  ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
+  ov.querySelector('[data-cancel]').onclick = close;
+  ov.querySelector('[data-yes]').onclick = function () { close(); onYes(); };
+  const onKey = function (e) { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); } };
+  document.addEventListener('keydown', onKey);
+  return close;
 }
 
 function renderBook() {
@@ -6065,6 +6095,7 @@ function renderBook() {
         <button class="btn btn-sm ${state.bookSort === 'az' ? 'on' : ''}" data-sort="az">A–Z</button>
       </span>
       <button class="btn btn-sm" id="btnQuiz">${state.quiz ? '顯示音標' : '遮住音標自測'}</button>
+      <button class="btn btn-sm" id="btnQuizGloss">${state.quizMeaning ? '顯示意思' : '遮住意思自測'}</button>
       <button class="btn btn-sm" id="btnExport">匯出 CSV</button>
     </span></div>`;
 
@@ -6103,8 +6134,15 @@ function renderBook() {
     renderBook();
     if (!wasSplit) window.scrollTo(0, 0);
   });
-  $$('#book .bi-x[data-del]').forEach(b => b.onclick = () => toggleBook(b.dataset.del));
-  $$('#book .bi-x[data-group]').forEach(b => b.onclick = () => removeGroup(+b.dataset.group));
+  $$('#book .bi-x[data-del]').forEach(b => b.onclick = () => {
+    confirmModal('確認移除', '確定要從生詞本移除「' + b.dataset.del + '」嗎？移除後無法復原。', '確認移除', () => toggleBook(b.dataset.del));
+  });
+  $$('#book .bi-x[data-group]').forEach(b => b.onclick = () => {
+    const gi = +b.dataset.group;
+    const g = state.bookGroups[gi];
+    const t = g ? gText(g) : '這張合併卡';
+    confirmModal('確認移除', '確定要移除「' + t + '」整張合併卡嗎？組內單詞會一併從生詞本移除，移除後無法復原。', '確認移除', () => removeGroup(gi));
+  });
   $$('#book [data-sort]').forEach(b => b.onclick = () => { state.bookSort = b.dataset.sort; renderBook(); });
   $$('#book [data-back]').forEach(b => b.onclick = () => {
     state.bookSel = '';
@@ -6113,6 +6151,7 @@ function renderBook() {
     requestAnimationFrame(() => window.scrollTo(0, sy));   // 返到原本網格位置，唔使跳去頂
   });
   const q = $('#btnQuiz'); if (q) q.onclick = () => { state.quiz = !state.quiz; renderBook(); };
+  const qg = $('#btnQuizGloss'); if (qg) qg.onclick = () => { state.quizMeaning = !state.quizMeaning; renderBook(); };
   const ex = $('#btnExport'); if (ex) ex.onclick = exportCSV;
 }
 function buildBookCSV() {
