@@ -7577,16 +7577,18 @@ function bindDoc() {
         if (words.length < 2) { hideDragBtn(); return; }  // 只點/選一個字不算連選
         dragJust = true;
         setTimeout(function () { dragJust = false; }, 600);  // 安全網：若沒有 click 跟著觸發也重置
-        showDragBtn(range, words);
+        // 用「真正被選中嘅第一個 token」作為組合詞例句來源（唔係全文字第一次出現嗰個）
+        showDragBtn(range, words, tks[0]);
       }, 0);
     });
     dragBtn.onclick = function () {
       dragJust = false;
       const words = dragBtn._words || [];
+      const srcEl = dragBtn._srcEl || null;
       hideDragBtn();
       const sel = window.getSelection();
       if (sel) sel.removeAllRanges();
-      if (words.length) openWordNoteModal(words);
+      if (words.length) openWordNoteModal(words, srcEl);
     };
     const pane = $('.doc-pane', root);
     if (pane) pane.addEventListener('scroll', hideDragBtn, { passive: true });
@@ -7852,9 +7854,10 @@ function ensureDragBtn() {
   }
   return b;
 }
-function showDragBtn(range, words) {
+function showDragBtn(range, words, srcEl) {
   const b = ensureDragBtn();
   b._words = words;
+  b._srcEl = srcEl || null;
   b.textContent = '📎 提取 ' + words.length + ' 個單字';
   b.classList.add('show');
   const r = range.getBoundingClientRect();
@@ -7872,7 +7875,7 @@ function hideDragBtn() {
 }
 
 /* 彈出方框：把選到的詞合併成一個新單詞，只寫「一個」意思 */
-function openWordNoteModal(words) {
+function openWordNoteModal(words, srcEl) {
   if (!words || !words.length) return;
   closeWordNoteModal();
   const ov = document.createElement('div');
@@ -7913,7 +7916,7 @@ function openWordNoteModal(words) {
   const commit = function (withMean) {
     const text = wordInput.value.trim() || combined;
     const note = withMean ? meanInput.value.trim() : '';
-    doAddWords(words, text, note);
+    doAddWords(words, text, note, srcEl);
     closeWordNoteModal();
   };
   $('#nnSkip', ov).onclick = function () { commit(false); };
@@ -7930,17 +7933,24 @@ function closeWordNoteModal() {
 
 /* 多選的詞組成「一個新單詞」收進生詞本：只有一個意思，不分開成多個詞。
    同時記錄來源字幕句作為例句（取第一個選到的詞所在字幕句當代表）。 */
-function doAddWords(words, text, note) {
+function doAddWords(words, text, note, srcEl) {
   if (!words || !words.length) return;
   if (!state.bookGroups) state.bookGroups = [];
   const t = (text || words.join(' ')).trim();
-  // 從本文抓每個詞的第一個出現處作為例句（雙語含英文＋中文行）
-  const exMap = {};
-  words.forEach(function (w) {
-    if (exMap[w]) return;
-    exMap[w] = docExampleOf(docTokenOf(w));
-  });
-  const repEx = exMap[words[0]] || '';
+  // 組合詞例句：優先用「真正被選中嗰段」(srcEl 所在字幕塊) 作為代表，
+  // 唔好用 docTokenOf(words[0]) —— 嗰個係全文字第一次出現，可能係文前面另一句，
+  // 令組合詞例句變成「第一個單詞喺別處嘅例句」。
+  let repEx = '';
+  if (srcEl) repEx = docExampleOf(srcEl) || '';
+  if (!repEx) {
+    // 退回：逐詞搵第一次出現處（舊行為兜底，主要畀非拖選路徑用）
+    const exMap = {};
+    words.forEach(function (w) {
+      if (exMap[w]) return;
+      exMap[w] = docExampleOf(docTokenOf(w));
+    });
+    repEx = exMap[words[0]] || '';
+  }
   state.bookGroups.push({ words: words.slice(), text: t, note: note || '', ex: repEx });
   state.book.add(t);
   if (note) state.notes[t] = note;
