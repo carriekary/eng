@@ -532,8 +532,6 @@ header{
 .book-right .sec{padding:13px 16px}
 .book-right .mp{min-width:60px;padding:5px 9px 6px}
 .book-right .mp-t{font-size:16px}
-.book-ex-box{margin-top:12px;padding:12px 14px}
-.book-ex-box .sec-h{font-size:13px;color:var(--muted);margin-bottom:4px;font-weight:600}
 /* 窄螢幕：堆疊，右欄變成普通卡片（跟搜尋頁一致） */
 @media(max-width:1100px){
   /* 手機／小螢幕：生詞本在「已選中」分欄模式下改為真正的左右並排（左＝單字清單，右＝詳情）；
@@ -5969,22 +5967,25 @@ function renderIelts() {
   if (ex) ex.onclick = () => exportIeltsCSV(list);
 }
 function exportIeltsCSV(list) {
-  const rows = [['word', 'gloss', 'ipa_uk', 'ipa_us', 'awl']];
+  const rows = [['word', 'gloss', 'ipa_uk', 'ipa_us', 'awl', 'example']];
   list.forEach(w => {
     const o = IELTS_MAP[w];
     const b = bestIPA(w);
     const r = analyze(w);
+    const ex = state.bookEx && state.bookEx[w];
+    const example = ex ? ((typeof ex === 'object') ? (ex.en || '') : ex) : '';
     rows.push([w, o.g,
       b ? b.rp : r.ipaRP,
       b ? b.ga : r.ipaGA,
-      o.lv || '']);
+      o.lv || '',
+      example]);
   });
   const csv = '\uFEFF' + rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
   a.download = '雅思詞彙.csv';
   a.click();
-  toast('已匯出雅思詞彙 CSV');
+  toast('已匯出雅思詞彙 CSV（含例句）');
 }
 
 /* 生詞本卡片裡的「例句（來源字幕）」：雙語字幕含英文行＋中文行 */
@@ -6090,14 +6091,8 @@ function renderBook() {
     right.innerHTML = '<div class="book-right-head"><button class="btn btn-sm" data-back>← 返回生詞列表</button></div>' + buildWordCard(state.bookSel);
     bindWordCard(state.bookSel, right);
     if (typeof loadApi === 'function') loadApi(state.bookSel, right);
-    // 生詞本「來源字幕例句」在查詞卡裡不顯示，這裡補回（與舊版生詞卡一致）
-    const ex = bookExHTML(state.bookSel);
-    if (ex) {
-      const box = document.createElement('div');
-      box.className = 'card book-ex-box';
-      box.innerHTML = '<div class="sec-h">📝 例句（來源字幕）</div>' + ex;
-      right.appendChild(box);
-    }
+    // 右欄詳情卡已經經 buildWordCard→wordExHTML 顯示「📝 原文例句」（同份 bookEx 資料），
+    // 唔使喺底部再補一個「例句（來源字幕）」重複區，故刪除此 block。
   }
 
   // 點擊生詞卡：進入分欄（右欄顯示該詞詳情）；從網格進入分欄時回到頂部看見右欄
@@ -6120,22 +6115,44 @@ function renderBook() {
   const q = $('#btnQuiz'); if (q) q.onclick = () => { state.quiz = !state.quiz; renderBook(); };
   const ex = $('#btnExport'); if (ex) ex.onclick = exportCSV;
 }
-function exportCSV() {
-  const rows = [['word', 'ipa_rp', 'ipa_ga', 'syllables']];
+function buildBookCSV() {
+  // 欄位：單詞 / 音標(英) / 音標(美) / 意思 / 例句
+  const rows = [['word', 'ipa_rp', 'ipa_ga', 'gloss', 'example']];
   [...state.book].forEach(w => {
-    const r = analyze(w);
-    const b = bestIPA(w);
-    rows.push([w,
-      b ? '/' + b.rp + '/' : '/' + r.ipaRP + '/',
-      b ? '/' + b.ga + '/' : '/' + r.ipaGA + '/',
-      r.syllables.join('-')]);
+    const g = bookGroupOf(w);
+    let word, ipaRP, ipaGA, gloss, example;
+    if (g) {
+      // 合併詞條：整組原文當單詞；各組成詞音標串接；意思用群組 note；例句用群組 bookEx
+      const t = gText(g);
+      word = t;
+      const partsRP = (g.words || []).map(function (x) { const b = bestIPA(x), r = analyze(x); return b ? b.rp : r.ipaRP; }).filter(Boolean);
+      const partsGA = (g.words || []).map(function (x) { const b = bestIPA(x), r = analyze(x); return b ? b.ga : r.ipaGA; }).filter(Boolean);
+      ipaRP = partsRP.length ? '/' + partsRP.join(' ') + '/' : '';
+      ipaGA = partsGA.length ? '/' + partsGA.join(' ') + '/' : '';
+      gloss = gNote(g) || '';
+      const ex = state.bookEx && state.bookEx[t];
+      example = ex ? ((typeof ex === 'object') ? (ex.en || '') : ex) : '';
+    } else {
+      word = w;
+      const r = analyze(w);
+      const b = bestIPA(w);
+      ipaRP = b ? '/' + b.rp + '/' : '/' + r.ipaRP + '/';
+      ipaGA = b ? '/' + b.ga + '/' : '/' + r.ipaGA + '/';
+      gloss = glossOf(w) || '';
+      const ex = state.bookEx && state.bookEx[w];
+      example = ex ? ((typeof ex === 'object') ? (ex.en || '') : ex) : '';
+    }
+    rows.push([word, ipaRP, ipaGA, gloss, example]);
   });
-  const csv = '\uFEFF' + rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
+  return '\uFEFF' + rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
+}
+function exportCSV() {
+  const csv = buildBookCSV();
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
   a.download = '生詞本.csv';
   a.click();
-  toast('已匯出生詞本 CSV');
+  toast('已匯出生詞本 CSV（含單詞／音標／意思／例句）');
 }
 
 /* 查詢頁左下空白區：「最近查詢」以生詞本同款卡片顯示（單詞＋音標＋意思），點一下就查 */
@@ -7578,17 +7595,21 @@ function bindDoc() {
         dragJust = true;
         setTimeout(function () { dragJust = false; }, 600);  // 安全網：若沒有 click 跟著觸發也重置
         // 用「真正被選中嘅第一個 token」作為組合詞例句來源（唔係全文字第一次出現嗰個）
-        showDragBtn(range, words, tks[0]);
+        // 組合詞 text 保留被選中文字嘅標點：由被選中嘅 .tk 重建（含 token 之間／緊貼嘅標點），
+        // 唔用 live selection 嘅 range.toString() —— 嗰個會因拖寬咗而食到周圍其他詞／文字。
+        const selText = selTextOf(tks);
+        showDragBtn(range, words, tks[0], selText);
       }, 0);
     });
     dragBtn.onclick = function () {
       dragJust = false;
       const words = dragBtn._words || [];
       const srcEl = dragBtn._srcEl || null;
+      const selText = dragBtn._selText || '';
       hideDragBtn();
       const sel = window.getSelection();
       if (sel) sel.removeAllRanges();
-      if (words.length) openWordNoteModal(words, srcEl);
+      if (words.length) openWordNoteModal(words, srcEl, selText);
     };
     const pane = $('.doc-pane', root);
     if (pane) pane.addEventListener('scroll', hideDragBtn, { passive: true });
@@ -7854,10 +7875,32 @@ function ensureDragBtn() {
   }
   return b;
 }
-function showDragBtn(range, words, srcEl) {
+/* 由被選中嘅 .tk 重建被選文字（含 token 之間嘅標點、空白），用作組合詞 text。
+ * 唔用 live selection 嘅 range.toString()：用戶拖寬咗會食到周圍其他詞／文字；
+ * 而合成 mouseup 喺 headless 下會令 selection collapsed（toString 返空）。
+ * 只擴展「緊貼首／尾 token、且前／後一個節點唔係單字 token」嘅標點（如句尾句號、括號），
+ * 唔會食埋分隔下一個詞嘅逗號。 */
+function selTextOf(tks) {
+  if (!tks || !tks.length) return '';
+  let first = tks[0], last = tks[tks.length - 1];
+  const punctRe = /^[\s.,!?;:'"()\[\]{}"…—–]+$/;
+  const isTk = function (n) { return n && n.nodeType === 1 && n.classList && n.classList.contains('tk'); };
+  let prev = first.previousSibling;
+  while (prev && prev.nodeType === 3 && punctRe.test(prev.textContent) && !isTk(prev.previousSibling)) { first = prev; prev = prev.previousSibling; }
+  let next = last.nextSibling;
+  while (next && next.nodeType === 3 && punctRe.test(next.textContent) && !isTk(next.nextSibling)) { last = next; next = next.nextSibling; }
+  try {
+    const r = document.createRange();
+    r.setStartBefore(first);
+    r.setEndAfter(last);
+    return r.toString().replace(/\r?\n/g, ' ').replace(/\s+/g, ' ').trim();
+  } catch (e) { return ''; }
+}
+function showDragBtn(range, words, srcEl, selText) {
   const b = ensureDragBtn();
   b._words = words;
   b._srcEl = srcEl || null;
+  b._selText = selText || '';
   b.textContent = '📎 提取 ' + words.length + ' 個單字';
   b.classList.add('show');
   const r = range.getBoundingClientRect();
@@ -7875,13 +7918,14 @@ function hideDragBtn() {
 }
 
 /* 彈出方框：把選到的詞合併成一個新單詞，只寫「一個」意思 */
-function openWordNoteModal(words, srcEl) {
+function openWordNoteModal(words, srcEl, selText) {
   if (!words || !words.length) return;
   closeWordNoteModal();
   const ov = document.createElement('div');
   ov.className = 'modal-ov';
   ov.id = 'noteModal';
-  const combined = words.join(' ');
+  // 優先用被選中嘅原段文字（含標點），令組合詞 text 保留標點；冇就退回 words 拼回
+  const combined = (selText && selText.trim()) ? selText.trim() : words.join(' ');
   const parts = words.map(function (w) { return '<b>' + esc(w) + '</b>'; }).join(' · ');
   ov.innerHTML =
     '<div class="modal-card">'
