@@ -1008,16 +1008,19 @@ header{padding-top:max(9px,env(safe-area-inset-top));
     text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:2px;
     text-decoration-color:#6d28d9;font-weight:600;
   }
-  /* 右欄：絕對定位於每行右側，不佔行高、不撐開左欄；無底色，靠分隔線與左欄分開；字號與左欄一致 */
+  /* 右欄：絕對定位於每行右側，不佔行高、不撐開左欄；整欄無底色，靠分隔線與左欄分開；字號與左欄一致 */
   .pdf-row-words{
     position:absolute;top:0;right:0;width:250px;box-sizing:border-box;
     padding:0 0 0 18px;font-size:14px;line-height:1.6;
   }
-  .pdf-word{margin:0 0 10px;page-break-inside:avoid;break-inside:avoid}
-  .pdf-w{                     /* 單詞：紫色高亮 chip */
-    display:inline-block;background:#ede9fe;color:#6d28d9;font-weight:700;
-    padding:1px 8px;border-radius:6px;-webkit-print-color-adjust:exact;print-color-adjust:exact;
-    font-size:14px;
+  /* 每個「詞＋中文意思」成組：淺黃底卡片（與左欄收藏詞底色 #fff3bf 一致），唔影響右欄整體無底色 */
+  .pdf-word{
+    margin:0 0 10px;padding:6px 10px;border-radius:8px;
+    background:#fff3bf;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+    page-break-inside:avoid;break-inside:avoid;
+  }
+  .pdf-w{                     /* 單詞：紫色粗字（卡片已有淺黃底，唔另設底色） */
+    color:#6d28d9;font-weight:700;font-size:14px;
   }
   .pdf-m{display:block;margin-top:3px;color:#1f2230}
   .pdf-muted{color:#9ca3af}
