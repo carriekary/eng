@@ -752,6 +752,9 @@ header{
 .btn-on{background:var(--pri-s);border-color:var(--pri);color:var(--pri)}
 .btn-speak{background:linear-gradient(135deg,#8b7cf6,#a78bfa);border-color:transparent;color:#fff;box-shadow:0 4px 14px rgba(124,108,240,.3)}
 .btn-speak:hover{background:linear-gradient(135deg,#7c6cf0,#8b7cf6);color:#fff}
+/* 單詞卡「🔊 自動」開關：開啟時紫色，關閉時灰底 */
+.auto-spk{background:var(--card);color:var(--muted);border-color:var(--line)}
+.auto-spk.on{background:#6d28d9;color:#fff;border-color:#6d28d9;font-weight:600}
 .mode-btn{border-radius:999px;border:1.5px solid var(--line);font-weight:600;transition:transform .12s,background .15s}
 .mode-btn:hover{border-color:var(--pri);color:var(--pri);transform:translateY(-1px)}
 .mode-btn.on{background:linear-gradient(135deg,#8b7cf6,#a78bfa);border-color:transparent;color:#fff;box-shadow:0 4px 14px rgba(124,108,240,.35)}
@@ -953,6 +956,72 @@ header{padding-top:max(9px,env(safe-area-inset-top));
   .word-overlay .word-card{border:0;box-shadow:none;padding:0}
 }
 @keyframes woUp{from{transform:translateY(8%);opacity:.4}to{transform:none;opacity:1}}
+
+/* ============================================================
+   匯出複習 PDF（文件閱讀 → 📄 匯出 PDF）
+   左欄文章（收藏詞加底線）／右欄收藏單詞（高亮＋中文意思）
+   ============================================================ */
+#docPdf{display:none !important}        /* 平時（螢幕）絕不顯示，只有列印時才出現 */
+@media print{
+  /* 只顯示 #docPdf，隱藏整個 App 介面 */
+  body.print-pdf .bg-deco,
+  body.print-pdf header,
+  body.print-pdf .tabbar,
+  body.print-pdf .wrap.main,
+  body.print-pdf footer{display:none !important}
+  #docPdf{display:none}                 /* 平時隱藏，只有列印時顯示 */
+  body.print-pdf #docPdf{display:block !important}
+  body.print-pdf{background:#fff}
+  #docPdf{
+    color:#1f2230;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft YaHei",sans-serif;
+    padding:14px 18px;font-size:13px;line-height:1.7;
+  }
+  .pdf-head{margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #6d28d9}
+  .pdf-title{font-size:19px;font-weight:800;color:#4c1d95}
+  /* 每個段落一行：左＝文章（全文下劃線），右＝該段出現的收藏單詞；
+     右欄採「絕對定位」浮於每行右側，不參與行高計算，故收藏單詞再多也不會撐開左欄、
+     不會在左欄留下空白；兩欄分隔線用 .pdf-rows::after 一條貫穿全文的實心紫線 */
+  .pdf-rows{display:block;position:relative;padding:8px 0}
+  /* 左欄：一整條貫穿全文的連續淺紫背景（非逐句方塊）；右緣與分隔線齊 */
+  .pdf-rows::before{
+    content:'';position:absolute;top:0;bottom:0;left:0;right:258px;
+    background:#f9f6ff;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+    border-radius:8px;
+  }
+  .pdf-rows::after{            /* 貫穿全文的左右分隔線 */
+    content:'';position:absolute;top:0;bottom:0;right:258px;width:3px;background:#6d28d9;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  /* 每行：左欄文字為流動主體（決定行高）；右欄絕對定位浮於右側，不影響左欄排版與行高 */
+  .pdf-row{display:block;position:relative;padding-bottom:16px;page-break-inside:avoid;break-inside:avoid}
+  .pdf-row--plain{display:block;padding-bottom:16px}
+  .pdf-block{
+    position:relative;z-index:1;   /* z-index 確保文字壓在左欄背景(::before)之上 */
+    margin:0 270px 0 0;            /* 右留 270px：分隔線(258)＋右欄間距，文字不越過右欄 */
+    white-space:pre-wrap;word-break:break-word;font-size:14px;line-height:1.95;
+    padding:0 12px;color:#1f2230;
+    text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:1px;text-decoration-color:#cbd5e1;
+  }
+  /* 收藏詞：紫色粗橫線底線，蓋過全文的淺灰下劃線 */
+  .pdf-block .tk-book{
+    background:#fff3bf;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+    text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:2px;
+    text-decoration-color:#6d28d9;font-weight:600;
+  }
+  /* 右欄：絕對定位於每行右側，不佔行高、不撐開左欄；無底色，靠分隔線與左欄分開；字號與左欄一致 */
+  .pdf-row-words{
+    position:absolute;top:0;right:0;width:250px;box-sizing:border-box;
+    padding:0 0 0 18px;font-size:14px;line-height:1.6;
+  }
+  .pdf-word{margin:0 0 10px;page-break-inside:avoid;break-inside:avoid}
+  .pdf-w{                     /* 單詞：紫色高亮 chip */
+    display:inline-block;background:#ede9fe;color:#6d28d9;font-weight:700;
+    padding:1px 8px;border-radius:6px;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+    font-size:14px;
+  }
+  .pdf-m{display:block;margin-top:3px;color:#1f2230}
+  .pdf-muted{color:#9ca3af}
+}
 
 </style>
 </head>
@@ -4613,7 +4682,8 @@ const LS = {
   phrBook: 'spelldict.phrbook',
   notes: 'spelldict.notes',
   bookGroups: 'spelldict.bookgroups',
-  bookEx: 'spelldict.bookex'
+  bookEx: 'spelldict.bookex',
+  autoSpeak: 'spelldict.autospeak'
 };
 
 const state = {
@@ -4638,6 +4708,8 @@ const state = {
   glossCache: JSON.parse(localStorage.getItem(LS.gloss) || '{}'),
   // 發音來源：'cam' 劍橋優先（連網時）、'sys' 只用系統語音
   audio: localStorage.getItem(LS.audio) || 'cam',
+  // 點開單詞自動朗讀 1 次（true 開啟；設 false 則只手動按「🔊 朗讀」）
+  autoSpeakOnOpen: localStorage.getItem(LS.autoSpeak) !== 'off',
   // 生詞本自訂釋義：word -> 使用者自己寫的中文意思
   notes: JSON.parse(localStorage.getItem(LS.notes) || '{}'),
   // 多選合併：把幾個詞組成「一個新單詞」收在同一張卡片。每組 { words:[...], text:'新單詞', note:'一個意思', ex:例句 }
@@ -5173,6 +5245,7 @@ function buildWordCard(w, example) {
           <button class="btn btn-speak" data-act="speak" data-w="${esc(w)}" title="朗讀（優先劍橋真人發音）">🔊 朗讀</button>
           <button class="btn ${state.book.has(w) ? 'btn-on' : ''}" data-act="book" data-w="${esc(w)}">${state.book.has(w) ? '★ 已收藏' : '☆ 收進生詞本'}</button>
           <a class="btn" href="https://www.playphrase.me/#/search?q=${encodeURIComponent(grp ? gText(grp) : w)}&pos=0&language=en" target="_blank" rel="noopener" title="到 PlayPhrase 看含這個詞的電影／劇集片段">🎬 PlayPhrase</a>
+          <button class="btn btn-sm auto-spk${state.autoSpeakOnOpen ? ' on' : ''}" data-act="autospk" title="點開單詞自動朗讀 1 次（開 / 關）">🔊 自動</button>
         </div>
         <span class="aud-src" title="實際播放的發音來源"></span>
       </div>
@@ -5259,6 +5332,15 @@ function bindWordCard(w, root) {
   });
   // 合併詞條頂部的「組成單詞」chip：點了就單獨查那個詞（不黏在一起）
   $$('.wc-w-chip', root).forEach(p => p.onclick = () => { if (p.dataset.w) go(p.dataset.w); });
+  // 點開單詞自動朗讀 1 次（與「🔊 朗讀」掣同一套發音邏輯：劍橋真人 → Wiktionary → 系統語音）
+  if (state.autoSpeakOnOpen !== false) speakWord(w);
+  // 「🔊 自動」開關：切換點開自動朗讀
+  const asp = $('[data-act="autospk"]', root);
+  if (asp) asp.onclick = () => {
+    state.autoSpeakOnOpen = !state.autoSpeakOnOpen;
+    localStorage.setItem(LS.autoSpeak, state.autoSpeakOnOpen ? 'on' : 'off');
+    asp.classList.toggle('on', state.autoSpeakOnOpen);
+  };
 }
 
 /* 把單詞卡渲染到指定面板（左邊點、右邊看） */
@@ -7470,6 +7552,7 @@ function renderDoc(keep) {
     + '<button class="btn btn-sm' + (DOC.showHard ? ' btn-on' : '') + '" data-op="hard">生詞表 ' + DOC.hard.length + '</button>'
     + (DOC.kind.indexOf('字幕') >= 0 ? '<button class="btn btn-sm' + (DOC.showTime ? ' btn-on' : '') + '" data-op="time">時間軸</button>' : '')
     + (DOC.biCount ? '<button class="btn btn-sm' + (DOC.bil ? ' btn-on' : '') + '" data-op="bil" title="英文與中文各顯示一行">雙語分行 ' + DOC.biCount + '</button>' : '')
+    + '<button class="btn btn-sm" data-op="pdf" title="匯出複習 PDF（左文章／右收藏單詞）">📄 匯出 PDF</button>'
     + '<button class="btn btn-sm" data-op="pick">換檔案</button>'
     + '<button class="btn btn-sm btn-danger" data-op="close">關閉</button>'
     + '</div></div>';
@@ -7558,6 +7641,7 @@ function bindDoc() {
       else if (op === 'time') DOC.showTime = !DOC.showTime;
       else if (op === 'bil') DOC.bil = !DOC.bil;
       else if (op === 'pick') { renderDocHome(); return; }
+      else if (op === 'pdf') { exportDocPDF(); return; }
       else if (op === 'close') { resetDoc(); return; }
       else if (op === 'prev') DOC.page = Math.max(0, DOC.page - 1);
       else if (op === 'next') DOC.page = Math.min(DOC.pages.length - 1, DOC.page + 1);
@@ -7886,6 +7970,109 @@ function remarkDoc() {
       }
     }
   });
+}
+
+/* ============================================================
+   匯出複習 PDF：左＝文章（收藏詞加底線），右＝收藏單詞（高亮＋中文意思）
+   做法：生成一個專用列印容器 #docPdf，加上 body.print-pdf 後呼叫
+   window.print()，瀏覽器「另存為 PDF」即得。不依賴任何第三方庫，
+   中文亦能原生輸出（jsPDF 等嵌入字型反而會爆檔）。
+   ============================================================ */
+function exportDocPDF() {
+  const text = $('.doc-text');
+  if (!text) { toast('請先載入文章再匯出'); return; }
+
+  // 自定義 PDF 標題（預設用文件名／貼上文字；可留空用預設；取消則不匯出）
+  const defTitle = DOC.pdfTitle || DOC.name || '貼上的文字';
+  const tIn = prompt('PDF 標題（留空用預設）：', defTitle);
+  if (tIn === null) return;                       // 按取消
+  const title = (tIn || '').trim() || defTitle;
+  DOC.pdfTitle = title;                            // 記住，下次匯出沿用
+
+  // 收集文章內「已收進生詞本」的詞（含組合詞），去重；這些正是左欄加了底線的詞
+  const seen = {};
+  const words = [];
+  $$('.doc-text .tk.tk-book').forEach(function (el) {
+    const key = el.dataset.grp || el.dataset.w;
+    if (!key) return;
+    const kk = key.toLowerCase();
+    if (seen[kk]) return;
+    seen[kk] = 1;
+    words.push(key);
+  });
+  if (!words.length) {
+    toast('這篇文章還沒有收藏任何單詞，先點詞加入生詞本再匯出');
+    return;
+  }
+
+  // 建立列印容器（先清掉舊的，避免重複匯出疊加）
+  const old = document.getElementById('docPdf');
+  if (old) old.remove();
+  const box = document.createElement('div');
+  box.id = 'docPdf';
+
+  let h = '<div class="pdf-head">'
+    + '<div class="pdf-title">📄 ' + esc(title) + '</div>'
+    + '</div>'
+    + '<div class="pdf-rows">';
+
+  // 每個段落（block）一行：左＝文章（收藏詞加紫色橫線底線），
+  // 右＝「該段落出現的」收藏單詞（高亮＋中文意思）。沒收藏詞的段落只出文章。
+  const art = text.cloneNode(true);
+  $$('.dk-sp, .dk-gut, .dk-time, .tk-on', art).forEach(function (e) {
+    if (e.classList) e.classList.remove('tk-on');
+    if (e.classList && (e.classList.contains('dk-sp') || e.classList.contains('dk-gut') || e.classList.contains('dk-time'))) e.remove();
+  });
+  [].slice.call(art.children).forEach(function (block) {
+    const tks = $$('.tk.tk-book', block);
+    block.className = 'pdf-block';
+    block.removeAttribute('style');
+    block.removeAttribute('id');
+    if (!tks.length) {
+      h += '<div class="pdf-row pdf-row--plain">' + block.outerHTML + '</div>';
+      return;
+    }
+    // 本段落出現的收藏詞（去重；含組合詞 data-grp）
+    const seen = {}; const ws = [];
+    tks.forEach(function (t) {
+      const k = t.dataset.grp || t.dataset.w;
+      if (!k) return;
+      const kk = k.toLowerCase();
+      if (seen[kk]) return;
+      seen[kk] = 1; ws.push(k);
+    });
+    let right = '<div class="pdf-row-words">';
+    ws.forEach(function (w) {
+      const g = glossOf(w);
+      right += '<div class="pdf-word">'
+        + '<span class="pdf-w">' + esc(w) + '</span>'
+        + (g ? '<span class="pdf-m">' + esc(g) + '</span>'
+             : '<span class="pdf-m pdf-muted">（未記意思）</span>')
+        + '</div>';
+    });
+    right += '</div>';
+    h += '<div class="pdf-row">' + block.outerHTML + right + '</div>';
+  });
+  h += '</div>';   // .pdf-rows
+
+  box.innerHTML = h;
+  document.body.appendChild(box);
+  document.body.classList.add('print-pdf');
+
+  // 列印完（或取消）還原畫面
+  let cleaned = false;
+  const done = function () {
+    if (cleaned) return;
+    cleaned = true;
+    document.body.classList.remove('print-pdf');
+    const b = document.getElementById('docPdf');
+    if (b) b.remove();
+    window.removeEventListener('afterprint', done);
+  };
+  window.addEventListener('afterprint', done);
+  window.print();
+  // 兜底：部分瀏覽器取消列印不會觸發 afterprint
+  setTimeout(done, 1000);
 }
 
 /* ============================================================
